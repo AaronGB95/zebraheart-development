@@ -1,0 +1,292 @@
+---
+title: "Análisis de Correlación"
+author: "Aarón García Blázquez"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    code_folding: hide
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE)
+```
+
+## Carga de librerías
+
+```{r}
+library(rstudioapi)
+library(dplyr)
+```
+
+```{r}
+setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
+```
+
+```{r}
+contrasts_names <- c("48hpf-72hpf", "72hpf-120hpf", "120hpf-Adult")
+batch_names <- c("Control-ComBat", "Control-SVA", "ComBat-SVA")
+cor_72_48 <- NULL
+cor_120_72 <- NULL
+cor_Adult_120 <- NULL
+
+pval_72_48 <- NULL
+pval_120_72 <- NULL
+pval_Adult_120 <- NULL
+```
+
+# 72 hpf vs 48 hpf
+
+## Carga de datos
+
+```{r}
+data_dir <- "data/differential_expression/"
+
+load(paste0(data_dir,"tt_72_48.RData"))
+load(paste0(data_dir,"tt_72_48_combat.RData"))
+load(paste0(data_dir,"tt_72_48_sva.RData"))
+
+tt_72_48_control <- tt_72_48$table
+
+rownames(tt_72_48_control) <- tt_72_48_control$ind
+rownames(tt_72_48_combat) <- tt_72_48_combat$ind
+rownames(tt_72_48_sva) <- tt_72_48_sva$ind
+```
+
+Eliminamos los genes con NA en los conteos de estudios.
+
+```{r}
+tt_72_48_control <- tt_72_48_control[!is.na(tt_72_48_control$values),]
+tt_72_48_combat <- tt_72_48_combat[!is.na(tt_72_48_combat$values),]
+tt_72_48_sva <- tt_72_48_sva[!is.na(tt_72_48_sva$values),]
+```
+
+Juntamos los logFC en una sola tabla.
+
+```{r}
+logfc_control <- tt_72_48_control[,c("logFC", "ind")]
+logfc_combat <- tt_72_48_combat[,c("logFC", "ind")]
+logfc_sva <- tt_72_48_sva[,c("logFC", "ind")]
+
+logfc_72_48 <- right_join(logfc_control, logfc_combat, by = "ind") %>%
+  right_join(logfc_sva, by = "ind")
+
+rownames(logfc_72_48) <- logfc_72_48$ind
+
+logfc_72_48 <- logfc_72_48[,-2]
+
+colnames(logfc_72_48) <- c("Control", "Combat", "SVA")
+```
+
+&nbsp;
+
+## Análisis de correlación entre métodos de corrección
+
+### Control vs Combat
+
+```{r}
+res <- cor.test(logfc_72_48$Control, logfc_72_48$Combat, method = "pearson")
+res$estimate
+cor_72_48 <- c(cor_72_48, res$estimate)
+res$p.value
+pval_72_48 <- c(pval_72_48, res$p.value)
+```
+
+### Control vs SVA
+
+```{r}
+res <- cor.test(logfc_72_48$Control, logfc_72_48$SVA, method = "pearson")
+res$estimate
+cor_72_48 <- c(cor_72_48, res$estimate)
+res$p.value
+pval_72_48 <- c(pval_72_48, res$p.value)
+```
+
+### Combat vs SVA
+
+```{r}
+res <- cor.test(logfc_72_48$Combat, logfc_72_48$SVA, method = "pearson")
+res$estimate
+cor_72_48 <- c(cor_72_48, res$estimate)
+res$p.value
+pval_72_48 <- c(pval_72_48, res$p.value)
+```
+
+&nbsp;
+
+# 120 hpf vs 72 hpf
+
+## Carga de datos
+
+```{r}
+data_dir <- "data/differential_expression/"
+
+load(paste0(data_dir,"tt_120_72.RData"))
+load(paste0(data_dir,"tt_120_72_combat.RData"))
+load(paste0(data_dir,"tt_120_72_sva.RData"))
+
+tt_120_72_control <- tt_120_72$table
+
+rownames(tt_120_72_control) <- tt_120_72_control$ind
+rownames(tt_120_72_combat) <- tt_120_72_combat$ind
+rownames(tt_120_72_sva) <- tt_120_72_sva$ind
+```
+
+Eliminamos los genes con NA en los conteos de estudios
+
+```{r}
+tt_120_72_control <- tt_120_72_control[!is.na(tt_120_72_control$values),]
+tt_120_72_combat <- tt_120_72_combat[!is.na(tt_120_72_combat$values),]
+tt_120_72_sva <- tt_120_72_sva[!is.na(tt_120_72_sva$values),]
+```
+
+Juntamos los logFC en una sola tabla.
+
+```{r}
+logfc_control <- tt_120_72_control[,c("logFC", "ind")]
+logfc_combat <- tt_120_72_combat[,c("logFC", "ind")]
+logfc_sva <- tt_120_72_sva[,c("logFC", "ind")]
+
+logfc_120_72 <- right_join(logfc_control, logfc_combat, by = "ind") %>%
+  right_join(logfc_sva, by = "ind")
+
+rownames(logfc_120_72) <- logfc_120_72$ind
+
+logfc_120_72 <- logfc_120_72[,-2]
+
+colnames(logfc_120_72) <- c("Control", "Combat", "SVA")
+```
+
+&nbsp;
+
+## Análisis de correlación entre métodos de corrección
+
+### Control vs Combat
+
+```{r}
+res <- cor.test(logfc_120_72$Control, logfc_120_72$Combat, method = "pearson")
+res$estimate
+cor_120_72 <- c(cor_120_72, res$estimate)
+res$p.value
+pval_120_72 <- c(pval_120_72, res$p.value)
+```
+
+### Control vs SVA
+
+```{r}
+res <- cor.test(logfc_120_72$Control, logfc_120_72$SVA, method = "pearson")
+res$estimate
+cor_120_72 <- c(cor_120_72, res$estimate)
+res$p.value
+pval_120_72 <- c(pval_120_72, res$p.value)
+```
+
+### Combat vs SVA
+
+```{r}
+res <- cor.test(logfc_120_72$Combat, logfc_120_72$SVA, method = "pearson")
+res$estimate
+cor_120_72 <- c(cor_120_72, res$estimate)
+res$p.value
+pval_120_72 <- c(pval_120_72, res$p.value)
+```
+
+&nbsp;
+
+# Adulto vs 120 hpf
+
+## Carga de datos
+
+```{r}
+data_dir <- "data/differential_expression/"
+
+load(paste0(data_dir,"tt_Adult_120.RData"))
+load(paste0(data_dir,"tt_Adult_120_combat.RData"))
+load(paste0(data_dir,"tt_Adult_120_sva.RData"))
+
+tt_Adult_120_control <- tt_Adult_120$table
+
+rownames(tt_Adult_120_control) <- tt_Adult_120_control$ind
+rownames(tt_Adult_120_combat) <- tt_Adult_120_combat$ind
+rownames(tt_Adult_120_sva) <- tt_Adult_120_sva$ind
+```
+
+Eliminamos los genes con NA en los conteos de estudios
+
+```{r}
+tt_Adult_120_control <- tt_Adult_120_control[!is.na(tt_Adult_120_control$values),]
+tt_Adult_120_combat <- tt_Adult_120_combat[!is.na(tt_Adult_120_combat$values),]
+tt_Adult_120_sva <- tt_Adult_120_sva[!is.na(tt_Adult_120_sva$values),]
+```
+
+Juntamos los logFC en una sola tabla.
+
+```{r}
+logfc_control <- tt_Adult_120_control[,c("logFC", "ind")]
+logfc_combat <- tt_Adult_120_combat[,c("logFC", "ind")]
+logfc_sva <- tt_Adult_120_sva[,c("logFC", "ind")]
+
+logfc_Adult_120 <- right_join(logfc_control, logfc_combat, by = "ind") %>%
+  right_join(logfc_sva, by = "ind")
+
+rownames(logfc_Adult_120) <- logfc_Adult_120$ind
+
+logfc_Adult_120 <- logfc_Adult_120[,-2]
+
+colnames(logfc_Adult_120) <- c("Control", "Combat", "SVA")
+```
+
+## Análisis de correlación entre métodos de corrección
+
+### Control vs Combat
+
+```{r}
+res <- cor.test(logfc_Adult_120$Control, logfc_Adult_120$Combat, method = "pearson")
+res$estimate
+cor_Adult_120 <- c(cor_Adult_120, res$estimate)
+res$p.value
+pval_Adult_120 <- c(pval_Adult_120, res$p.value)
+```
+
+### Control vs SVA
+
+```{r}
+res <- cor.test(logfc_Adult_120$Control, logfc_Adult_120$SVA, method = "pearson")
+res$estimate
+cor_Adult_120 <- c(cor_Adult_120, res$estimate)
+res$p.value
+pval_Adult_120 <- c(pval_Adult_120, res$p.value)
+```
+
+### Combat vs SVA
+
+```{r}
+res <- cor.test(logfc_Adult_120$Combat, logfc_Adult_120$SVA, method = "pearson")
+res$estimate
+cor_Adult_120 <- c(cor_Adult_120, res$estimate)
+res$p.value
+pval_Adult_120 <- c(pval_Adult_120, res$p.value)
+```
+
+# {-}
+
+# Resultados
+
+```{r}
+results <- data.frame(cor_72_48, cor_120_72, cor_Adult_120)
+colnames(results) <- contrasts_names
+rownames(results) <- batch_names
+print.data.frame(results)
+```
+
+```{r}
+pvalues <- data.frame(pval_72_48, pval_120_72, pval_Adult_120)
+colnames(pvalues) <- contrasts_names
+rownames(pvalues) <- batch_names
+print.data.frame(pvalues)
+```
+
+
+<div class="tocify-extend-page" data-unique="tocify-extend-page" style="height: 0;"></div>
+
+
+
