@@ -1,0 +1,146 @@
+---
+title: "Análisis Exploratorio"
+author: "Aarón García Blázquez"
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    toc_depth: 2
+    theme: cerulean
+---
+
+<style>
+body {
+text-align: justify}
+</style>
+
+```{r setup, echo=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+```
+
+```{r libraries, echo=FALSE}
+rm (list = ls ())
+
+require(tidyverse)
+require(colormap)
+require(data.table)
+require(knitr)
+require(ggplot2)
+require(plotly)
+require(ggdendro)
+require(dplyr)
+require(ggpubr)
+require(R.utils)
+require(GEOquery)
+require(ArrayExpress)
+require(DT)
+require(edgeR)
+require(DESeq2)
+```
+
+Estudio que compara el perfil de expresión de corazones de larvas de pez cebra a 48 y 56 hpf.
+
+### Descarga de datos
+
+```{r}
+GSE79585 <- getGEO("GSE79585")[[1]] # Descargamos los datos de GEO
+fnames <- getGEOSuppFiles("GSE79585")
+
+GSE79585_pData <- pData(GSE79585)
+
+gunzip(rownames(fnames)[1], remove = FALSE, overwrite = TRUE)
+gunzip(rownames(fnames)[2], remove = FALSE, overwrite = TRUE)
+
+ficheros <- dir(path = "GSE79585", pattern = "txt$")
+
+b1 <- read.delim(paste0("GSE79585/",ficheros[1]), header = TRUE)
+
+b2 <- read.delim(paste0("GSE79585/",ficheros[2]), header = TRUE)
+
+mat <- b1 %>% inner_join(b2, by = c("Ensembl.gene.id", "Gene.name", "Description"))
+
+GSE79585_mat <- mat[,c(2, 3, 4, 8, 9, 10)]
+rownames(GSE79585_mat) <- mat[,"Ensembl.gene.id"]
+colnames(GSE79585_mat) <- GSE79585$geo_accession
+```
+
+### Exploramos la matriz de expresión
+
+Vemos sin existen `NA` en la matriz y el rango de los valores.
+
+```{r}
+anyNA(GSE79585_mat)
+```
+
+```{r}
+range(GSE79585_mat)
+```
+
+Tenemos valores de 0 en la matriz, por lo que vamos a añadirle 1 a cada valor y evitar negativos al transformar a escala logarítmica.
+
+```{r}
+GSE79585_mat <- GSE79585_mat + 1
+```
+
+Ahora convertimos los valores al logaritmo en base 2.
+
+```{r}
+GSE79585_mat <- log2(GSE79585_mat)
+```
+
+Comprobamos los rangos que se nos han quedado.
+
+```{r}
+range(GSE79585_mat)
+```
+
+### Preprocesado de los datos
+
+```{r}
+GSE79585_pData$group <- as.factor(GSE79585_pData$`developmental stage:ch1`)
+```
+
+```{r}
+GSE79585_mat <- mutate_all(GSE79585_mat, function(x) as.numeric(as.character(x)))
+```
+
+### Anotación de los genes
+
+```{r}
+library(biomaRt)
+ensembl = useMart("ensembl", dataset = "drerio_gene_ensembl")
+ids = rownames(GSE79585_mat)
+gene_names = getBM(attributes = c("ensembl_gene_id", "external_gene_name"),
+                     filters = "ensembl_gene_id",
+                     values = ids,
+                     mart = ensembl)
+
+GSE79585_mat_annot <- GSE79585_mat
+GSE79585_mat_annot$ensembl_gene_id <- rownames(GSE79585_mat_annot)
+GSE79585_mat_annot = merge(GSE79585_mat_annot, gene_names, by.y = "ensembl_gene_id", all.x = TRUE)
+
+# Eliminamos los genes sin símbolo
+GSE79585_mat_annot = GSE79585_mat_annot[!is.na(GSE79585_mat_annot$external_gene_name),]
+GSE79585_mat_annot = GSE79585_mat_annot[!(GSE79585_mat_annot$external_gene_name == ""),]
+
+# Eliminamos genes duplicados
+GSE79585_mat_annot = GSE79585_mat_annot[!duplicated(GSE79585_mat_annot$external_gene_name),]
+rownames(GSE79585_mat_annot) <- GSE79585_mat_annot$external_gene_name
+GSE79585_mat_annot = GSE79585_mat_annot[,-c(1,8)]
+```
+
+### Guardado de los datos
+
+```{r}
+write.table(GSE79585_mat, file = "output/GSE79585_mat.txt", sep = "\t", quote = FALSE)
+write.table(GSE79585_pData, file = "output/GSE79585_pData.txt", sep = "\t", quote = FALSE)
+write.table(GSE79585_mat_annot, file = "output/GSE79585_mat_annot.txt", sep = "\t", quote = FALSE)
+```
+
+
+
+
+
+
+

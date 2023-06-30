@@ -1,0 +1,185 @@
+---
+title: "Análisis Exploratorio"
+author: "Aarón García Blázquez"
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    toc_depth: 2
+    theme: cerulean
+---
+
+<style>
+body {
+text-align: justify}
+</style>
+
+```{r setup, echo=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+```
+
+```{r libraries, echo=FALSE}
+rm (list = ls ())
+
+require(tidyverse)
+require(colormap)
+require(data.table)
+require(knitr)
+require(ggplot2)
+require(plotly)
+require(ggdendro)
+require(dplyr)
+require(ggpubr)
+require(R.utils)
+require(GEOquery)
+require(ArrayExpress)
+require(DT)
+require(edgeR)
+require(DESeq2)
+```
+
+Estudio que compara el perfil de expresión de corazones de embriones de pez cebra a 48 hpf control con respecto a dobles mutantes de rbfox1 y rbfox2.
+
+### Descarga de datos
+
+```{r}
+library(GEOquery)
+GSE189934 <- getGEO("GSE189934")[[1]] # Descargamos los datos de GEO
+fnames <- getGEOSuppFiles("GSE189934")
+b2 = read.delim(rownames(fnames)[2],header=TRUE)
+```
+
+```{r}
+GSE189934_mat <- b2[,2:17]    # Extraemos la matriz de expresión
+rownames(GSE189934_mat) <- b2[,1]
+GSE189934_pData <- pData(GSE189934)   # Extraemos phenoData
+```
+
+```{r}
+all(GSE189934_pData$geo_accession == colnames(GSE189934_mat)) # Compruebo si coinciden el nombre de las columnas y el de las muestras
+
+# Los nombres no coinciden, así que los modifico
+# Compruebo primero que mantienen el orden
+GSE189934_pData$description
+colnames(GSE189934_mat)
+
+GSE189934_pData$geo_accession
+colnames(GSE189934_mat) <- GSE189934_pData$geo_accession
+```
+
+### Exploramos la matriz de expresión
+
+Vemos sin existen `NA` en la matriz y el rango de los valores.
+
+```{r}
+anyNA(GSE189934_mat)
+```
+
+```{r}
+range(GSE189934_mat)
+```
+
+Tenemos valores de 0 en la matriz, por lo que vamos a añadirle 1 a cada valor y evitar negativos al transformar a escala logarítmica.
+
+```{r}
+GSE189934_mat <- GSE189934_mat + 1
+```
+
+Ahora convertimos los valores al logaritmo en base 2.
+
+```{r}
+GSE189934_mat <- log2(GSE189934_mat)
+```
+
+Comprobamos los rangos que se nos han quedado.
+
+```{r}
+range(GSE189934_mat)
+```
+
+### Preprocesado de los datos
+
+```{r}
+GSE189934_pData$group <- c("DKO", "Control")[as.factor(GSE189934_pData$`genotype:ch1`)]
+```
+
+```{r}
+GSE189934_mat <- mutate_all(GSE189934_mat, function(x) as.numeric(as.character(x)))
+```
+
+### Anotación de los genes
+
+```{r}
+# Ya está anotada
+GSE189934_mat_annot <- GSE189934_mat
+
+# Anotación inversa
+library(biomaRt)
+ensembl = useMart("ensembl", dataset = "drerio_gene_ensembl")
+ids = rownames(GSE189934_mat)
+gene_names = getBM(attributes = c("ensembl_gene_id", "external_gene_name"),
+                     filters = "external_gene_name",
+                     values = ids,
+                     mart = ensembl)
+
+GSE189934_mat$external_gene_name <- rownames(GSE189934_mat)
+GSE189934_mat = merge(GSE189934_mat, gene_names, by.y = "external_gene_name", all.x = TRUE)
+
+# Eliminamos los genes sin símbolo
+GSE189934_mat = GSE189934_mat[!is.na(GSE189934_mat$ensembl_gene_id),]
+GSE189934_mat = GSE189934_mat[!(GSE189934_mat$ensembl_gene_id == ""),]
+
+# Eliminamos genes duplicados
+GSE189934_mat = GSE189934_mat[!duplicated(GSE189934_mat$ensembl_gene_id),]
+rownames(GSE189934_mat) <- GSE189934_mat$ensembl_gene_id
+GSE189934_mat = GSE189934_mat[,-c(1,18)]
+```
+
+### Datos crudos
+
+```{r}
+ficheros <- dir(path = "GSE189934", pattern = "gz$")
+
+for (fi in ficheros) {
+  gunzip(paste0("GSE189934/", fi), remove = FALSE, overwrite = TRUE)
+}
+
+genes <- NULL
+res <- NULL
+
+ficheros <- dir(path = "GSE189934", pattern = "count.txt$")
+
+for (fi in ficheros) {
+  res <- read.delim(paste0("GSE189934/",fi), header = FALSE)
+  genes <- c(genes, res[,1])
+}
+genes <- unique(genes)
+
+mat <- matrix(NA, nrow = length(genes), ncol = length(ficheros))
+colnames(mat) <- ficheros
+
+for (fi in ficheros) {
+  res <- read.delim(paste0("GSE189934/",fi), header = FALSE)
+  mat[,fi] <- res[,2]
+}
+
+GSE189934_mat_raw <- as.data.frame(mat)
+rownames(GSE189934_mat_raw) <- genes
+GSE189934_mat_raw <- head(GSE189934_mat_raw, -5)
+
+colnames(GSE189934_mat_raw) <- GSE189934$geo_accession
+
+GSE189934_mat_raw <- log2(GSE189934_mat_raw + 1)
+```
+
+### Guardado de los datos
+
+```{r}
+write.table(GSE189934_mat, file = "output/GSE189934_mat.txt", sep = "\t", quote = FALSE)
+write.table(GSE189934_mat_raw, file = "output/GSE189934_mat_raw.txt", sep = "\t", quote = FALSE)
+write.table(GSE189934_pData, file = "output/GSE189934_pData.txt", sep = "\t", quote = FALSE)
+write.table(GSE189934_mat_annot, file = "output/GSE189934_mat_annot.txt", sep = "\t", quote = FALSE)
+```
+
+
