@@ -29,7 +29,7 @@ input="rnaseq"
 
 # copia los ficheros de datos en $tempdir 
 cp -r "$submitdir"/$input "$tempdir"
-cd "$tempdir"/"$input"
+cd "$tempdir"/"$input" || exit
 # ejecuta tus comandos
 
 conda activate rnaseq
@@ -44,8 +44,8 @@ conda deactivate
 cp -r "$SCRDIR"/"$input" "$submitdir"
  
 # limpieza 
-cd $submitdir
-rm -r "$tempdir"/*
+cd "${submitdir}" || exit
+rm -r "${tempdir:?}"/*
 rmdir  "$tempdir"
  
 echo "Job finished at"

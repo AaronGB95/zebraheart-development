@@ -132,5 +132,5 @@ fi
 # Optional: Clean up intermediate files if needed
 rm "$OUTPUT_DIR"/*.fastq
 rm "$OUTPUT_DIR"/*.sam
-rm "$OUTPUT_DIR"/*.bam
+rm "$OUTPUT_DIR"/"${SRA_ID}.bam"
 

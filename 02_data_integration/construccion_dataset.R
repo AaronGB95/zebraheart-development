@@ -1,20 +1,5 @@
----
-title: "Dataset Construction"
-author: "Aarón García Blázquez"
-date: "`r Sys.Date()`"
-output: 
-  html_document:
-    toc: true
-    toc_float: true
-    toc_depth: 2
-    theme: cerulean
----
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
 
-```{r}
 rm(list = ls())
 
 require(rstudioapi)
@@ -22,42 +7,31 @@ require(dplyr)
 require(edgeR)
 require(stringr)
 require(preprocessCore)
-```
 
-```{r}
 # Establish document path as working directory
 setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
-```
 
-&nbsp;
 
 # Data load
 
-```{r}
+
 file_list <- list.files(path = "input/", pattern = "annot.txt$", full.names = TRUE)
-```
 
-```{r}
 # Loop through each file and read it into a data frame
 for (i in 1:length(file_list)) {
   load(file_list[i])
 }
-```
 
-```{r}
 file_list <- list.files("data/phenodata", pattern = "\\.RData$", full.names = TRUE)
-```
 
-```{r}
 # Loop through each file and read it into a data frame
 for (i in 1:length(file_list)) {
   load(file_list[i])
 }
-```
 
 # Common genes intersection
 
-```{r}
+
 # we select expression matrix
 matrices <- ls(pattern = "mat")
 
@@ -66,11 +40,10 @@ nombres <- lapply(matrices, function(x) rownames(get(x)))
 
 # Intersection of all names
 genes <- Reduce(unique, nombres)
-```
+
 
 # Data normalization
 
-```{r}
 tmm <- function(datamatrix) {
   
   # Change NAs to 0s
@@ -88,13 +61,13 @@ tmm <- function(datamatrix) {
   # Return the normalized counts
   return(norm_counts)
 }
-```
+
 
 # Relevant Sample Selection {.tabset}
 
 ## E-MTAB-10860
 
-```{r}
+
 # Check study variables
 head(pData)
 
@@ -110,9 +83,9 @@ expression_matrix_annot <- as.data.frame(expression_matrix_annot)
 expression_matrix_annot <- tmm(expression_matrix_annot)
 
 selected_data <- expression_matrix_annot[genes,selected_samples]
-```
 
-```{r}
+
+
 # Build new phenotypic data table
 selected_pdata <- as.data.frame(matrix(NA, nrow = length(selected_samples), ncol = 3))
 rownames(selected_pdata) <- selected_samples
@@ -122,11 +95,11 @@ selected_pdata$Age <- "120 hpf"
 selected_pdata$Norm <- "FPKM"
 
 new_pData <- selected_pdata
-```
+
 
 ## GSE79585
 
-```{r}
+
 # Data load
 load("data/annot_norm/GSE79585_tmm.RData")
 
@@ -142,9 +115,9 @@ GSE79585_sel <- GSE79585_mat_annot[genes,]
 selected_data <- merge(selected_data, GSE79585_sel, by = "row.names", all = TRUE)
 rownames(selected_data)=selected_data$Row.names
 selected_data=selected_data[,2:ncol(selected_data)]
-```
 
-```{r}
+
+
 # Construimos la tabla de datos fenotípicos nueva
 selected_pdata <- as.data.frame(matrix(NA, nrow = ncol(GSE79585_sel), ncol = 3))
 rownames(selected_pdata) <- colnames(GSE79585_sel)
@@ -152,15 +125,15 @@ colnames(selected_pdata) <- c("Set", "Age", "Norm")
 selected_pdata$Set <- "GSE79585"
 selected_pdata$Age <- "48-56 hpf"
 selected_pdata$Norm <- "TMM"
-```
 
-```{r}
+
+
 new_pData <- bind_rows(new_pData, selected_pdata)
-```
+
 
 ## GSE103169
 
-```{r}
+
 # Vemos las variables de este estudio
 head(GSE103169_pData)
 
@@ -178,9 +151,9 @@ GSE103169_sel <- tmm(GSE103169_sel)
 selected_data <- merge(selected_data, GSE103169_sel, by = "row.names", all = TRUE)
 rownames(selected_data)=selected_data$Row.names
 selected_data=selected_data[,2:ncol(selected_data)]
-```
 
-```{r}
+
+
 # Construimos la tabla de datos fenotípicos nueva
 selected_pdata <- as.data.frame(matrix(NA, nrow = ncol(GSE103169_sel), ncol = 3))
 rownames(selected_pdata) <- colnames(GSE103169_sel)
@@ -188,15 +161,15 @@ colnames(selected_pdata) <- c("Set", "Age", "Norm")
 selected_pdata$Set <- "GSE103169"
 selected_pdata$Age <- "48-56 hpf"
 selected_pdata$Norm <- "TC"
-```
 
-```{r}
+
+
 new_pData <- bind_rows(new_pData, selected_pdata)
-```
+
 
 ## GSE107228
 
-```{r}
+
 '# Vemos las variables de este estudio
 head(GSE107228_pData)
 
@@ -211,9 +184,9 @@ GSE107228_sel <- GSE107228_mat_annot[genes,selected_samples]
 selected_data <- merge(selected_data, GSE107228_sel, by = "row.names", all = TRUE)
 rownames(selected_data)=selected_data$Row.names
 selected_data=selected_data[,2:ncol(selected_data)]'
-```
 
-```{r}
+
+
 '# Construimos la tabla de datos fenotípicos nueva
 selected_pdata <- as.data.frame(matrix(NA, nrow = ncol(GSE107228_sel), ncol = 3))
 rownames(selected_pdata) <- colnames(GSE107228_sel)
@@ -221,15 +194,15 @@ colnames(selected_pdata) <- c("Set", "Age", "Norm")
 selected_pdata$Set <- "GSE107228"
 selected_pdata$Age <- "Adult"
 selected_pdata$Norm <- "FPKM"'
-```
 
-```{r}
+
+
 'new_pData <- bind_rows(new_pData, selected_pdata)'
-```
+
 
 ## GSE133130
 
-```{r}
+
 # Vemos las variables de este estudio
 head(GSE133130_pData)
 
@@ -248,9 +221,9 @@ GSE133130_sel <- tmm(GSE133130_sel)
 selected_data <- merge(selected_data, GSE133130_sel, by = "row.names", all = TRUE)
 rownames(selected_data)=selected_data$Row.names
 selected_data=selected_data[,2:ncol(selected_data)]
-```
 
-```{r}
+
+
 # Construimos la tabla de datos fenotípicos nueva
 selected_pdata <- as.data.frame(matrix(NA, nrow = ncol(GSE133130_sel), ncol = 3))
 rownames(selected_pdata) <- colnames(GSE133130_sel)
@@ -258,15 +231,15 @@ colnames(selected_pdata) <- c("Set", "Age", "Norm")
 selected_pdata$Set <- "GSE133130"
 selected_pdata$Age <- "Adult"
 selected_pdata$Norm <- "FPKM"
-```
 
-```{r}
+
+
 new_pData <- bind_rows(new_pData, selected_pdata)
-```
+
 
 ## GSE143346
 
-```{r}
+
 # Vemos las variables de este estudio
 head(GSE143346_pData)
 
@@ -280,9 +253,9 @@ GSE143346_sel <- tmm(GSE143346_sel)
 selected_data <- merge(selected_data, GSE143346_sel, by = "row.names", all = TRUE)
 rownames(selected_data)=selected_data$Row.names
 selected_data=selected_data[,2:ncol(selected_data)]
-```
 
-```{r}
+
+
 # Construimos la tabla de datos fenotípicos nueva
 selected_pdata <- as.data.frame(matrix(NA, nrow = ncol(GSE143346_sel), ncol = 3))
 rownames(selected_pdata) <- colnames(GSE143346_sel)
@@ -290,15 +263,15 @@ colnames(selected_pdata) <- c("Set", "Age", "Norm")
 selected_pdata$Set <- "GSE143346"
 selected_pdata$Age <- "Adult"
 selected_pdata$Norm <- "FPKM"
-```
 
-```{r}
+
+
 new_pData <- bind_rows(new_pData, selected_pdata)
-```
+
 
 ## GSE152389
 
-```{r}
+
 # Vemos las variables de este estudio
 head(GSE152389_pData)
 
@@ -316,9 +289,9 @@ GSE152389_sel <- tmm(GSE152389_sel)
 selected_data <- merge(selected_data, GSE152389_sel, by = "row.names", all = TRUE)
 rownames(selected_data)=selected_data$Row.names
 selected_data=selected_data[,2:ncol(selected_data)]
-```
 
-```{r}
+
+
 # Construimos la tabla de datos fenotípicos nueva
 selected_pdata <- as.data.frame(matrix(NA, nrow = ncol(GSE152389_sel), ncol = 3))
 rownames(selected_pdata) <- colnames(GSE152389_sel)
@@ -326,15 +299,15 @@ colnames(selected_pdata) <- c("Set", "Age", "Norm")
 selected_pdata$Set <- "GSE152389"
 selected_pdata$Age <- "120 hpf"
 selected_pdata$Norm <- "FPKM"
-```
 
-```{r}
+
+
 new_pData <- bind_rows(new_pData, selected_pdata)
-```
+
 
 ## GSE160107
 
-```{r}
+
 # Vemos las variables de este estudio
 head(GSE160107_pData)
 
@@ -353,9 +326,9 @@ GSE160107_sel <- tmm(GSE160107_sel)
 selected_data <- merge(selected_data, GSE160107_sel, by = "row.names", all = TRUE)
 rownames(selected_data)=selected_data$Row.names
 selected_data=selected_data[,2:ncol(selected_data)]
-```
 
-```{r}
+
+
 # Construimos la tabla de datos fenotípicos nueva
 selected_pdata <- as.data.frame(matrix(NA, nrow = ncol(GSE160107_sel), ncol = 3))
 rownames(selected_pdata) <- colnames(GSE160107_sel)
@@ -363,15 +336,15 @@ colnames(selected_pdata) <- c("Set", "Age", "Norm")
 selected_pdata$Set <- "GSE160107"
 selected_pdata$Age <- c("48-56 hpf", "48-56 hpf", "48-56 hpf", "72 hpf", "72 hpf", "72 hpf")
 selected_pdata$Norm <- "FPKM"
-```
 
-```{r}
+
+
 new_pData <- bind_rows(new_pData, selected_pdata)
-```
+
 
 ## GSE160398
 
-```{r}
+
 # Vemos las variables de este estudio
 head(GSE160398_pData)
 
@@ -389,9 +362,9 @@ GSE160398_sel <- tmm(GSE160398_sel)
 selected_data <- merge(selected_data, GSE160398_sel, by = "row.names", all = TRUE)
 rownames(selected_data)=selected_data$Row.names
 selected_data=selected_data[,2:ncol(selected_data)]
-```
 
-```{r}
+
+
 # Construimos la tabla de datos fenotípicos nueva
 selected_pdata <- as.data.frame(matrix(NA, nrow = ncol(GSE160398_sel), ncol = 3))
 rownames(selected_pdata) <- colnames(GSE160398_sel)
@@ -399,15 +372,15 @@ colnames(selected_pdata) <- c("Set", "Age", "Norm")
 selected_pdata$Set <- "GSE160398"
 selected_pdata$Age <- "72 hpf"
 selected_pdata$Norm <- "TPM"
-```
 
-```{r}
+
+
 new_pData <- bind_rows(new_pData, selected_pdata)
-```
+
 
 ## GSE189934
 
-```{r}
+
 # Vemos las variables de este estudio
 head(GSE189934_pData)
 
@@ -425,9 +398,9 @@ GSE189934_sel <- tmm(GSE189934_sel)
 selected_data <- merge(selected_data, GSE189934_sel, by = "row.names", all = TRUE)
 rownames(selected_data)=selected_data$Row.names
 selected_data=selected_data[,2:ncol(selected_data)]
-```
 
-```{r}
+
+
 # Construimos la tabla de datos fenotípicos nueva
 selected_pdata <- as.data.frame(matrix(NA, nrow = ncol(GSE189934_sel), ncol = 3))
 rownames(selected_pdata) <- colnames(GSE189934_sel)
@@ -435,15 +408,15 @@ colnames(selected_pdata) <- c("Set", "Age", "Norm")
 selected_pdata$Set <- "GSE189934"
 selected_pdata$Age <- "48-56 hpf"
 selected_pdata$Norm <- "FPKM"
-```
 
-```{r}
+
+
 new_pData <- bind_rows(new_pData, selected_pdata)
-```
+
 
 ## GSE206948
 
-```{r}
+
 # Vemos las variables de este estudio
 head(GSE206948_pData)
 
@@ -461,9 +434,9 @@ GSE206948_sel <- tmm(GSE206948_sel)
 selected_data <- merge(selected_data, GSE206948_sel, by = "row.names", all = TRUE)
 rownames(selected_data)=selected_data$Row.names
 selected_data=selected_data[,2:ncol(selected_data)]
-```
 
-```{r}
+
+
 # Construimos la tabla de datos fenotípicos nueva
 selected_pdata <- as.data.frame(matrix(NA, nrow = ncol(GSE206948_sel), ncol = 3))
 rownames(selected_pdata) <- colnames(GSE206948_sel)
@@ -471,17 +444,17 @@ colnames(selected_pdata) <- c("Set", "Age", "Norm")
 selected_pdata$Set <- "GSE206948"
 selected_pdata$Age <- "Adult"
 selected_pdata$Norm <- "FPKM"
-```
 
-```{r}
+
+
 new_pData <- bind_rows(new_pData, selected_pdata)
-```
+
 
 # {-}
 
 # Normalización por cuantiles
 
-```{r}
+
 normalized_data <- normalize.quantiles(as.matrix(selected_data), copy = TRUE)
 normalized_data <- as.data.frame(normalized_data)
 
@@ -497,22 +470,22 @@ new_names <- unique(unlist(lapply(nombres, unique)))
 selected_data <- selected_data[new_names,]
 selected_data[is.na(selected_data)] = 0
 
-```
+
 
 # Guardado de los datos
 
-```{r}
+
 save(selected_data, file = "data/datasets/dataset_full_qn.RData")
 save(new_pData, file = "data/datasets/dataset_qn_phenodata.RData")
-```
+
 
 # Conteo de genes por estudio
 
-```{r}
+
 counts <- stack(table(unlist(nombres)))
 
 save(counts, file = "data/studies_per_gene.RData")
-```
+
 
 
 
