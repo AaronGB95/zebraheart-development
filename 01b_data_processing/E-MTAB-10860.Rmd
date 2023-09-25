@@ -1,5 +1,5 @@
 ---
-title: "Análisis Exploratorio"
+title: "Exploratory Analysis"
 author: "Aarón García Blázquez"
 date: "`r Sys.Date()`"
 output: 
@@ -39,9 +39,9 @@ require(edgeR)
 require(DESeq2)
 ```
 
-Estudio que compara el perfil de expresión del corazón de larvas de pez cebra de 120 hpf antes y después de producirle una herida.
+Comparison of expression profile of zebrafish larvae heart at 120 hpf before and after injury.
 
-### Descarga de los datos
+### Data download
 
 ```{r}
 unzip("E-MTAB-10860/E-MTAB-10860.zip", overwrite = TRUE, exdir = "E-MTAB-10860")
@@ -78,7 +78,7 @@ pData <- pData[-toDelete,]
 rownames(pData) <- pData$Comment.ENA_SAMPLE.
 ```
 
-### Exploramos la matriz de datos
+### Data matrix exploration
 
 ```{r}
 anyNA(expression_matrix)
@@ -88,25 +88,25 @@ anyNA(expression_matrix)
 range(expression_matrix)
 ```
 
-Tenemos valores de 0 en la matriz, por lo que vamos a añadirle 1 a cada valor y evitar negativos al transformar a escala logarítmica.
+There are 0 values in the matrix, therefore we are gonna add 1 to every value in order to avoid negatives in logarithmic transform.
 
 ```{r}
 expression_matrix <- expression_matrix + 1
 ```
 
-Ahora convertimos los valores al logaritmo en base 2.
+Now we transform to log2.
 
 ```{r}
 expression_matrix <- log2(expression_matrix)
 ```
 
-Comprobamos los rangos que se nos han quedado.
+Check the range of the data.
 
 ```{r}
 range(expression_matrix)
 ```
 
-### Preprocesado de los datos
+### Data preprocessing
 
 ```{r}
 pData$group <- as.factor(pData$Factor.Value.injury.)
@@ -117,7 +117,7 @@ library(dplyr)
 expression_matrix <- mutate_all(as.data.frame(expression_matrix), function(x) as.numeric(as.character(x)))
 ```
 
-### Anotación de los genes
+### Gene annotation
 
 ```{r}
 library(biomaRt)
@@ -141,7 +141,7 @@ rownames(expression_matrix_annot) <- expression_matrix_annot$external_gene_name
 expression_matrix_annot = expression_matrix_annot[,-c(1,8)]
 ```
 
-### Cálculo de la FPKM
+### FPKM calculation
 
 ```{r}
 counts <- expression_matrix_annot
@@ -155,7 +155,7 @@ eff.length <- as.numeric(dge$samples$lib.size) / sum(dge$samples$norm.factors)
 expression_matrix_fpkm <- exp(cpm - log(eff.length/1e3))
 ```
 
-### Guardado de los datos
+### Data saving
 
 ```{r}
 write.table(expression_matrix, file = "output/E-MTAB-10860.txt", sep = "\t", quote = FALSE)

@@ -1,13 +1,13 @@
 ##-----------------------------------------------------------------------------
 ##
-## Análisis exploratorio
+## Exploratory Analysis
 ##
-## Este script realiza un análisis exploratorio de una matriz de expresión
-## mediante un boxplot, un PCA y un análisis cluster
+## This script performs an exploratory analysis of an expression matrix
+## through a boxplot, PCA and clustering analysis
 ##
-## Autor: Aarón García Blázquez
+## Author: Aarón García Blázquez
 ##
-## Fecha de creación: 06-02-2023
+## Date: 06-02-2023
 ##
 ## Email: aaron.garcia.blazquez@gmail.com
 ##
@@ -15,7 +15,7 @@
 
 rm(list = ls())
 
-## Librerías necesarias
+## Required packages
 ##----------------------
 
 require(rstudioapi)
@@ -32,10 +32,10 @@ require(tibble)
 require(RColorBrewer)
 
 
-## Carga de los datos
+## Data load
 ##--------------------
 
-# Cambiamos el directorio de trabajo a la ubicacion del script
+# Change the working directory to script path
 setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 loadRData <- function(fileName){
@@ -44,7 +44,7 @@ loadRData <- function(fileName){
   get(ls()[ls() != "fileName"])
 }
 
-# Introducimos el indicador del estudio
+# Introduce study ID
 dataset <- "dataset_combat"
 
 dirdata <- paste0(paste0("data/datasets/",dataset))
@@ -63,10 +63,10 @@ dir.create(dirplots, showWarnings = FALSE)
 file <- paste0(dirplots, paste0("/", dataset))
 
 
-# Realizamos el PCA
+# PCA
 p <- pca(datamatrix, metadata = phenodata)
 
-# Análisis cluster por distancia de correlación
+# Clustering analysis by correlation distance
 correlacion <- cor(datamatrix)
 distancia <- as.dist((1- correlacion) / 2)
 hc <- hclust(distancia)
@@ -75,7 +75,7 @@ samples_order <- colnames(datamatrix)
 
 dend_data <- dendro_data(hc, type = "rectangle")
 
-# Cambiar aquí
+# Change group here
 group_choice <- phenodata$Set
 palette_name <- "Set3"
 color_palette <-  c("#004949","#24ff24","#ff6db6","#db6d00",
@@ -88,14 +88,14 @@ phenodata$colors <- color_palette[as.factor(group_choice)]
 ## Boxplot
 ##---------
   
-file_name <- paste(file, "_set_boxplot.png", sep = "") # Cambiar aquí
+file_name <- paste(file, "_set_boxplot.png", sep = "") # Change group here
 
 png(filename = file_name,width = 720, height = 720)
 par(mar = c(10, 4.1, 4.1, 2.1))
 par(cex.axis = 1.3)
 par(las=2)
 
-# Para el conjunto de los datos
+# For the dataset
 group <- as.factor(group_choice)
 phenodata$Sample <- rownames(phenodata)
 
@@ -103,7 +103,7 @@ datamatrix %>%
   rownames_to_column("Genes") %>%                         
   gather(Sample, Sample_value, -Genes) %>%                 
   left_join(phenodata, by = "Sample") %>%        
-  ggplot(aes(x=Sample, y=Sample_value, fill=Set)) +   # Cambiar aquí
+  ggplot(aes(x=Sample, y=Sample_value, fill=Set)) +   # Change group here
   geom_boxplot() +
   theme(axis.text.x=element_text(angle=90,hjust=1)) +
   scale_fill_manual(values = color_palette)
@@ -113,24 +113,24 @@ dev.off()
 
 
 
-## Gráfico del PCA
+## PCA plot
 ##--------------------------------------
 
-file_name <- paste(file, "_set_pca.png", sep = "")  # Cambiar aquí
+file_name <- paste(file, "_set_pca.png", sep = "")  # Change group here
 
 png(filename = file_name ,width = 720, height = 720)
 
-biplot(p, colby = "Set", colkey = color_palette, legendPosition = "right")  # Cambiar aquí
+biplot(p, colby = "Set", colkey = color_palette, legendPosition = "right")  # Change group here
 
 dev.off()
 
 
 
 
-## Gráfico del dendrograma
+## Clustering plot
 ##----------------------------------------------
 
-file_name <- paste(file, "_set_cluster.png", sep = "")  # Cambiar aquí
+file_name <- paste(file, "_set_cluster.png", sep = "")  # Change group here
 
 png(filename = file_name ,width = 720, height = 720)
 

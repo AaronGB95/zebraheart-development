@@ -1,5 +1,5 @@
 ---
-title: "Construcción Dataset"
+title: "Dataset Construction"
 author: "Aarón García Blázquez"
 date: "`r Sys.Date()`"
 output: 
@@ -25,13 +25,13 @@ require(preprocessCore)
 ```
 
 ```{r}
-# Establecemos la ubicación del documento como directorio de trabajo
+# Establish document path as working directory
 setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 ```
 
 &nbsp;
 
-# Carga de los datos
+# Data load
 
 ```{r}
 file_list <- list.files(path = "input/", pattern = "annot.txt$", full.names = TRUE)
@@ -55,25 +55,25 @@ for (i in 1:length(file_list)) {
 }
 ```
 
-# Intersección de genes comunes
+# Common genes intersection
 
 ```{r}
-# Seleccionamos las matrices de expresión
+# we select expression matrix
 matrices <- ls(pattern = "mat")
 
-# Sacamos los nombres de los genes
+# Get gene names
 nombres <- lapply(matrices, function(x) rownames(get(x)))
 
-# Hacemos la intersección de todos
+# Intersection of all names
 genes <- Reduce(unique, nombres)
 ```
 
-# Normalización de los datos
+# Data normalization
 
 ```{r}
 tmm <- function(datamatrix) {
   
-  # Cambiamos los NAs por 0
+  # Change NAs to 0s
   datamatrix[is.na(datamatrix)] <- 0
   
   # Create a DGEList object
@@ -90,30 +90,30 @@ tmm <- function(datamatrix) {
 }
 ```
 
-# Selección de muestras de interés {.tabset}
+# Relevant Sample Selection {.tabset}
 
 ## E-MTAB-10860
 
 ```{r}
-# Vemos las variables de este estudio
+# Check study variables
 head(pData)
 
-# Nuestra variable de interés es el grupo
-# Seleccionamos las muestras con el grupo sin herida
+# Interest variable is group
+# We choose "none" samples by group variable
 selection <- pData$group == "none"
 selected_samples <- rownames(pData[selection,])
 
-# Filtramos la tabla con la selección de muestras y genes
+# Table filter using sample selection and gene names list
 expression_matrix_annot <- as.data.frame(expression_matrix_annot)
 
-# Normalizamos las muestras mediante TMM
+# TMM normalization
 expression_matrix_annot <- tmm(expression_matrix_annot)
 
 selected_data <- expression_matrix_annot[genes,selected_samples]
 ```
 
 ```{r}
-# Construimos la tabla de datos fenotípicos nueva
+# Build new phenotypic data table
 selected_pdata <- as.data.frame(matrix(NA, nrow = length(selected_samples), ncol = 3))
 rownames(selected_pdata) <- selected_samples
 colnames(selected_pdata) <- c("Set", "Age", "Norm")
@@ -127,13 +127,13 @@ new_pData <- selected_pdata
 ## GSE79585
 
 ```{r}
-# Cargamos los datos
+# Data load
 load("data/annot_norm/GSE79585_tmm.RData")
 
-# Vemos las variables de este estudio
+# Check study variables
 head(GSE79585_pData)
 
-# En este caso todas las muestras nos sirven, así que solo filtramos por genes
+# All samples are relevant, we only filter by gene names list
 GSE79585_sel <- GSE79585_mat_annot[genes,]
 
 # Estos datos ya están normalizados mediante TMM, así que no los modificamos
