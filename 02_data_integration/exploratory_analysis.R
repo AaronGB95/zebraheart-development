@@ -124,7 +124,7 @@ if (!is.null(group)) {
   if (is.null(samples_order)) {
     stop("samples_order is needed")
   }
-  if (length(samples_order) != length(group) |
+  if (length(samples_order) != length(group) ||
         length(group) != length(dend_data$labels$label)) {
     stop("lengths are not equal")
   }
