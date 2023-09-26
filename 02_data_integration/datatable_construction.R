@@ -8,7 +8,6 @@
 ##
 ## Author: Aarón García Blázquez
 ##
-## Date: 25/09/2023
 ##
 ##-----------------------------------------------------------------------------
 
@@ -16,7 +15,7 @@
 ## Setup
 ##-----------------------------------------------------------------------------
 # Clean environment
-rm(list=ls())
+rm(list = ls())
 
 # Required packages
 require(rstudioapi)
@@ -33,10 +32,10 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 ## Data Load
 ##-----------------------------------------------------------------------------
 # Get featureCounts output files
-files <- list.files(path = getwd(), pattern = 'counts.txt', full.names=TRUE)
+files <- list.files(path = getwd(), pattern = "counts.txt", full.names = TRUE)
 
 # Loop through each file and read it into a data frame
-for (i in 1:length(files)) {
+for (i in seq_along(files)) {
   load(files[i])
 }
 ##-----------------------------------------------------------------------------
@@ -46,7 +45,7 @@ for (i in 1:length(files)) {
 ## Gene Names
 ##-----------------------------------------------------------------------------
 # Save counts into list of objects
-datafiles <- ls(pattern='counts')
+datafiles <- ls(pattern = "counts")
 
 # Get gene names
 names <- lapply(datafiles, function(x) rownames(get(x)))
@@ -59,13 +58,13 @@ names <- Reduce(unique, names)
 ##-----------------------------------------------------------------------------
 ## Gene Counts
 ##-----------------------------------------------------------------------------
-datamatrix <- matrix(NA, nrows=length(names), ncols=length(datafiles))
+datamatrix <- matrix(NA, nrows = length(names), ncols = length(datafiles))
 rownames(datamatrix) <- names
-colnames(datamatrix) <- strsplit(files, split = '_counts.txt')
+colnames(datamatrix) <- strsplit(files, split = "_counts.txt")
 
 # Loop through files and merge all counts into a single table
 for (fi in datafiles) {
-    datamatrix[,fi] <- fi[,-1]
+  datamatrix[, fi] <- fi[, -1]
 }
 ##-----------------------------------------------------------------------------
 
@@ -77,7 +76,7 @@ for (fi in datafiles) {
 dge_list <- DGEList(counts = datamatrix)
 
 # Calculate library sizes and normalize for RNA composition
-dge_list <- calcNormFactors(dge_list, method = 'TMM')
+dge_list <- calcNormFactors(dge_list, method = "TMM")
 
 # Get the normalized counts
 tmm_counts <- cpm(dge_list, log = FALSE)
@@ -95,10 +94,10 @@ qn_counts <- normalize.quantiles(as.matrix(tmm_counts), copy = TRUE)
 ##-----------------------------------------------------------------------------
 ## Data Save
 ##-----------------------------------------------------------------------------
-write.table(datamatrix, file='datamatrix.txt', sep ='\t')
-write.table(tmm_counts, file='datamatrix_tmm.txt', sep='\t')
-write.table(qn_counts, file='datamatrix_qn.txt', sep='\t')
+write.table(datamatrix, file = "datamatrix.txt", sep = "\t")
+write.table(tmm_counts, file = "datamatrix_tmm.txt", sep = "\t")
+write.table(qn_counts, file = "datamatrix_qn.txt", sep = "\t")
 ##-----------------------------------------------------------------------------
 
 # Clean environment
-rm(list=ls())
+rm(list = ls())

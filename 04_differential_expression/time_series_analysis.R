@@ -7,7 +7,7 @@
 ##
 ## Author: Aarón García Blázquez
 ##
-## Date: 25/09/2023
+## Date: 25/09/2023 # nolint: commented_code_linter.
 ##
 ##-----------------------------------------------------------------------------
 
@@ -15,7 +15,7 @@
 ## Setup
 ##-----------------------------------------------------------------------------
 # Clean environment
-rm(list=ls())
+rm(list = ls())
 
 # Load required packages
 require(maSigPro)
@@ -25,8 +25,8 @@ require(maSigPro)
 ##-----------------------------------------------------------------------------
 ## Data load
 ##-----------------------------------------------------------------------------
-load(file="datamatrix.txt")
-load(file="phenodata.txt")
+load("datamatrix.txt")
+load("phenodata.txt")
 ##-----------------------------------------------------------------------------
 
 
@@ -36,17 +36,17 @@ load(file="phenodata.txt")
 # Make design matrix
 design <- make.design.matrix(phenodata)
 
-NBp <- p.vector(datamatrix, design, counts=TRUE)
+NBp <- p.vector(datamatrix, design, counts = TRUE)
 NBt <- T.fit(NBp)
-get <- get.siggenes(NBt, vars="all")
+get <- get.siggenes(NBt, vars = "all")
 ##-----------------------------------------------------------------------------
 
 
 ##-----------------------------------------------------------------------------
 ## Results plots
 ##-----------------------------------------------------------------------------
-suma2Venn(get$summary[,c(2:4)])
+suma2Venn(get$summary[, c(2:4)])
 ##-----------------------------------------------------------------------------
 
 # Clean environment
-rm(list=ls())
+rm(list = ls())
