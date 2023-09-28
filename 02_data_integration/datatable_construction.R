@@ -19,6 +19,7 @@ rm(list = ls())
 
 # Required packages
 require(rstudioapi)
+require(stringr)
 require(tidyverse)
 require(edgeR)
 require(preprocessCore)
@@ -53,14 +54,18 @@ names <- Reduce(unique, names)
 ##-----------------------------------------------------------------------------
 ## Gene Counts
 ##-----------------------------------------------------------------------------
+# Create empty matrix with desired dims
 datamatrix <- matrix(NA, nrow = length(names), ncol = length(datalist))
+
+# Apply gene IDs as rownames
 rownames(datamatrix) <- names
 
-colnames(datamatrix) <- grepl(pattern = "(?<=/)[^/]*(?=_)", x = files)
+# Apply sample IDs as colnames
+colnames(datamatrix) <- str_extract_all(files, "(?<=\\/)[^\\/]*(?=_)")
 
 # Loop through files and merge all counts into a single table
-for (fi in datalist) {
-  datamatrix[, fi] <- fi[, 7]
+for (i in seq_along(datalist)) {
+  datamatrix[, i] <- datalist[[i]][, 7]
 }
 ##-----------------------------------------------------------------------------
 
@@ -83,7 +88,9 @@ tmm_counts <- cpm(dge_list, log = FALSE)
 ## Quantile normalization
 ##-----------------------------------------------------------------------------
 # Calculate the normalized quantiles
-qn_counts <- normalize.quantiles(as.matrix(tmm_counts), copy = TRUE)
+qn_counts <- normalize.quantiles(as.matrix(tmm_counts),
+                                 copy = TRUE,
+                                 keep.names = TRUE)
 ##-----------------------------------------------------------------------------
 
 
