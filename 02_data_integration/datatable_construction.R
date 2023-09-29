@@ -36,7 +36,7 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 files <- list.files(path = "./counts/", full.names = TRUE)
 
 # Loop through each file and read it into a data frame
-datalist <- lapply(files, FUN = read.table, header=TRUE)
+datalist <- lapply(files, FUN = read.table, header = TRUE)
 ##-----------------------------------------------------------------------------
 
 
