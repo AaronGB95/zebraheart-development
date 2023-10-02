@@ -25,8 +25,15 @@ require(maSigPro)
 ##-----------------------------------------------------------------------------
 ## Data load
 ##-----------------------------------------------------------------------------
-load("datamatrix.txt")
-load("phenodata.txt")
+datamatrix <- read.table("datamatrix.txt",
+                         sep = "\t",
+                         header = 1,
+                         row.names = 1)
+
+phenodata <- read.table("phenodata.txt",
+                        sep = "\t",
+                        header = 1,
+                        row.names = 1)
 ##-----------------------------------------------------------------------------
 
 
@@ -36,8 +43,13 @@ load("phenodata.txt")
 # Make design matrix
 design <- make.design.matrix(phenodata)
 
-NBp <- p.vector(datamatrix, design, counts = TRUE)
-NBt <- T.fit(NBp)
+# Find significant genes
+significant_genes <- p.vector(datamatrix, design, counts = TRUE)
+
+# Find significant differences
+significant_differences <- T.fit(NBp)
+
+# Get list of significant genes
 get <- get.siggenes(NBt, vars = "all")
 ##-----------------------------------------------------------------------------
 
