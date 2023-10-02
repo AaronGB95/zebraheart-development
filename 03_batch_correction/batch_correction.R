@@ -32,16 +32,13 @@ require(dplyr)
 setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 ## Cargamos los datos necesarios
-load("data/datasets/dataset_full_qn.RData")
-load("data/datasets/phenodata.RData")
-load("data/studies_per_gene.RData")
-
-rownames(counts) <- counts$ind
+datamatrix <- read.table("datamatrix_tmm.txt", sep = "\t")
+phenodata <- read.table("phenodata.txt", sep = "\t", header = 1, row.names = 1)
 
 
 # Crea la matriz modelo y la matriz nula
-mod = model.matrix(~ 0 + new_pData$Age, data=new_pData)
-mod0 = model.matrix(~1, data = new_pData)
+mod = model.matrix(~ 0 + phenodata$Age, data=phenodata)
+mod0 = model.matrix(~1, data = phenodata)
 
 colnames(mod) <- c("hpf120", "hpf48", "hpf72", "Adult")
 
@@ -54,7 +51,7 @@ colnames(mod) <- c("hpf120", "hpf48", "hpf72", "Adult")
 
 
 # Elimina los genes cuyo valor de expresión es 0 para todas las muestras
-edata2 = selected_data[rowSums(selected_data==0, na.rm = TRUE)<ncol(selected_data), ]
+edata2 = datamatrix[rowSums(datamatrix==0, na.rm = TRUE)<ncol(datamatrix), ]
 edata = as.matrix(edata2 + 1)
 
 # Estima el número de variables sustitutas para el modelo
@@ -67,7 +64,7 @@ svobj = svaseq(edata, mod, mod0, n.sv = n.sv)
 dataset_adjusted <- removeBatchEffect(edata, batch = svobj$sv[,1], batch2 = svobj$sv[,2], design = mod)
 
 # Guardamos la tabla con los datos transformados
-save(dataset_adjusted, file = "data/datasets/dataset_sva.RData")
+save(dataset_adjusted, file = "dataset_sva.RData")
 
 # Introduce las variables sustitutas en las matrices modelo y nula
 modSv = cbind(mod,svobj$sv)
@@ -82,7 +79,7 @@ cont_mod_sv <- makeContrasts(hpf72vshpf48 = hpf72 - hpf48,
                              levels = modSv)
 
 # Convertimos la matriz de conteos en una lista de expresión digital
-dge <- DGEList(counts = selected_data)
+dge <- DGEList(counts = datamatrix)
 
 # Estimamos la dispersión de los datos
 dge <- estimateDisp(dge, design = modSv)
@@ -126,14 +123,14 @@ save(tt_Adult_120_sva, file = "data/differential_expression/tt_Adult_120_sva.RDa
 ##------------------------------------------------------------------------------
 
 
-modcombat <- model.matrix(~1, data = new_pData)
+modcombat <- model.matrix(~1, data = phenodata)
 
 combat_data <- ComBat_seq(edata,
-                          batch = new_pData$Set,
+                          batch = phenodata$Set,
                           group = NULL,
                           full_mod = FALSE)
 
-mod = model.matrix(~0 + new_pData$Age, data=new_pData)
+mod = model.matrix(~0 + phenodata$Age, data=phenodata)
 colnames(mod) <- c("hpf120", "hpf48", "hpf72", "Adult")
 
 dge <- DGEList(counts = combat_data)

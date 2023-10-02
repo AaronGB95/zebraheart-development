@@ -38,8 +38,21 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 ##-----------------------------------------------------------------------------
 ## Data load
 ##-----------------------------------------------------------------------------
-load("datamatrix.txt")
-load("phenodata.txt")
+datamatrix <- read.table("datamatrix_qn.txt",
+                         sep = "\t",
+                         header = TRUE,
+                         row.names = 1)
+phenodata <- read.table("phenodata.txt",
+                        sep = "\t",
+                        header = TRUE,
+                        row.names = 1)
+
+# Order phenodata rows by datamatrix columns order
+phenodata$Sample <- rownames(phenodata)
+phenodata <- phenodata[match(colnames(datamatrix), rownames(phenodata)), ]
+
+# Give file name to save plots
+file <- "qn_counts"
 ##-----------------------------------------------------------------------------
 
 
@@ -54,8 +67,8 @@ par(cex.axis = 1.3)
 par(las = 2)
 
 # For the dataset
-group <- as.factor(group_choice)
-phenodata$Sample <- rownames(phenodata)
+group <- as.factor(phenodata$Set)
+
 
 datamatrix %>%
   rownames_to_column("Genes") %>%
@@ -63,8 +76,7 @@ datamatrix %>%
   left_join(phenodata, by = "Sample") %>%
   ggplot(aes(x = Sample, y = Sample_value, fill = Set)) +   # Change group here
   geom_boxplot() +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
-  scale_fill_manual(values = color_palette)
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
 dev.off()
 ##-----------------------------------------------------------------------------
@@ -77,13 +89,12 @@ dev.off()
 p <- pca(datamatrix, metadata = phenodata)
 
 # Name for PCA plot file
-file_name <- paste(file, "_set_pca.png", sep = "")  # Change group here
+file_name <- paste(file, "_age_pca.png", sep = "")  # Change group here
 
 # PCA plot
 png(filename = file_name, width = 720, height = 720)
 biplot(p,
-       colby = "Set",
-       colkey = color_palette,
+       colby = "Age",
        legendPosition = "right")  # Change group here
 dev.off()
 ##-----------------------------------------------------------------------------
@@ -100,7 +111,7 @@ samples_order <- colnames(datamatrix)
 dend_data <- dendro_data(hc, type = "rectangle")
 
 # Name for Clustering plot
-file_name <- paste(file, "_set_cluster.png", sep = "")  # Change group here
+file_name <- paste(file, "_age_cluster.png", sep = "")  # Change group here
 
 png(filename = file_name, width = 720, height = 720)
 
@@ -108,9 +119,6 @@ plot <- ggplot(dend_data$segments) +
   labs(title = file_name,
        x = "Sample",
        y = "Distance") +
-  scale_fill_manual(name = "Group",
-                    palette = palette_name,
-                    values = color_palette) +
   geom_segment(aes(x = x,
                    y = y,
                    xend = xend,
@@ -134,12 +142,10 @@ if (!is.null(group)) {
               aes(x,
                   y,
                   label = label,
-                  group = group,
-                  color = group_choice),
+                  group = group),
               hjust = 1,
               size = 5,
               angle = 90) +
-    scale_color_manual(values = color_palette) +
     theme_classic()
 }
 
