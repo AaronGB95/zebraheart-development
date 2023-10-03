@@ -23,6 +23,7 @@ require(stringr)
 require(tidyverse)
 require(edgeR)
 require(preprocessCore)
+require(biomaRt)
 
 # Set document path as working directory
 setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
@@ -67,7 +68,41 @@ colnames(datamatrix) <- str_extract_all(files, "(?<=\\/)[^\\/]*(?=_)")
 for (i in seq_along(datalist)) {
   datamatrix[, i] <- datalist[[i]][, 7]
 }
+
+datamatrix <- as.data.frame(datamatrix)
 ##-----------------------------------------------------------------------------
+
+
+##-----------------------------------------------------------------------------
+## Gene Annotation
+##-----------------------------------------------------------------------------
+ensembl <- useMart("ensembl", dataset = "drerio_gene_ensembl")
+
+gene_names <- getBM(attributes = c("ensembl_gene_id", "external_gene_name"),
+                    filters = "ensembl_gene_id",
+                    values = names,
+                    mart = ensembl)
+
+datamatrix$ensembl_gene_id <- rownames(datamatrix)
+
+datamatrix <- merge(datamatrix,
+                    gene_names,
+                    by.y = "ensembl_gene_id",
+                    all.x = TRUE)
+
+# Remove unannotated genes
+datamatrix <- datamatrix[!is.na(datamatrix$external_gene_name), ]
+datamatrix <- datamatrix[!(datamatrix$external_gene_name == ""), ]
+
+# Remove duplicated genes
+datamatrix <- datamatrix[!duplicated(datamatrix$external_gene_name), ]
+
+# Apply gene names as row names
+rownames(datamatrix) <- datamatrix$external_gene_name
+
+# Remove names columns
+datamatrix <- datamatrix[, !names(datamatrix) %in% c("ensembl_gene_id", "external_gene_name")]
+##----------------------------------------------------------------------------
 
 
 ##-----------------------------------------------------------------------------
@@ -97,9 +132,9 @@ qn_counts <- normalize.quantiles(as.matrix(tmm_counts),
 ##-----------------------------------------------------------------------------
 ## Data Save
 ##-----------------------------------------------------------------------------
-write.table(datamatrix, file = "datamatrix.txt", sep = "\t")
-write.table(tmm_counts, file = "datamatrix_tmm.txt", sep = "\t")
-write.table(qn_counts, file = "datamatrix_qn.txt", sep = "\t")
+write.table(datamatrix, file = "datamatrix.txt", sep = "\t", quote = FALSE)
+write.table(tmm_counts, file = "datamatrix_tmm.txt", sep = "\t", quote = FALSE)
+write.table(qn_counts, file = "datamatrix_qn.txt", sep = "\t", quote = FALSE)
 ##-----------------------------------------------------------------------------
 
 # Clean environment

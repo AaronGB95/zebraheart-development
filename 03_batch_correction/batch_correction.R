@@ -1,13 +1,11 @@
 ##------------------------------------------------------------------------------
 ##
-## Corrección de efecto lote
+## batch_correction.R
 ##
 ## Este script corrige el posible efecto lote en un conjunto de datos
 ## mediante ComBat o SVA
 ##
-## Autor: Aarón García Blázquez
-##
-## Fecha de creación: 24-04-2023
+## Author: Aarón García Blázquez
 ##
 ## Email: aaron.garcia.blazquez@gmail.com
 ##
@@ -15,7 +13,7 @@
 
 rm(list = ls())
 
-## Librerías necesarias
+## Required libraries
 require(rstudioapi)
 require(sva)
 require(limma)
@@ -25,41 +23,44 @@ require(dplyr)
 require(ggplot2)
 require(EnhancedVolcano)
 
-## Carga de los datos
+## Data load
 ##--------------------
 
-## Cambiamos el directorio de trabajo a la ubicacion del script
+## Change working directory to script path
 setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
-## Cargamos los datos necesarios
-datamatrix <- read.table("datamatrix_tmm.txt", sep = "\t")
-phenodata <- read.table("phenodata.txt", sep = "\t", header = 1, row.names = 1)
+## Data load
+datamatrix <- as.matrix(read.table("datamatrix_qn.txt", sep = "\t"))
+phenodata <- read.table("phenodata.txt",
+                                  sep = "\t",
+                                  header = 1,
+                                  row.names = 1)
 
+# Variable of interest as factor
+phenodata$Age <- as.factor(phenodata$Age)
 
-# Crea la matriz modelo y la matriz nula
-mod <- model.matrix(~ 0 + phenodata$Age, data = phenodata)
-mod0 <- model.matrix(~1, data = phenodata)
+# Create model matrix and null matrix
+mod <- as.matrix(model.matrix(~ 0 + phenodata$Age, data = phenodata))
+mod0 <- as.matrix(model.matrix(~1, data = phenodata))
 
 colnames(mod) <- c("hpf120", "hpf48", "hpf72", "Adult")
 
-
 ##------------------------------------------------------------------------------
 ##
-## Análisis de variables sustitutas (SVA)
+## Surrogate Variable Analysis (SVA)
 ##
 ##------------------------------------------------------------------------------
-
-
-# Elimina los genes cuyo valor de expresión es 0 para todas las muestras
-edata2 <- datamatrix[rowSums(datamatrix == 0,
-                             na.rm = TRUE) < ncol(datamatrix), ]
-edata <- as.matrix(edata2 + 1)
 
 # Estima el número de variables sustitutas para el modelo
-n_sv <- num.sv(edata, mod, method = "leek")
+n_sv <- num.sv(datamatrix,
+               mod,
+               method = "leek")
 
 # Estimamos los coeficientes de 2 variables sustitutas
-svobj <- svaseq(edata, mod, mod0, n.sv = n_sv)
+svobj <- svaseq(datamatrix,
+                as.matrix(mod),
+                as.matrix(mod0),
+                n.sv = n_sv)
 
 # Eliminamos la variabilidad de los datos para el análisis exploratorio
 dataset_adjusted <- removeBatchEffect(edata,
@@ -74,7 +75,7 @@ save(dataset_adjusted, file = "dataset_sva.RData")
 mod_sv <- cbind(mod, svobj$sv)
 mod0_sv <- cbind(mod0, svobj$sv)
 
-colnames(mod_sv)[5:51] <- paste0("sv", 1:n_sv)
+colnames(mod_sv)[5:5] <- paste0("sv", 1:n_sv)
 
 # Definimos los contrastes
 cont_mod_sv <- makeContrasts(hpf72vshpf48 = hpf72 - hpf48,
@@ -179,7 +180,10 @@ by = "ind")
 save(tt_adult_120_combat,
      file = "data/differential_expression/tt_Adult_120_combat.RData")
 
-save(combat_data, file = "data/datasets/dataset_combat.RData")
+write.table(combat_data,
+            file = "datamatrix_combat.txt",
+            sep = "\t",
+            quote = FALSE)
 
 
 ##------------------------------------------------------------------------------
@@ -215,7 +219,7 @@ volcanoplot <- function(tt, contrname) {
                        pointSize = 1.0,
                        title = contrname,
                        titleLabSize = 12,
-                       colCustom = keyvals,
+                       colCustom = color,
                        colAlpha = 1,
                        legendPosition = "right",
                        legendLabSize = 8,
