@@ -17,6 +17,8 @@ knitr::opts_chunk$set(echo = TRUE, message = FALSE)
 ```
 
 ```{r load packages}
+rm(list = ls())
+
 library(mdgsa)
 library(clusterProfiler)
 library(enrichplot)
@@ -55,10 +57,8 @@ dre_pathways$description <- path_descriptions
 ## 72 hpf vs 48 hpf {.tabset}
 
 ```{r data load 1}
-data_dir <- "data/differential_expression/"
-load(paste0(data_dir, "tt_72_48.RData"))
+load("tt_72_48.RData")
 diffexp <- tt_72_48$table
-rownames(diffexp) <- diffexp$ind
 
 # differential expressed genes
 print("Número de genes significativos")
@@ -74,9 +74,9 @@ sig.genes <- diffexp[diffexp$FDR < 0.05, ]
 ```{r}
 threshold <- 1.5
 top <- sig.genes[sig.genes$logFC > threshold, ]
-top_genes <- top$ind
+top_genes <- row.names(top)
 
-writeLines(as.character(top_genes), con = "data/72_48_top_genes_list.txt", sep = "\n")
+writeLines(as.character(top_genes), con = "72_48_top_genes_list.txt", sep = "\n")
 ```
 
 #### BP
@@ -97,8 +97,8 @@ print(paste0("Número de funciones significativas: ", dim(oraTop)[1]))
 ```{r top bp 1 plot}
 if (dim(oraTop)[1] > 0) {
   oraTop_table <- oraTop@result[oraTop@result$p.adjust < 0.05,c("ID","p.adjust")]
-  write.table(oraTop_table, file = "data/top_bp_1.txt", sep = "\t", row.names = FALSE, quote = FALSE)
-  write.xlsx(oraTop@result, file = "data/results/funciones_72_48_bp_ups.xlsx")
+  write.table(oraTop_table, file = "top_bp_1.txt", sep = "\t", row.names = FALSE, quote = FALSE)
+  write.xlsx(oraTop@result, file = "funciones_72_48_bp_ups.xlsx")
   dotplot(oraTop,
           showCategory = 20,
           x = "geneRatio",
@@ -124,8 +124,8 @@ print(paste0("Número de funciones significativas: ", dim(oraTop)[1]))
 ```{r top mf 1 plot}
 if (dim(oraTop)[1] > 0) {
   oraTop_table <- oraTop@result[oraTop@result$p.adjust < 0.05,c("ID","p.adjust")]
-  write.table(oraTop_table, file = "data/top_mf_1.txt", sep = "\t", row.names = FALSE, quote = FALSE)
-  write.xlsx(oraTop@result, file = "data/results/funciones_72_48_mf_ups.xlsx")
+  write.table(oraTop_table, file = "top_mf_1.txt", sep = "\t", row.names = FALSE, quote = FALSE)
+  write.xlsx(oraTop@result, file = "funciones_72_48_mf_ups.xlsx")
   dotplot(oraTop,
           showCategory = 20,
           x = "geneRatio",
@@ -151,8 +151,8 @@ print(paste0("Número de funciones significativas: ", dim(oraTop)[1]))
 ```{r top cc 1 plot}
 if (dim(oraTop)[1] > 0) {
   oraTop_table <- oraTop@result[oraTop@result$p.adjust < 0.05,c("ID","p.adjust")]
-  write.table(oraTop_table, file = "data/top_cc_1.txt", sep = "\t", row.names = FALSE, quote = FALSE)
-  write.xlsx(oraTop@result, file = "data/results/funciones_72_48_cc_ups.xlsx")
+  write.table(oraTop_table, file = "top_cc_1.txt", sep = "\t", row.names = FALSE, quote = FALSE)
+  write.xlsx(oraTop@result, file = "funciones_72_48_cc_ups.xlsx")
   dotplot(oraTop,
           showCategory = 20,
           x = "geneRatio",
@@ -175,8 +175,8 @@ print(paste0("Número de rutas significativas: ",dim(keggTop)[1]))
 ```{r top kegg 1 plot}
 if (dim(keggTop)[1] > 0) {
   keggTop_table <- keggTop@result[keggTop@result$p.adjust < 0.05,c("ID","p.adjust")]
-  write.table(keggTop_table, file = "data/top_kegg_1.txt", sep = "\t", row.names = FALSE, quote = FALSE)
-  write.xlsx(keggTop@result, file = "data/results/funciones_72_48_kegg_ups.xlsx")
+  write.table(keggTop_table, file = "top_kegg_1.txt", sep = "\t", row.names = FALSE, quote = FALSE)
+  write.xlsx(keggTop@result, file = "funciones_72_48_kegg_ups.xlsx")
   dotplot(keggTop,
           showCategory = 20,
           x = "geneRatio",
@@ -189,9 +189,9 @@ if (dim(keggTop)[1] > 0) {
 ```{r}
 threshold <- -1.5
 bottom <- sig.genes[sig.genes$logFC < threshold, ]
-bottom_genes = bottom$ind
+bottom_genes <- row.names(bottom)
 
-writeLines(as.character(bottom_genes), con = "data/72_48_bottom_genes_list.txt", sep = "\n")
+writeLines(as.character(bottom_genes), con = "72_48_bottom_genes_list.txt", sep = "\n")
 
 kegg_genes <- bitr(bottom_genes, "SYMBOL", "ENTREZID", org.Dr.eg.db)$ENTREZID
 ```
@@ -213,8 +213,8 @@ print(paste0("Número de funciones significativas: ", dim(oraBottom)[1]))
 ```{r bottom bp 1 plot}
 if (dim(oraBottom)[1] > 0) {
   oraBottom_table <- oraBottom@result[oraBottom@result$p.adjust < 0.05,c("ID","p.adjust")]
-  write.table(oraBottom_table, file = "data/bottom_bp_1.txt", sep = "\t", row.names = FALSE, quote = FALSE)
-  write.xlsx(oraBottom@result, file = "data/results/funciones_72_48_bp_downs.xlsx")
+  write.table(oraBottom_table, file = "bottom_bp_1.txt", sep = "\t", row.names = FALSE, quote = FALSE)
+  write.xlsx(oraBottom@result, file = "funciones_72_48_bp_downs.xlsx")
   dotplot(oraBottom,
           showCategory = 20,
           x = "geneRatio",
@@ -239,8 +239,8 @@ print(paste0("Número de funciones significativas: ", dim(oraBottom)[1]))
 ```{r bottom mf 1 plot}
 if (dim(oraBottom)[1] > 0) {
   oraBottom_table <- oraBottom@result[oraBottom@result$p.adjust < 0.05,c("ID","p.adjust")]
-  write.table(oraBottom_table, file = "data/bottom_mf_1.txt", sep = "\t", row.names = FALSE, quote = FALSE)
-  write.xlsx(oraBottom@result, file = "data/results/funciones_72_48_mf_downs.xlsx")
+  write.table(oraBottom_table, file = "bottom_mf_1.txt", sep = "\t", row.names = FALSE, quote = FALSE)
+  write.xlsx(oraBottom@result, file = "funciones_72_48_mf_downs.xlsx")
   dotplot(oraBottom,
           showCategory = 20,
           x = "geneRatio",
@@ -265,8 +265,8 @@ print(paste0("Número de funciones significativas: ", dim(oraBottom)[1]))
 ```{r bottom cc 1 plot}
 if (dim(oraBottom)[1] > 0) {
   oraBottom_table <- oraBottom@result[oraBottom@result$p.adjust < 0.05,c("ID","p.adjust")]
-  write.table(oraBottom_table, file = "data/bottom_cc_1.txt", sep = "\t", row.names = FALSE, quote = FALSE)
-  write.xlsx(oraBottom@result, file = "data/results/funciones_72_48_cc_downs.xlsx")
+  write.table(oraBottom_table, file = "bottom_cc_1.txt", sep = "\t", row.names = FALSE, quote = FALSE)
+  write.xlsx(oraBottom@result, file = "funciones_72_48_cc_downs.xlsx")
   dotplot(oraBottom,
           showCategory = 20,
           x = "geneRatio",
@@ -291,8 +291,8 @@ print(paste0("Número de rutas significativas: ", dim(keggBottom)[1]))
 ```{r bottom kegg 1 plot}
 if (dim(keggBottom)[1] > 0) {
   keggBottom_table <- keggBottom@result[keggBottom@result$p.adjust < 0.05,c("ID","p.adjust")]
-  write.table(keggBottom_table, file = "data/bottom_kegg_1.txt", sep = "\t", row.names = FALSE, quote = FALSE)
-  write.xlsx(keggBottom@result, file = "data/results/funciones_72_48_kegg_downs.xlsx")
+  write.table(keggBottom_table, file = "bottom_kegg_1.txt", sep = "\t", row.names = FALSE, quote = FALSE)
+  write.xlsx(keggBottom@result, file = "funciones_72_48_kegg_downs.xlsx")
   dotplot(keggBottom,
           showCategory = 20,
           x = "geneRatio",
@@ -305,9 +305,8 @@ En este caso no se han encontrado funciones significativas.
 ## 120 hpf vs 72 hpf {.tabset}
 
 ```{r data load 2}
-load(paste0(data_dir, "tt_120_72.RData"))
+load("tt_120_72.RData")
 diffexp <- tt_120_72$table
-rownames(diffexp) <- diffexp$ind
 
 # differential expressed genes
 print("Número de genes significativos")
@@ -323,9 +322,9 @@ sig.genes <- diffexp[diffexp$FDR < 0.05, ]
 ```{r}
 threshold <- 1.5
 top <- sig.genes[sig.genes$logFC > threshold, ]
-top_genes <- top$ind
+top_genes <- row.names(top)
 
-writeLines(as.character(top_genes), con = "data/120_72_top_genes_list.txt", sep = "\n")
+writeLines(as.character(top_genes), con = "120_72_top_genes_list.txt", sep = "\n")
 
 kegg_genes <- bitr(top_genes, "SYMBOL", "ENTREZID", org.Dr.eg.db)$ENTREZID
 ```
@@ -348,8 +347,8 @@ print(paste0("Número de funciones significativas: ", dim(oraTop)[1]))
 ```{r top bp 2 plot}
 if (dim(oraTop)[1] > 0) {
   oraTop_table <- oraTop@result[oraTop@result$p.adjust < 0.05,c("ID","p.adjust")]
-  write.table(oraTop_table, file = "data/top_bp_2.txt", sep = "\t", row.names = FALSE, quote = FALSE)
-  write.xlsx(oraTop@result, file = "data/results/funciones_120_72_bp_ups.xlsx")
+  write.table(oraTop_table, file = "top_bp_2.txt", sep = "\t", row.names = FALSE, quote = FALSE)
+  write.xlsx(oraTop@result, file = "funciones_120_72_bp_ups.xlsx")
   dotplot(oraTop,
           showCategory = 20,
           x = "geneRatio",
@@ -375,8 +374,8 @@ print(paste0("Número de funciones significativas: ", dim(oraTop)[1]))
 ```{r top mf 2 plot}
 if (dim(oraTop)[1] > 0) {
   oraTop_table <- oraTop@result[oraTop@result$p.adjust < 0.05,c("ID","p.adjust")]
-  write.table(oraTop_table, file = "data/top_mf_2.txt", sep = "\t", row.names = FALSE, quote = FALSE)
-  write.xlsx(oraTop@result, file = "data/results/funciones_120_72_mf_ups.xlsx")
+  write.table(oraTop_table, file = "top_mf_2.txt", sep = "\t", row.names = FALSE, quote = FALSE)
+  write.xlsx(oraTop@result, file = "funciones_120_72_mf_ups.xlsx")
   dotplot(oraTop,
           showCategory = 20,
           x = "geneRatio",
@@ -402,8 +401,8 @@ print(paste0("Número de funciones significativas: ", dim(oraTop)[1]))
 ```{r top cc 2 plot}
 if (dim(oraTop)[1] > 0) {
   oraTop_table <- oraTop@result[oraTop@result$p.adjust < 0.05,c("ID","p.adjust")]
-  write.table(oraTop_table, file = "data/top_cc_2.txt", sep = "\t", row.names = FALSE, quote = FALSE)
-  write.xlsx(oraTop@result, file = "data/results/funciones_120_72_cc_ups.xlsx")
+  write.table(oraTop_table, file = "top_cc_2.txt", sep = "\t", row.names = FALSE, quote = FALSE)
+  write.xlsx(oraTop@result, file = "funciones_120_72_cc_ups.xlsx")
   dotplot(oraTop,
           showCategory = 20,
           x = "geneRatio",
@@ -426,8 +425,8 @@ print(paste0("Número de rutas significativas: ", dim(keggTop)[1]))
 ```{r top kegg 2 plot}
 if (dim(keggTop)[1] > 0) {
   keggTop_table <- keggTop@result[keggTop@result$p.adjust < 0.05,c("ID","p.adjust")]
-  write.table(keggTop_table, file = "data/top_kegg_2.txt", sep = "\t", row.names = FALSE, quote = FALSE)
-  write.xlsx(keggTop@result, file = "data/results/funciones_120_72_kegg_ups.xlsx")
+  write.table(keggTop_table, file = "top_kegg_2.txt", sep = "\t", row.names = FALSE, quote = FALSE)
+  write.xlsx(keggTop@result, file = "funciones_120_72_kegg_ups.xlsx")
   dotplot(keggTop,
           showCategory = 20,
           x = "geneRatio",
@@ -440,9 +439,9 @@ if (dim(keggTop)[1] > 0) {
 ```{r}
 threshold <- -1.5
 bottom <- sig.genes[sig.genes$logFC < threshold, ]
-bottom_genes = bottom$ind
+bottom_genes <- row.names(bottom)
 
-writeLines(as.character(bottom_genes), con = "data/120_72_bottom_genes_list.txt", sep = "\n")
+writeLines(as.character(bottom_genes), con = "120_72_bottom_genes_list.txt", sep = "\n")
 
 kegg_genes <- bitr(bottom_genes, "SYMBOL", "ENTREZID", org.Dr.eg.db)$ENTREZID
 ```
@@ -464,8 +463,8 @@ print(paste0("Número de funciones significativas: ", dim(oraBottom)[1]))
 ```{r bottom bp 2 plot}
 if (dim(oraBottom)[1] > 0) {
   oraBottom_table <- oraBottom@result[oraBottom@result$p.adjust < 0.05,c("ID","p.adjust")]
-  write.table(oraBottom_table, file = "data/bottom_bp_2.txt", sep = "\t", row.names = FALSE, quote = FALSE)
-  write.xlsx(oraBottom@result, file = "data/results/funciones_120_72_bp_downs.xlsx")
+  write.table(oraBottom_table, file = "bottom_bp_2.txt", sep = "\t", row.names = FALSE, quote = FALSE)
+  write.xlsx(oraBottom@result, file = "funciones_120_72_bp_downs.xlsx")
   dotplot(oraBottom,
           showCategory = 20,
           x = "geneRatio",
@@ -490,8 +489,8 @@ print(paste0("Número de funciones significativas: ", dim(oraBottom)[1]))
 ```{r bottom mf 2 plot}
 if (dim(oraBottom)[1] > 0) {
   oraBottom_table <- oraBottom@result[oraBottom@result$p.adjust < 0.05,c("ID","p.adjust")]
-  write.table(oraBottom_table, file = "data/bottom_mf_2.txt", sep = "\t", row.names = FALSE, quote = FALSE)
-  write.xlsx(oraBottom@result, file = "data/results/funciones_120_72_mf_downs.xlsx")
+  write.table(oraBottom_table, file = "bottom_mf_2.txt", sep = "\t", row.names = FALSE, quote = FALSE)
+  write.xlsx(oraBottom@result, file = "funciones_120_72_mf_downs.xlsx")
   dotplot(oraBottom,
           showCategory = 20,
           x = "geneRatio",
@@ -516,8 +515,8 @@ print(paste0("Número de funciones significativas: ", dim(oraBottom)[1]))
 ```{r bottom cc 2 plot}
 if (dim(oraBottom)[1] > 0) {
   oraBottom_table <- oraBottom@result[oraBottom@result$p.adjust < 0.05,c("ID","p.adjust")]
-  write.table(oraBottom_table, file = "data/bottom_cc_2.txt", sep = "\t", row.names = FALSE, quote = FALSE)
-  write.xlsx(oraBottom@result, file = "data/results/funciones_120_72_cc_downs.xlsx")
+  write.table(oraBottom_table, file = "bottom_cc_2.txt", sep = "\t", row.names = FALSE, quote = FALSE)
+  write.xlsx(oraBottom@result, file = "funciones_120_72_cc_downs.xlsx")
   dotplot(oraBottom,
           showCategory = 20,
           x = "geneRatio",
@@ -540,8 +539,8 @@ print(paste0("Número de rutas significativas: ", dim(keggBottom)[1]))
 ```{r bottom kegg 2 plot}
 if (dim(keggBottom)[1] > 0) {
   keggBottom_table <- keggBottom@result[keggBottom@result$p.adjust < 0.05,c("ID","p.adjust")]
-  write.table(keggBottom_table, file = "data/bottom_kegg_2.txt", sep = "\t", row.names = FALSE, quote = FALSE)
-  write.xlsx(keggBottom@result, file = "data/results/funciones_120_72_kegg_downs.xlsx")
+  write.table(keggBottom_table, file = "bottom_kegg_2.txt", sep = "\t", row.names = FALSE, quote = FALSE)
+  write.xlsx(keggBottom@result, file = "funciones_120_72_kegg_downs.xlsx")
   dotplot(keggBottom,
           showCategory = 20,
           x = "geneRatio",
@@ -552,9 +551,8 @@ if (dim(keggBottom)[1] > 0) {
 ## Adulto vs 120 hpf {.tabset}
 
 ```{r data load 3}
-load(paste0(data_dir, "tt_Adult_120.RData"))
-diffexp <- tt_Adult_120$table
-rownames(diffexp) <- diffexp$ind
+load("tt_adult_120.RData")
+diffexp <- tt_adult_120$table
 
 # differential expressed genes
 print("Número de genes significativos")
@@ -570,9 +568,9 @@ sig.genes <- diffexp[diffexp$FDR < 0.05, ]
 ```{r}
 threshold <- 1.5
 top <- sig.genes[sig.genes$logFC > threshold, ]
-top_genes <- top$ind
+top_genes <- row.names(top)
 
-writeLines(as.character(top_genes), con = "data/Adult_120_top_genes_list.txt", sep = "\n")
+writeLines(as.character(top_genes), con = "Adult_120_top_genes_list.txt", sep = "\n")
 
 kegg_genes <- bitr(top_genes, "SYMBOL", "ENTREZID", org.Dr.eg.db)$ENTREZID
 ```
@@ -595,8 +593,8 @@ print(paste0("Número de funciones significativas: ", dim(oraTop)[1]))
 ```{r top bp 3 plot}
 if (dim(oraTop)[1] > 0) {
   oraTop_table <- oraTop@result[oraTop@result$p.adjust < 0.05,c("ID","p.adjust")]
-  write.table(oraTop_table, file = "data/top_bp_3.txt", sep = "\t", row.names = FALSE, quote = FALSE)
-  write.xlsx(oraTop@result, file = "data/results/funciones_Adulto_120_bp_ups.xlsx")
+  write.table(oraTop_table, file = "top_bp_3.txt", sep = "\t", row.names = FALSE, quote = FALSE)
+  write.xlsx(oraTop@result, file = "funciones_Adulto_120_bp_ups.xlsx")
   dotplot(oraTop,
           showCategory = 20,
           x = "geneRatio",
@@ -622,8 +620,8 @@ print(paste0("Número de funciones significativas: ", dim(oraTop)[1]))
 ```{r top mf 3 plot}
 if (dim(oraTop)[1] > 0) {
   oraTop_table <- oraTop@result[oraTop@result$p.adjust < 0.05,c("ID","p.adjust")]
-  write.table(oraTop_table, file = "data/top_mf_3.txt", sep = "\t", row.names = FALSE, quote = FALSE)
-  write.xlsx(oraTop@result, file = "data/results/funciones_Adulto_120_mf_ups.xlsx")
+  write.table(oraTop_table, file = "top_mf_3.txt", sep = "\t", row.names = FALSE, quote = FALSE)
+  write.xlsx(oraTop@result, file = "funciones_Adulto_120_mf_ups.xlsx")
   dotplot(oraTop,
           showCategory = 20,
           x = "geneRatio",
@@ -649,8 +647,8 @@ print(paste0("Número de funciones significativas: ", dim(oraTop)[1]))
 ```{r top cc 3 plot}
 if (dim(oraTop)[1] > 0) {
   oraTop_table <- oraTop@result[oraTop@result$p.adjust < 0.05,c("ID","p.adjust")]
-  write.table(oraTop_table, file = "data/top_cc_3.txt", sep = "\t", row.names = FALSE, quote = FALSE)
-  write.xlsx(oraTop@result, file = "data/results/funciones_Adulto_120_cc_ups.xlsx")
+  write.table(oraTop_table, file = "top_cc_3.txt", sep = "\t", row.names = FALSE, quote = FALSE)
+  write.xlsx(oraTop@result, file = "funciones_Adulto_120_cc_ups.xlsx")
   dotplot(oraTop,
           showCategory = 20,
           x = "geneRatio",
@@ -673,8 +671,8 @@ print(paste0("Número de rutas significativas: ", dim(keggTop)[1]))
 ```{r top kegg 3 plot}
 if (dim(keggTop)[1] > 0) {
   keggTop_table <- keggTop@result[keggTop@result$p.adjust < 0.05,c("ID","p.adjust")]
-  write.table(keggTop_table, file = "data/top_kegg_3.txt", sep = "\t", row.names = FALSE, quote = FALSE)
-  write.xlsx(keggTop@result, file = "data/results/funciones_Adulto_120_kegg_ups.xlsx")
+  write.table(keggTop_table, file = "top_kegg_3.txt", sep = "\t", row.names = FALSE, quote = FALSE)
+  write.xlsx(keggTop@result, file = "funciones_Adulto_120_kegg_ups.xlsx")
   dotplot(keggTop,
           showCategory = 20,
           x = "geneRatio",
@@ -687,9 +685,9 @@ if (dim(keggTop)[1] > 0) {
 ```{r}
 threshold <- -1.5
 bottom <- sig.genes[sig.genes$logFC < threshold, ]
-bottom_genes = bottom$ind
+bottom_genes <- row.names(bottom)
 
-writeLines(as.character(bottom_genes), con = "data/Adult_120_bottom_genes_list.txt", sep = "\n")
+writeLines(as.character(bottom_genes), con = "Adult_120_bottom_genes_list.txt", sep = "\n")
 
 kegg_genes <- bitr(bottom_genes, "SYMBOL", "ENTREZID", org.Dr.eg.db)$ENTREZID
 ```
@@ -711,8 +709,8 @@ print(paste0("Número de funciones significativas: ", dim(oraBottom)[1]))
 ```{r bottom bp 3 plot}
 if (dim(oraBottom)[1] > 0) {
   oraBottom_table <- oraBottom@result[oraBottom@result$p.adjust < 0.05,c("ID","p.adjust")]
-  write.table(oraBottom_table, file = "data/bottom_bp_3.txt", sep = "\t", row.names = FALSE, quote = FALSE)
-  write.xlsx(oraBottom@result, file = "data/results/funciones_Adulto_120_bp_downs.xlsx")
+  write.table(oraBottom_table, file = "bottom_bp_3.txt", sep = "\t", row.names = FALSE, quote = FALSE)
+  write.xlsx(oraBottom@result, file = "funciones_Adulto_120_bp_downs.xlsx")
   dotplot(oraBottom,
           showCategory = 20,
           x = "geneRatio",
@@ -737,8 +735,8 @@ print(paste0("Número de funciones significativas: ", dim(oraBottom)[1]))
 ```{r bottom mf 3 plot}
 if (dim(oraBottom)[1] > 0) {
   oraBottom_table <- oraBottom@result[oraBottom@result$p.adjust < 0.05,c("ID","p.adjust")]
-  write.table(oraBottom_table, file = "data/bottom_mf_3.txt", sep = "\t", row.names = FALSE, quote = FALSE)
-  write.xlsx(oraBottom@result, file = "data/results/funciones_Adulto_120_mf_downs.xlsx")
+  write.table(oraBottom_table, file = "bottom_mf_3.txt", sep = "\t", row.names = FALSE, quote = FALSE)
+  write.xlsx(oraBottom@result, file = "funciones_Adulto_120_mf_downs.xlsx")
   dotplot(oraBottom,
           showCategory = 20,
           x = "geneRatio",
@@ -765,8 +763,8 @@ print(paste0("Número de funciones significativas: ", dim(oraBottom)[1]))
 ```{r bottom cc 3 plot}
 if (dim(oraBottom)[1] > 0) {
   oraBottom_table <- oraBottom@result[oraBottom@result$p.adjust < 0.05,c("ID","p.adjust")]
-  write.table(oraBottom_table, file = "data/bottom_cc_3.txt", sep = "\t", row.names = FALSE, quote = FALSE)
-  write.xlsx(oraBottom@result, file = "data/results/funciones_Adulto_120_cc_downs.xlsx")
+  write.table(oraBottom_table, file = "bottom_cc_3.txt", sep = "\t", row.names = FALSE, quote = FALSE)
+  write.xlsx(oraBottom@result, file = "funciones_Adulto_120_cc_downs.xlsx")
   dotplot(oraBottom,
           showCategory = 20,
           x = "geneRatio",
@@ -789,8 +787,8 @@ print(paste0("Número de rutas significativas: ", dim(keggBottom)[1]))
 ```{r bottom kegg 3 plot}
 if (dim(keggBottom)[1] > 0) {
   keggBottom_table <- keggBottom@result[keggBottom@result$p.adjust < 0.05,c("ID","p.adjust")]
-  write.table(keggBottom_table, file = "data/bottom_kegg_3.txt", sep = "\t", row.names = FALSE, quote = FALSE)
-  write.xlsx(keggBottom@result, file = "data/results/funciones_Adulto_120_kegg_downs.xlsx")
+  write.table(keggBottom_table, file = "bottom_kegg_3.txt", sep = "\t", row.names = FALSE, quote = FALSE)
+  write.xlsx(keggBottom@result, file = "funciones_Adulto_120_kegg_downs.xlsx")
   dotplot(keggBottom,
           showCategory = 20,
           x = "geneRatio",

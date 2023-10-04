@@ -101,7 +101,8 @@ datamatrix <- datamatrix[!duplicated(datamatrix$external_gene_name), ]
 rownames(datamatrix) <- datamatrix$external_gene_name
 
 # Remove names columns
-datamatrix <- datamatrix[, !names(datamatrix) %in% c("ensembl_gene_id", "external_gene_name")]
+datamatrix <- datamatrix[, !names(datamatrix) %in% 
+                           c("ensembl_gene_id", "external_gene_name")]
 ##----------------------------------------------------------------------------
 
 

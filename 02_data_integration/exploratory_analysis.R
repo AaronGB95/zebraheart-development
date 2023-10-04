@@ -70,7 +70,8 @@ par(las = 2)
 group <- as.factor(phenodata$Set)
 
 
-datamatrix %>%
+
+log2(datamatrix + 1) %>%
   rownames_to_column("Genes") %>%
   gather(Sample, Sample_value, -Genes) %>%
   left_join(phenodata, by = "Sample") %>%
