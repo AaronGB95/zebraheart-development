@@ -1,0 +1,74 @@
+---
+title: "Análisis exploratorio"
+author: "Aarón García Blázquez"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+# Análisis exploratorio de los datos {.tabset}
+
+## Conteos crudos {.tabset}
+
+### Boxplot
+
+```{r}
+knitr::include_graphics("raw_counts_set_boxplot.png")
+```
+
+### PCA
+
+```{r}
+knitr::include_graphics("raw_counts_age_pca.png")
+```
+
+### Clustering
+
+```{r}
+knitr::include_graphics("raw_counts_age_cluster.png")
+```
+
+## {-}
+
+## Normalización por TMM {.tabset}
+
+### Boxplot
+
+```{r}
+knitr::include_graphics("tmm_counts_set_boxplot.png")
+```
+
+### PCA
+
+```{r}
+knitr::include_graphics("tmm_counts_age_pca.png")
+```
+
+### Clustering
+
+```{r}
+knitr::include_graphics("tmm_counts_age_cluster.png")
+```
+
+## {-}
+
+## Normalización por QN {.tabset}
+
+### Boxplot
+
+```{r}
+knitr::include_graphics("qn_counts_set_boxplot.png")
+```
+
+### PCA
+
+```{r}
+knitr::include_graphics("qn_counts_age_pca.png")
+```
+
+### Clustering
+
+```{r}
+knitr::include_graphics("qn_counts_age_cluster.png")
+```
+
+## {-}

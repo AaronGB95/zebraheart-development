@@ -38,7 +38,7 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 ##-----------------------------------------------------------------------------
 ## Data load
 ##-----------------------------------------------------------------------------
-datamatrix <- read.table("datamatrix_qn.txt",
+datamatrix <- read.table("datamatrix_tmm.txt",
                          sep = "\t",
                          header = TRUE,
                          row.names = 1)
@@ -52,14 +52,14 @@ phenodata$Sample <- rownames(phenodata)
 phenodata <- phenodata[match(colnames(datamatrix), rownames(phenodata)), ]
 
 # Give file name to save plots
-file <- "qn_counts"
+file <- "tmm_counts"
 ##-----------------------------------------------------------------------------
 
 
 ##-----------------------------------------------------------------------------
 ## Boxplot
 ##-----------------------------------------------------------------------------
-file_name <- paste(file, "_set_boxplot.png", sep = "") # Change group here
+file_name <- paste(file, "_age_boxplot.png", sep = "")
 
 png(filename = file_name, width = 720, height = 720)
 par(mar = c(10, 4.1, 4.1, 2.1))
@@ -69,13 +69,11 @@ par(las = 2)
 # For the dataset
 group <- as.factor(phenodata$Set)
 
-
-
 log2(datamatrix + 1) %>%
   rownames_to_column("Genes") %>%
   gather(Sample, Sample_value, -Genes) %>%
   left_join(phenodata, by = "Sample") %>%
-  ggplot(aes(x = Sample, y = Sample_value, fill = Set)) +   # Change group here
+  ggplot(aes(x = Sample, y = Sample_value, fill = Age)) + 
   geom_boxplot() +
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
@@ -143,7 +141,8 @@ if (!is.null(group)) {
               aes(x,
                   y,
                   label = label,
-                  group = group),
+                  group = group,
+                  color = phenodata$Age),
               hjust = 1,
               size = 5,
               angle = 90) +

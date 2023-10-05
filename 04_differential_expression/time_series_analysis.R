@@ -20,6 +20,9 @@ rm(list = ls())
 # Load required packages
 require(maSigPro)
 require(plyr)
+
+# Set document path as working directory
+setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 ##-----------------------------------------------------------------------------
 
 
@@ -48,7 +51,7 @@ phenodata$Time <- revalue(phenodata$Age, c("48 hpf"="0",
                                            "Adult"="3"))
 
 # Turn variable to factor
-phenodata$Time <- as.factor(as.character(phenodata$Time))
+phenodata$Time <- as.factor(as.numeric(phenodata$Time))
 
 # Add a dummy variable
 phenodata$Animal <- "Fish"
@@ -62,7 +65,7 @@ phenodata$Animal <- "Fish"
 design <- make.design.matrix(phenodata,
                              time.col = "Time",
                              repl.col = "Set",
-                             group.cols = NULL)
+                             group.cols = "Animal")
 
 # Find significant genes
 significant_genes <- p.vector(datamatrix, design, counts = TRUE)
@@ -78,7 +81,7 @@ get <- get.siggenes(significant_differences, vars = "all")
 ##-----------------------------------------------------------------------------
 ## Results plots
 ##-----------------------------------------------------------------------------
-suma2Venn(get$summary[, c(2:4)])
+
 ##-----------------------------------------------------------------------------
 
 # Clean environment

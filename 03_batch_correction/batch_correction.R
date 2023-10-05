@@ -71,7 +71,10 @@ dataset_adjusted <- removeBatchEffect(datamatrix,
                                       design = mod)
 
 # Guardamos la tabla con los datos transformados
-save(dataset_adjusted, file = "dataset_sva.RData")
+write.table(dataset_adjusted,
+            file = "datamatrix_sva.txt",
+            sep = "\t",
+            quote = FALSE)
 
 # Introduce las variables sustitutas en las matrices modelo y nula
 mod_sv <- cbind(mod, svobj$sv)
@@ -177,31 +180,32 @@ write.table(combat_data,
 # Función que realiza los volcano plots
 volcanoplot <- function(tt, contrname) {
 
-  res <- as.data.frame(tt)
-  res$logFC <- as.numeric(res$logFC)
-  res$PValue <- as.numeric(res$PValue)
-  rownames(res) <- res$ind
-
-  res$color <- ifelse(
-                      res$logFC < -2.5, "royalblue",
-                      ifelse(res$logFC > 2.5, "firebrick2", "black"))
-  res$color[is.na(res$color)] <- "black"
-  res$group[res$color == "firebrick2"] <- "up"
-  res$group[res$color == "black"] <- "n.s."
-  res$group[res$color == "royalblue"] <- "down"
-
+  res <- as.data.frame(tt$table)
+  
+  keyvals <- ifelse(
+    res$logFC < -1.5 & res$PValue < 0.05, "royalblue",
+    ifelse(res$logFC > 1.5 & res$PValue < 0.05, "firebrick2", "black")
+  )
+  keyvals[is.na(keyvals)] <- "black"
+  names(keyvals)[keyvals == "firebrick2"] <- "up"
+  names(keyvals)[keyvals == "black"] <- "n.s."
+  names(keyvals)[keyvals == "royalblue"] <- "down"
+  
   file_name <- paste0("volcano_", paste0(contrname, ".png"))
-
+  
   p <- EnhancedVolcano(res,
                        lab = rownames(res),
-                       x = res$logFC,
-                       y = res$FDR,
+                       x = "logFC",
+                       y = "PValue",
                        subtitle = NULL,
                        pCutoff = 0.05,
+                       selectLab = rownames(res)[which(names(keyvals) %in%
+                                                         c("up", "down"))],
+                       labSize = 3,
                        pointSize = 1.0,
                        title = contrname,
                        titleLabSize = 12,
-                       colCustom = color,
+                       colCustom = keyvals,
                        colAlpha = 1,
                        legendPosition = "right",
                        legendLabSize = 8,
@@ -215,23 +219,23 @@ volcanoplot <- function(tt, contrname) {
 
 ## Plots con ComBat
 
-contrname <- "72 hpf vs 48 hpf"
+contrname <- "72 hpf vs 48 hpf combat"
 volcanoplot(tt_72_48_combat, contrname = contrname)
 
-contrname <- "120 hpf vs 72 hpf"
+contrname <- "120 hpf vs 72 hpf combat"
 volcanoplot(tt_120_72_combat, contrname = contrname)
 
-contrname <- "Adult vs 120 hpf"
-volcanoplot(tt_Adult_120_combat, contrname = contrname)
+contrname <- "Adult vs 120 hpf combat"
+volcanoplot(tt_adult_120_combat, contrname = contrname)
 
 
 ## Plots con SVA
 
-contrname <- "72 hpf vs 48 hpf"
+contrname <- "72 hpf vs 48 hpf sva"
 volcanoplot(tt_72_48_sva, contrname = contrname)
 
-contrname <- "120 hpf vs 72 hpf"
+contrname <- "120 hpf vs 72 hpf sva"
 volcanoplot(tt_120_72_sva, contrname = contrname)
 
-contrname <- "Adult vs 120 hpf"
-volcanoplot(tt_Adult_120_sva, contrname = contrname)
+contrname <- "Adult vs 120 hpf sva"
+volcanoplot(tt_adult_120_sva, contrname = contrname)

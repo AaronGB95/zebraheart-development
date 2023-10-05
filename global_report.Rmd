@@ -1,0 +1,121 @@
+---
+title: "Desarrollo del transcriptoma del corazón de pez cebra"
+author: "Aarón García Blázquez"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    toc_depth: 2
+    number_sections: false
+    theme: cerulean
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+# Revisión Sistemática
+
+Se realizó de nuevo una revisión sistemática para incluir nuevos estudios y aumentar el tamaño muestral de cada grupo. También se revisaron los estudios ya incluidos para confirmar su validez.
+
+## Estudios incluidos
+
+Se encontró el estudio [GSE114038](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE114038), el cual consistía de 85 muestras de distintas técnicas ómicas y tejidos de pez cebra. Dentro de esas muestras se encuentran 10 muestras de corazón de pez cebra a 72 hpf.
+
+Sin embargo, tras la descarga y mapeo de las lecturas, se observó que la profundidad de secuenciación de las muestras era demasiado baja. Debido a ello se descartaron las muestras correspondientes.
+
+## Estudios excluidos
+
+Tras revisar los estudios que se incluyeron en el TFM, se excluyeron varios de ellos debido a que no cumplían los criterios establecidos en la revisión sistemática. Los estudios excluidos son:
+
+- GSE107228: Este estudio fue excluido de la revisión sistemática debido al tratamiento recibido por parte de las muestras (Los peces recibieron un choque térmico).
+
+- GSE143346: En este estudio se excluyeron 2 grupos experimentales correspondientes a los peces de mayor edad (2 y 3 años de edad). La edad de estos peces se corresponde con un aumento de la expresión de genes relacionados con la inflamación, por lo que la inclusión de peces de edades avanzadas puede añadir variabilidad no deseada y ocultar diferencias significativas en genes relacionados con el desarrollo del corazón.
+
+- GSE206948: En este estudio no se indica la edad exacta de las larvas de los peces.
+
+## Muestras resultantes
+
+```{r results='asis'}
+library(knitr)
+studies <- c("E-MTAB-10860",
+             "GSE103169",
+             "GSE133130",
+             "GSE143346",
+             "GSE152389",
+             "GSE160107",
+             "GSE160398",
+             "GSE189934",
+             "GSE79585")
+samples <- c(6, 6, 9, 12, 10, 12, 6, 16, 6)
+controls <- c(3, 3, 4, 6, 4, 6, 3, 8, 6)
+ages <- c("120 hpf",
+          "48 hpf",
+          "Adult",
+          "Adult",
+          "120 hpf",
+          "48 hpf + 72 hpf",
+          "72 hpf",
+          "48 hpf",
+          "48 hpf")
+tabla <- data.frame(studies, samples, controls, ages)
+colnames(tabla) <- c("Estudio", "N muestras", "N controles", "Edad")
+kable(tabla,
+      caption = "Estudios incluidos tras la revisión sistemática",
+      align = "lccl")
+```
+
+```{r results='asis'}
+ages <- c("48 hpf", "72 hpf", "120 hpf", "Adult")
+samples <- c(20, 6, 7, 10)
+tabla <- data.frame(ages, samples)
+colnames(tabla) <- c("Edad", "N muestras")
+kable(tabla,
+      caption = "Resumen de muestras por grupo de edad.",
+      align = "lc")
+```
+
+
+
+# Análisis Exploratorio
+
+```{r, child="02_data_integration/exploratory_analysis_report.Rmd"}
+
+```
+
+# Corrección efecto lote
+
+```{r}
+
+```
+
+# Expresión diferencial
+
+```{r}
+
+```
+
+# Análisis funcional
+
+## Análisis de sobrerrepresentación
+
+```{r}
+
+```
+
+## Análisis de conjuntos de genes
+
+```{r}
+
+```
+
+
+
+
+
+
+
+
+
+
