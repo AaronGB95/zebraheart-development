@@ -274,8 +274,6 @@ if (dim(oraBottom)[1] > 0) {
 }
 ```
 
-En este caso no se han encontrado funciones significativas.
-
 #### KEGG
 
 ```{r bottom kegg 1}
@@ -299,8 +297,6 @@ if (dim(keggBottom)[1] > 0) {
           font.size = 6)
   }
 ```
-
-En este caso no se han encontrado funciones significativas.
 
 ## 120 hpf vs 72 hpf {.tabset}
 

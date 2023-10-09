@@ -1,0 +1,58 @@
+---
+title: "Corrección efecto lote"
+author: "Aarón García Blázquez"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, out.width = '100%')
+```
+
+```{r packages}
+require(dplyr)
+require(DT)
+```
+
+# Corrección del efecto lote {.tabset}
+
+### SVA {.tabset}
+
+#### Boxplot
+
+```{r}
+knitr::include_graphics("sva_counts_age_boxplot.png")
+```
+
+#### PCA
+
+```{r}
+knitr::include_graphics("sva_counts_age_pca.png")
+```
+
+#### Cluster
+
+```{r}
+knitr::include_graphics("sva_counts_age_cluster.png")
+```
+
+### ComBat {.tabset}
+
+#### Boxplot
+
+```{r}
+knitr::include_graphics("combat_counts_age_boxplot.png")
+```
+
+#### PCA
+
+```{r}
+knitr::include_graphics("combat_counts_age_pca.png")
+```
+
+#### Cluster
+
+```{r}
+knitr::include_graphics("combat_counts_age_cluster.png")
+```
+

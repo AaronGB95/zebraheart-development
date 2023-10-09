@@ -38,7 +38,7 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 ##-----------------------------------------------------------------------------
 ## Data load
 ##-----------------------------------------------------------------------------
-datamatrix <- read.table("datamatrix_tmm.txt",
+datamatrix <- read.table("datamatrix_combat.txt",
                          sep = "\t",
                          header = TRUE,
                          row.names = 1)
@@ -52,7 +52,7 @@ phenodata$Sample <- rownames(phenodata)
 phenodata <- phenodata[match(colnames(datamatrix), rownames(phenodata)), ]
 
 # Give file name to save plots
-file <- "tmm_counts"
+file <- "combat_counts"
 ##-----------------------------------------------------------------------------
 
 
@@ -69,7 +69,7 @@ par(las = 2)
 # For the dataset
 group <- as.factor(phenodata$Set)
 
-log2(datamatrix + 1) %>%
+datamatrix %>%
   rownames_to_column("Genes") %>%
   gather(Sample, Sample_value, -Genes) %>%
   left_join(phenodata, by = "Sample") %>%

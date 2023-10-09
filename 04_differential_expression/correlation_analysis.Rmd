@@ -1,0 +1,201 @@
+---
+title: "Análisis de Correlación"
+author: "Aarón García Blázquez"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+rm(list = ls())
+```
+
+## Carga de librerías
+
+```{r}
+library(dplyr)
+require(rstudioapi)
+```
+
+```{r}
+# Set document path as working directory
+setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
+```
+
+# 48 hpf vs 72 hpf
+
+## Carga de datos
+
+```{r}
+load("tt_72_48.RData")
+load("tt_72_48_combat.RData")
+load("tt_72_48_sva.RData")
+
+tt_72_48$table$ind <- rownames(tt_72_48$table)
+tt_72_48_sva$table$ind <- rownames(tt_72_48_sva$table)
+tt_72_48_combat$table$ind <- rownames(tt_72_48_combat$table)
+```
+
+Juntamos los logFC en una sola tabla.
+
+```{r}
+logfc <- tt_72_48$table[,c("logFC", "ind")]
+logfc_combat <- tt_72_48_combat$table[,c("logFC", "ind")]
+logfc_sva <- tt_72_48_sva$table[,c("logFC", "ind")]
+
+logfc_72_48 <- right_join(logfc, logfc_combat, by = "ind") %>%
+  right_join(logfc_sva, by = "ind")
+
+rownames(logfc_72_48) <- logfc_72_48$ind
+
+logfc_72_48 <- logfc_72_48[,-2]
+
+colnames(logfc_72_48) <- c("Control", "Combat", "SVA")
+```
+
+&nbsp;
+
+## Análisis de correlación entre métodos de corrección
+
+### Control vs Combat
+
+```{r}
+res <- cor.test(logfc_72_48$Control, logfc_72_48$Combat, method = "pearson")
+c(res$estimate, res$p.value)
+```
+
+### Control vs SVA
+
+```{r}
+res <- cor.test(logfc_72_48$Control, logfc_72_48$SVA, method = "pearson")
+c(res$estimate, res$p.value)
+```
+
+### Combat vs SVA
+
+```{r}
+res <- cor.test(logfc_72_48$Combat, logfc_72_48$SVA, method = "pearson")
+c(res$estimate, res$p.value)
+```
+
+&nbsp;
+
+# 72 hpf vs 120 hpf
+
+## Carga de datos
+
+```{r}
+load("tt_120_72.RData")
+load("tt_120_72_combat.RData")
+load("tt_120_72_sva.RData")
+
+tt_120_72$table$ind <- rownames(tt_120_72$table)
+tt_120_72_sva$table$ind <- rownames(tt_120_72_sva$table)
+tt_120_72_combat$table$ind <- rownames(tt_120_72_combat$table)
+```
+
+Juntamos los logFC en una sola tabla.
+
+```{r}
+logfc <- tt_120_72$table[,c("logFC", "ind")]
+logfc_combat <- tt_120_72_combat$table[,c("logFC", "ind")]
+logfc_sva <- tt_120_72_sva$table[,c("logFC", "ind")]
+
+logfc_120_72 <- right_join(logfc, logfc_combat, by = "ind") %>%
+  right_join(logfc_sva, by = "ind")
+
+rownames(logfc_120_72) <- logfc_120_72$ind
+
+logfc_120_72 <- logfc_120_72[,-2]
+
+colnames(logfc_120_72) <- c("Control", "Combat", "SVA")
+```
+
+&nbsp;
+
+## Análisis de correlación entre métodos de corrección
+
+### Control vs Combat
+
+```{r}
+res <- cor.test(logfc_120_72$Control, logfc_120_72$Combat, method = "pearson")
+c(res$estimate, res$p.value)
+```
+
+### Control vs SVA
+
+```{r}
+res <- cor.test(logfc_120_72$Control, logfc_120_72$SVA, method = "pearson")
+c(res$estimate, res$p.value)
+```
+
+### Combat vs SVA
+
+```{r}
+res <- cor.test(logfc_120_72$Combat, logfc_120_72$SVA, method = "pearson")
+c(res$estimate, res$p.value)
+```
+
+&nbsp;
+
+# 120 hpf vs Adulto
+
+## Carga de datos
+
+```{r}
+load("tt_adult_120.RData")
+load("tt_adult_120_combat.RData")
+load("tt_adult_120_sva.RData")
+
+tt_adult_120$table$ind <- rownames(tt_adult_120$table)
+tt_adult_120_sva$table$ind <- rownames(tt_adult_120_sva$table)
+tt_adult_120_combat$table$ind <- rownames(tt_adult_120_combat$table)
+```
+
+Juntamos los logFC en una sola tabla.
+
+```{r}
+logfc <- tt_adult_120$table[,c("logFC", "ind")]
+logfc_combat <- tt_adult_120_combat$table[,c("logFC", "ind")]
+logfc_sva <- tt_adult_120_sva$table[,c("logFC", "ind")]
+
+logfc_adult_120 <- right_join(logfc, logfc_combat, by = "ind") %>%
+  right_join(logfc_sva, by = "ind")
+
+rownames(logfc_adult_120) <- logfc_adult_120$ind
+
+logfc_adult_120 <- logfc_adult_120[,-2]
+
+colnames(logfc_adult_120) <- c("Control", "Combat", "SVA")
+```
+
+## Análisis de correlación entre métodos de corrección
+
+### Control vs Combat
+
+```{r}
+res <- cor.test(logfc_adult_120$Control, logfc_adult_120$Combat, method = "pearson")
+c(res$estimate, res$p.value)
+```
+
+### Control vs SVA
+
+```{r}
+res <- cor.test(logfc_adult_120$Control, logfc_adult_120$SVA, method = "pearson")
+c(res$estimate, res$p.value)
+```
+
+### Combat vs SVA
+
+```{r}
+res <- cor.test(logfc_adult_120$Combat, logfc_adult_120$SVA, method = "pearson")
+c(res$estimate, res$p.value)
+```
+
+<div class="tocify-extend-page" data-unique="tocify-extend-page" style="height: 0;"></div>
+
+
+

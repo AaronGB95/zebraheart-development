@@ -196,7 +196,7 @@ volcanoplot <- function(tt, contrname) {
   p <- EnhancedVolcano(res,
                        lab = rownames(res),
                        x = "logFC",
-                       y = "PValue",
+                       y = "FDR",
                        subtitle = NULL,
                        pCutoff = 0.05,
                        selectLab = rownames(res)[which(names(keyvals) %in%

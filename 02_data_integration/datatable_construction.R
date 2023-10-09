@@ -76,7 +76,6 @@ datamatrix <- as.data.frame(datamatrix)
 ##-----------------------------------------------------------------------------
 ## Gene Annotation
 ##-----------------------------------------------------------------------------
-'
 ensembl <- useMart("ensembl", dataset = "drerio_gene_ensembl")
 
 gene_names <- getBM(attributes = c("ensembl_gene_id", "external_gene_name"),
@@ -104,7 +103,6 @@ rownames(datamatrix) <- datamatrix$external_gene_name
 # Remove names columns
 datamatrix <- datamatrix[, !names(datamatrix) %in% 
                            c("ensembl_gene_id", "external_gene_name")]
-'
 ##----------------------------------------------------------------------------
 
 
