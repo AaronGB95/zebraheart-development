@@ -6,10 +6,8 @@ output:
   html_document:
     toc: true
     toc_float: true
-    toc_depth: 2
     number_sections: false
     theme: cerulean
-    code_folding: hide
 ---
 
 ```{r setup, include=FALSE}
@@ -27,28 +25,6 @@ library(org.Dr.eg.db)
 library(ggplot2)
 library(pathview)
 library(KEGGREST)
-library(tidyverse)
-library(limma)
-library(edgeR)
-library(xlsx)
-library(biomaRt)
-```
-
-```{r}
-keys <- keys(org.Dr.eg.db, keytype="SYMBOL")
-r_kegg <- AnnotationDbi::select(org.Dr.eg.db, keys=keys,
-                                columns=c("SYMBOL", "PATH"),
-                                keytype="SYMBOL")
-r_kegg <- na.exclude(r_kegg)
-r_kegg <- r_kegg[,c(2,1)]
-
-dre_pathways <- keggList("pathway", "dre") %>% 
-    tibble(pathway = names(.), description = .)
-
-path_ids <- str_split_i(dre_pathways$pathway, "dre", 2)
-path_descriptions <- str_split_i(dre_pathways$description, " -", 1)
-dre_pathways$pathway <- path_ids
-dre_pathways$description <- path_descriptions
 ```
 
 # Contrastes {.tabset}
@@ -64,360 +40,36 @@ print("Número de genes significativos")
 table(diffexp$FDR < 0.05)
 ```
 
-&nbsp;
-
 ```{r}
-geneList <- diffexp$logFC
+geneList <- diffexp$LogFC
 names(geneList) <- rownames(diffexp)
 geneList <- sort(geneList, decreasing = TRUE)
-
-writeLines(as.character(geneList), con = "72_48_geneList_list.txt", sep = "\n")
 ```
-
-### BP
-
-```{r gsea bp 1}
-# load("data/gsea.RData")
-gsea <- gseGO(geneList       = geneList,
-                 OrgDb         = org.Dr.eg.db,
-                 keyType       = 'SYMBOL',
-                 ont           = "BP",
-                 pAdjustMethod = "BH")
-# save(gsea, file = "data/gsea.RData")
-
-print(paste0("Número de funciones significativas: ", dim(gsea)[1]))
-```
-
-```{r gsea bp 1 plot}
-if (dim(gsea)[1] > 0) {
-  gsea_table <- gsea@result[gsea@result$p.adjust < 0.05,c("ID","p.adjust")]
-  write.table(gsea_table, file = "gsea_bp_1.txt", sep = "\t", row.names = FALSE, quote = FALSE)
-  write.xlsx(gsea@result, file = "funciones_72_48_bp_gsea.xlsx")
-  dotplot(gsea,
-          showCategory = 20,
-          x = "geneRatio",
-          font.size = 6)
-  }
-```
-
-### MF
-
-```{r gsea mf 1}
-# load("data/gsea.RData")
-gsea <- gseGO(gene        = geneList,
-                 OrgDb         = org.Dr.eg.db,
-                 keyType       = 'SYMBOL',
-                 ont           = "MF",
-                 pAdjustMethod = "BH")
-# save(gsea, file = "data/gsea.RData")
-
-print(paste0("Número de funciones significativas: ", dim(gsea)[1]))
-```
-
-```{r gsea mf 1 plot}
-if (dim(gsea)[1] > 0) {
-  gsea_table <- gsea@result[gsea@result$p.adjust < 0.05,c("ID","p.adjust")]
-  write.table(gsea_table, file = "gsea_mf_1.txt", sep = "\t", row.names = FALSE, quote = FALSE)
-  write.xlsx(gsea@result, file = "funciones_72_48_mf_gsea.xlsx")
-  dotplot(gsea,
-          showCategory = 20,
-          x = "geneRatio",
-          font.size = 6)
-  }
-```
-
-### CC
-
-```{r gsea cc 1}
-# load("data/gsea.RData")
-gsea <- gseGO(gene        = geneList,
-                 OrgDb         = org.Dr.eg.db,
-                 keyType       = 'SYMBOL',
-                 ont           = "CC",
-                 pAdjustMethod = "BH")
-# save(gsea, file = "data/gsea.RData")
-
-print(paste0("Número de funciones significativas: ", dim(gsea)[1]))
-```
-
-```{r gsea cc 1 plot}
-if (dim(gsea)[1] > 0) {
-  gsea_table <- gsea@result[gsea@result$p.adjust < 0.05,c("ID","p.adjust")]
-  write.table(gsea_table, file = "gsea_cc_1.txt", sep = "\t", row.names = FALSE, quote = FALSE)
-  write.xlsx(gsea@result, file = "funciones_72_48_cc_gsea.xlsx")
-  dotplot(gsea,
-          showCategory = 20,
-          x = "geneRatio",
-          font.size = 6)
-  }
-```
-
-### KEGG
-
-```{r gsea kegg 1, eval=FALSE}
-kegggsea <- gseKEGG(geneList = geneList,
-                    pAdjustMethod = "BH",
-                    TERM2GENE = r_kegg,
-                    TERM2NAME = dre_pathways)
-
-print(paste0("Número de rutas significativas: ",dim(kegggsea)[1]))
-```
-
-```{r gsea kegg 1 plot, eval=FALSE}
-if (dim(kegggsea)[1] > 0) {
-  kegggsea_table <- kegggsea@result[kegggsea@result$p.adjust < 0.05,c("ID","p.adjust")]
-  write.table(kegggsea_table, file = "gsea_kegg_1.txt", sep = "\t", row.names = FALSE, quote = FALSE)
-  write.xlsx(kegggsea@result, file = "funciones_72_48_kegg_gsea.xlsx")
-  dotplot(kegggsea,
-          showCategory = 20,
-          x = "geneRatio",
-          font.size = 6)
-  }
-```
-
-
-## 120 hpf vs 72 hpf {.tabset}
-
-```{r data load 2}
-load("tt_120_72.RData")
-diffexp <- tt_120_72$table
-
-# differential expressed genes
-print("Número de genes significativos")
-table(diffexp$FDR < 0.05)
-```
-
-&nbsp;
 
 ```{r}
-geneList <- diffexp$logFC
-names(geneList) <- rownames(diffexp)
-geneList <- sort(geneList, decreasing = TRUE)
+## Benjamini & Hochberg correction
+# load(file = "data/GSEA_BH.RData")
+gsea_BH <- gseGO(geneList  = geneList,
+                 ont       = "BP",
+                 OrgDb     = org.Rn.eg.db,
+                 keyType   = 'SYMBOL',
+                 verbose   = T,
+                 minGSSize = 10,
+                 maxGSSize = 500,
+                 pvalueCutoff = 1,
+                 pAdjustMethod = "BH",
+                 seed      = T)
+# save(gsea_BH, file = "data/GSEA_BH.RData")
+dim(gsea_BH)
 
-writeLines(as.character(geneList), con = "120_72_geneList_list.txt", sep = "\n")
+dotplot(gsea_BH, showCategory = 20) + ggtitle("GSEA")
 ```
 
-### BP
 
-```{r gsea bp 2}
-# load("data/gsea.RData")
-gsea <- gseGO(gene        = geneList,
-                 OrgDb         = org.Dr.eg.db,
-                 keyType       = 'SYMBOL',
-                 ont           = "BP",
-                 pAdjustMethod = "BH")
-# save(gsea, file = "data/gsea.RData")
 
-print(paste0("Número de funciones significativas: ", dim(gsea)[1]))
-```
 
-```{r gsea bp 2 plot}
-if (dim(gsea)[1] > 0) {
-  gsea_table <- gsea@result[gsea@result$p.adjust < 0.05,c("ID","p.adjust")]
-  write.table(gsea_table, file = "gsea_bp_2.txt", sep = "\t", row.names = FALSE, quote = FALSE)
-  write.xlsx(gsea@result, file = "funciones_120_72_bp_gsea.xlsx")
-  dotplot(gsea,
-          showCategory = 20,
-          x = "geneRatio",
-          font.size = 6)
-  }
-```
 
-### MF
 
-```{r gsea mf 2}
-# load("data/gsea.RData")
-gsea <- gseGO(gene        = geneList,
-                 OrgDb         = org.Dr.eg.db,
-                 keyType       = 'SYMBOL',
-                 ont           = "MF",
-                 pAdjustMethod = "BH")
-# save(gsea, file = "data/gsea.RData")
 
-print(paste0("Número de funciones significativas: ", dim(gsea)[1]))
-```
-
-```{r gsea mf 2 plot}
-if (dim(gsea)[1] > 0) {
-  gsea_table <- gsea@result[gsea@result$p.adjust < 0.05,c("ID","p.adjust")]
-  write.table(gsea_table, file = "gsea_mf_2.txt", sep = "\t", row.names = FALSE, quote = FALSE)
-  write.xlsx(gsea@result, file = "funciones_120_72_mf_gsea.xlsx")
-  dotplot(gsea,
-          showCategory = 20,
-          x = "geneRatio",
-          font.size = 6)
-  }
-```
-
-### CC
-
-```{r gsea cc 2}
-# load("data/gsea.RData")
-gsea <- gseGO(gene        = geneList,
-                 OrgDb         = org.Dr.eg.db,
-                 keyType       = 'SYMBOL',
-                 ont           = "CC",
-                 pAdjustMethod = "BH")
-# save(gsea, file = "data/gsea.RData")
-
-print(paste0("Número de funciones significativas: ", dim(gsea)[1]))
-```
-
-```{r gsea cc 2 plot}
-if (dim(gsea)[1] > 0) {
-  gsea_table <- gsea@result[gsea@result$p.adjust < 0.05,c("ID","p.adjust")]
-  write.table(gsea_table, file = "gsea_cc_2.txt", sep = "\t", row.names = FALSE, quote = FALSE)
-  write.xlsx(gsea@result, file = "funciones_120_72_cc_gsea.xlsx")
-  dotplot(gsea,
-          showCategory = 20,
-          x = "geneRatio",
-          font.size = 6)
-  }
-```
-
-### KEGG
-
-```{r gsea kegg 2, eval=FALSE}
-kegggsea <- gseKEGG(geneList = geneList,
-                    pAdjustMethod = "BH",
-                    TERM2GENE = r_kegg,
-                    TERM2NAME = dre_pathways
-                    )
-print(paste0("Número de rutas significativas: ", dim(kegggsea)[1]))
-```
-
-```{r gsea kegg 2 plot, eval=FALSE}
-if (dim(kegggsea)[1] > 0) {
-  kegggsea_table <- kegggsea@result[kegggsea@result$p.adjust < 0.05,c("ID","p.adjust")]
-  write.table(kegggsea_table, file = "gsea_kegg_2.txt", sep = "\t", row.names = FALSE, quote = FALSE)
-  write.xlsx(kegggsea@result, file = "funciones_120_72_kegg_gsea.xlsx")
-  dotplot(kegggsea,
-          showCategory = 20,
-          x = "geneRatio",
-          font.size = 6)
-  }
-```
-
-## Adulto vs 120 hpf {.tabset}
-
-```{r data load 3}
-load("tt_adult_120.RData")
-diffexp <- tt_adult_120$table
-
-# differential expressed genes
-print("Número de genes significativos")
-table(diffexp$FDR < 0.05)
-```
-
-&nbsp;
-
-```{r}
-geneList <- diffexp$logFC
-names(geneList) <- rownames(diffexp)
-geneList <- sort(geneList, decreasing = TRUE)
-
-writeLines(as.character(geneList), con = "Adult_120_geneList_list.txt", sep = "\n")
-```
-
-### BP
-
-```{r gsea bp 3}
-# load("data/gsea.RData")
-gsea <- gseGO(gene        = geneList,
-                 OrgDb         = org.Dr.eg.db,
-                 keyType       = 'SYMBOL',
-                 ont           = "BP",
-                 pAdjustMethod = "BH")
-# save(gsea, file = "data/gsea.RData")
-
-print(paste0("Número de funciones significativas: ", dim(gsea)[1]))
-```
-
-```{r gsea bp 3 plot}
-if (dim(gsea)[1] > 0) {
-  gsea_table <- gsea@result[gsea@result$p.adjust < 0.05,c("ID","p.adjust")]
-  write.table(gsea_table, file = "gsea_bp_3.txt", sep = "\t", row.names = FALSE, quote = FALSE)
-  write.xlsx(gsea@result, file = "funciones_Adulto_120_bp_gsea.xlsx")
-  dotplot(gsea,
-          showCategory = 20,
-          x = "geneRatio",
-          font.size = 6)
-  }
-```
-
-### MF
-
-```{r gsea mf 3}
-# load("data/gsea.RData")
-gsea <- gseGO(gene        = geneList,
-                 OrgDb         = org.Dr.eg.db,
-                 keyType       = 'SYMBOL',
-                 ont           = "MF",
-                 pAdjustMethod = "BH")
-# save(gsea, file = "data/gsea.RData")
-
-print(paste0("Número de funciones significativas: ", dim(gsea)[1]))
-```
-
-```{r gsea mf 3 plot}
-if (dim(gsea)[1] > 0) {
-  gsea_table <- gsea@result[gsea@result$p.adjust < 0.05,c("ID","p.adjust")]
-  write.table(gsea_table, file = "gsea_mf_3.txt", sep = "\t", row.names = FALSE, quote = FALSE)
-  write.xlsx(gsea@result, file = "funciones_Adulto_120_mf_gsea.xlsx")
-  dotplot(gsea,
-          showCategory = 20,
-          x = "geneRatio",
-          font.size = 6)
-  }
-```
-
-### CC
-
-```{r gsea cc 3}
-# load("data/gsea.RData")
-gsea <- gseGO(gene        = geneList,
-                 OrgDb         = org.Dr.eg.db,
-                 keyType       = 'SYMBOL',
-                 ont           = "CC",
-                 pAdjustMethod = "BH")
-# save(gsea, file = "data/gsea.RData")
-
-print(paste0("Número de funciones significativas: ", dim(gsea)[1]))
-```
-
-```{r gsea cc 3 plot}
-if (dim(gsea)[1] > 0) {
-  gsea_table <- gsea@result[gsea@result$p.adjust < 0.05,c("ID","p.adjust")]
-  write.table(gsea_table, file = "gsea_cc_3.txt", sep = "\t", row.names = FALSE, quote = FALSE)
-  write.xlsx(gsea@result, file = "funciones_Adulto_120_cc_gsea.xlsx")
-  dotplot(gsea,
-          showCategory = 20,
-          x = "geneRatio",
-          font.size = 6)
-  }
-```
-
-### KEGG
-
-```{r gsea kegg 3, eval=FALSE}
-kegggsea <- gseKEGG(geneList = geneList,
-                    pAdjustMethod = "BH",
-                    TERM2GENE = r_kegg,
-                    TERM2NAME = dre_pathways)
-
-print(paste0("Número de rutas significativas: ", dim(kegggsea)[1]))
-```
-
-```{r gsea kegg 3 plot, eval=FALSE}
-if (dim(kegggsea)[1] > 0) {
-  kegggsea_table <- kegggsea@result[kegggsea@result$p.adjust < 0.05,c("ID","p.adjust")]
-  write.table(kegggsea_table, file = "gsea_kegg_3.txt", sep = "\t", row.names = FALSE, quote = FALSE)
-  write.xlsx(kegggsea@result, file = "funciones_Adulto_120_kegg_gsea.xlsx")
-  dotplot(kegggsea,
-          showCategory = 20,
-          x = "geneRatio",
-          font.size = 6)
-  }
-```
 
 <div class="tocify-extend-page" data-unique="tocify-extend-page" style="height: 0;"></div>
