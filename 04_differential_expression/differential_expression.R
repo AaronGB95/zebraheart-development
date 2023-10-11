@@ -25,7 +25,6 @@ require(DESeq2)
 require(dplyr)
 require(sva)
 require(EnhancedVolcano)
-require(xlsx)
 require(ggplot2)
 
 ## Carga de los datos
@@ -42,7 +41,11 @@ datamatrix <- read.table("datamatrix_qn.txt",
 phenodata <- read.table("phenodata.txt",
                         sep = "\t",
                         header = 1)
-
+annotations <- read.table("annotations.txt",
+                          sep = "\t",
+                          header = 1)
+colnames(annotations) <- c("ENSEMBLID", "Gene", "ENTREZID")
+annotations <- annotations[!duplicated(annotations$Gene) & !(annotations$Gene == ""), ]
 
 ## Expresión diferencial
 ##-----------------------
@@ -71,58 +74,58 @@ cont_mod <- makeContrasts(hpf72vshpf48 = hpf72 - hpf48,
 
 lrt1 <- glmLRT(fit, contrast = cont_mod[, 1])
 tt_72_48 <- topTags(lrt1, n = Inf, adjust.method = "fdr")
+tt_72_48$table$Gene <- rownames(tt_72_48$table)
+tt_72_48$table <- merge(tt_72_48$table, annotations, by = "Gene")
 save(tt_72_48, file = "tt_72_48.RData")
 
 lrt2 <- glmLRT(fit, contrast = cont_mod[, 2])
 tt_120_72 <- topTags(lrt2, n = Inf, adjust.method = "fdr")
+tt_120_72$table$Gene <- rownames(tt_120_72$table)
+tt_120_72$table <- merge(tt_120_72$table, annotations, by = "Gene")
 save(tt_120_72, file = "tt_120_72.RData")
 
 lrt3 <- glmLRT(fit, contrast = cont_mod[, 3])
 tt_adult_120 <- topTags(lrt3, n = Inf, adjust.method = "fdr")
+tt_adult_120$table$Gene <- rownames(tt_adult_120$table)
+tt_adult_120$table <- merge(tt_adult_120$table, annotations, by = "Gene")
 save(tt_adult_120, file = "tt_adult_120.RData")
 
 ## Guardado de los resultados en excel
 
 ## Todos los genes
 
-write.xlsx2(tt_72_48$table[, c("logFC", "FDR")],
-            file = "72_vs_48_todos.xlsx")
-write.xlsx2(tt_120_72$table[, c("logFC", "FDR")],
-            file = "120_vs_72_todos.xlsx")
-write.xlsx2(tt_adult_120$table[, c("logFC", "FDR")],
-            file = "Adulto_vs_120_todos.xlsx")
+write.table(tt_72_48$table,
+            file = "72_vs_48_todos.txt")
+write.table(tt_120_72$table,
+            file = "120_vs_72_todos.txt")
+write.table(tt_adult_120$table,
+            file = "Adulto_vs_120_todos.txt")
 
 ## Ups y Downs por separado
 
 ### Downs
 
-write.xlsx2(tt_72_48$table[which(tt_72_48$table$logFC < -1.5 &
-                                   tt_72_48$table$FDR < 0.05),
-                           c("logFC", "FDR")],
-            file = "72_vs_48_downs.xlsx")
-write.xlsx2(tt_120_72$table[which(tt_120_72$table$logFC < -1.5 &
-                                    tt_120_72$table$FDR < 0.05),
-                            c("logFC", "FDR")],
-            file = "120_vs_72_downs.xlsx")
-write.xlsx2(tt_adult_120$table[which(tt_adult_120$table$logFC < -1.5 &
-                                       tt_adult_120$table$FDR < 0.05),
-                               c("logFC", "FDR")],
-            file = "Adulto_vs_120_downs.xlsx")
+write.table(tt_72_48$table[which(tt_72_48$table$logFC < -1.5 &
+                                   tt_72_48$table$FDR < 0.05), ],
+            file = "72_vs_48_downs.txt")
+write.table(tt_120_72$table[which(tt_120_72$table$logFC < -1.5 &
+                                    tt_120_72$table$FDR < 0.05), ],
+            file = "120_vs_72_downs.txt")
+write.table(tt_adult_120$table[which(tt_adult_120$table$logFC < -1.5 &
+                                       tt_adult_120$table$FDR < 0.05), ],
+            file = "Adulto_vs_120_downs.txt")
 
 ### Ups
 
-write.xlsx2(tt_72_48$table[which(tt_72_48$table$logFC > 1.5 &
-                                   tt_72_48$table$FDR < 0.05),
-                           c("logFC", "FDR")],
-            file = "72_vs_48_ups.xlsx")
-write.xlsx2(tt_120_72$table[which(tt_120_72$table$logFC > 1.5 &
-                                    tt_120_72$table$FDR < 0.05),
-                            c("logFC", "FDR")],
-            file = "120_vs_72_ups.xlsx")
-write.xlsx2(tt_adult_120$table[which(tt_adult_120$table$logFC > 1.5 &
-                                       tt_adult_120$table$FDR < 0.05),
-                               c("logFC", "FDR")],
-            file = "Adulto_vs_120_ups.xlsx")
+write.table(tt_72_48$table[which(tt_72_48$table$logFC > 1.5 &
+                                   tt_72_48$table$FDR < 0.05), ],
+            file = "72_vs_48_ups.txt")
+write.table(tt_120_72$table[which(tt_120_72$table$logFC > 1.5 &
+                                    tt_120_72$table$FDR < 0.05), ],
+            file = "120_vs_72_ups.txt")
+write.table(tt_adult_120$table[which(tt_adult_120$table$logFC > 1.5 &
+                                       tt_adult_120$table$FDR < 0.05), ],
+            file = "Adulto_vs_120_ups.txt")
 
 
 ##------------------------------------------------------------------------------

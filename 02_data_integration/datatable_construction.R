@@ -78,7 +78,7 @@ datamatrix <- as.data.frame(datamatrix)
 ##-----------------------------------------------------------------------------
 ensembl <- useMart("ensembl", dataset = "drerio_gene_ensembl")
 
-gene_names <- getBM(attributes = c("ensembl_gene_id", "external_gene_name"),
+gene_names <- getBM(attributes = c("ensembl_gene_id", "external_gene_name", "entrezgene_id"),
                     filters = "ensembl_gene_id",
                     values = names,
                     mart = ensembl)
@@ -102,7 +102,7 @@ rownames(datamatrix) <- datamatrix$external_gene_name
 
 # Remove names columns
 datamatrix <- datamatrix[, !names(datamatrix) %in% 
-                           c("ensembl_gene_id", "external_gene_name")]
+                           c("ensembl_gene_id", "external_gene_name", "entrezgene_id")]
 ##----------------------------------------------------------------------------
 
 
@@ -136,6 +136,7 @@ qn_counts <- normalize.quantiles(as.matrix(tmm_counts),
 write.table(datamatrix, file = "datamatrix.txt", sep = "\t", quote = FALSE)
 write.table(tmm_counts, file = "datamatrix_tmm.txt", sep = "\t", quote = FALSE)
 write.table(qn_counts, file = "datamatrix_qn.txt", sep = "\t", quote = FALSE)
+write.table(gene_names, file = "annotations.txt", sep = "\t", quote = FALSE)
 ##-----------------------------------------------------------------------------
 
 # Clean environment
