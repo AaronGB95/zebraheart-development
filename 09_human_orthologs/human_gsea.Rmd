@@ -1,0 +1,320 @@
+---
+title: "Análisis de Conjunto de Genes"
+author: "Aarón García Blázquez"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    number_sections: false
+    theme: cerulean
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE, out.width = "100%")
+```
+
+```{r load packages}
+rm(list = ls())
+
+library(mdgsa)
+library(clusterProfiler)
+library(enrichplot)
+library(fgsea)
+library(org.Hs.eg.db)
+library(ggplot2)
+library(pathview)
+library(KEGGREST)
+library(DT)
+```
+
+Se realizó un análisis de conjunto de genes (GSEA, Gene set expression analysis) empleando los términos funcionales de Gene Ontology para la ontología de Biological Process (BP) y las rutas de KEGG.
+
+Cada gráfico muestra los 20 términos funcionales más significativos ordenados por la proporción de genes significativos frente al número de genes presentes en ese término. El grosor del punto indica más genes significativos
+
+# Contrastes {.tabset}
+
+```{r}
+tabla <- function(table) {
+  table %>%
+  DT::datatable(extensions = 'Buttons',
+                options = list(pageLength = 10,                
+                             dom = 'Blfrtip',
+                             order = list(list(1, 'asc')),
+                             buttons = list('colvis', 
+                                             list(title = NULL,
+                                                  extend = list('copy'),
+                                                  exportOptions = list(columns = ":visible"),
+                                                  text = "Copy"),
+                                             list(title = NULL,
+                                                  extend = list('csv'),
+                                                  exportOptions = list(columns = ":visible"),
+                                                  text = ".csv"),
+                                             list(title = NULL,
+                                                  extend = list('excel'),
+                                                  exportOptions = list(columns = ":visible"),
+                                                  text = "Excel"),
+                                             list(title = "Informe de los resultados en formato pdf",
+                                                  extend = list('pdf'),
+                                                  exportOptions = list(columns = ":visible"),
+                                                  text = ".pdf"),
+                                             list(title = NULL,
+                                                  extend = list('print'),
+                                                  exportOptions = list(columns = ":visible"),
+                                                  text = "Print")
+                                              )),
+              filter = "top", 
+              escape = FALSE, 
+              rownames = TRUE)  %>%
+  formatSignif(columns = c("pvalue", "p.adjust"), digits=3) %>%
+  formatStyle('pvalue', 
+              fontWeight = styleInterval(0.05, c('bold', 'normal')), 
+              color = styleInterval(0.05, c('green', 'black'))) %>%
+  formatStyle('p.adjust', 
+              fontWeight = styleInterval(0.05, c('bold', 'normal')), 
+              color = styleInterval(0.05, c('green', 'black')))
+}
+```
+
+## 72 hpf vs 48 hpf {.tabset}
+
+```{r data load 1}
+load("human_annotated_tt_72_48.RData")
+
+diffexp <- annotated_data
+
+# differential expressed genes
+print(paste("Número de genes significativos:", table(diffexp$FDR < 0.05)[1]))
+```
+
+### Gene Ontology
+
+```{r}
+geneList <- diffexp$logFC
+names(geneList) <- diffexp$HGNC_Symbol
+geneList <- sort(geneList, decreasing = TRUE)
+```
+
+```{r}
+## Benjamini & Hochberg correction
+# load(file = "data/GSEA_BH.RData")
+gsea_BH <- gseGO(geneList  = geneList,
+                 ont       = "BP",
+                 OrgDb     = org.Hs.eg.db,
+                 keyType   = 'SYMBOL',
+                 verbose   = T,
+                 minGSSize = 10,
+                 maxGSSize = 500,
+                 pvalueCutoff = 1,
+                 pAdjustMethod = "BH")
+# save(gsea_BH, file = "data/GSEA_BH.RData")
+print(paste("Número de términos significativos:",length(which(gsea_BH@result$pvalue < 0.05))))
+
+save(gsea_BH, file = "gsea_go_bp_72_48.RData")
+
+write.table(gsea_BH@result,
+            file = "gsea_go_bp_72_48.txt",
+            sep = "\t",
+            quote = FALSE,
+            row.names = FALSE)
+
+dotplot(gsea_BH, showCategory = 20, font.size = 8) + ggtitle("GSEA GO:BP 72 hpf vs 48 hpf")
+```
+
+```{r}
+tabla(gsea_BH@result[,c("Description", "setSize", "pvalue", "p.adjust", "core_enrichment")])
+```
+
+### KEGG
+
+```{r}
+## Ranked list. Id must be Entrez id
+geneList_kegg = diffexp$logFC
+names(geneList_kegg) = diffexp$EntrezGeneID_Human
+geneList_kegg = sort(geneList_kegg, decreasing = TRUE)
+
+# load("data/GSEA_KEGG.RData")
+gsea_kegg = gseKEGG(geneList     = geneList_kegg,
+                    organism     = 'hsa',
+                    keyType      = "ncbi-geneid",
+                    pvalueCutoff = 0.05,
+                    verbose      = TRUE)
+# save(gsea_kegg, file = "data/GSEA_KEGG.RData")
+print(paste("Número de términos significativos:",length(which(gsea_kegg@result$pvalue < 0.05))))
+
+save(gsea_kegg, file = "gsea_kegg_72_48.RData")
+
+write.table(gsea_kegg@result,
+            file = "gsea_kegg_72_48.txt",
+            sep = "\t",
+            quote = FALSE,
+            row.names = FALSE)
+
+dotplot(gsea_kegg, showCategory = 20, font.size = 8) + ggtitle("GSEA KEGG 72 hpf vs 48 hpf")
+```
+
+```{r}
+tabla(gsea_kegg@result[,c("Description", "setSize", "pvalue", "p.adjust", "core_enrichment")])
+```
+
+## 120 hpf vs 72 hpf {.tabset}
+
+```{r data load 2}
+load("human_annotated_tt_120_72.RData")
+
+diffexp <- annotated_data
+
+# differential expressed genes
+print(paste("Número de genes significativos:", table(diffexp$FDR < 0.05)[1]))
+```
+
+### Gene Ontology
+
+```{r}
+geneList <- diffexp$logFC
+names(geneList) <- diffexp$HGNC_Symbol
+geneList <- sort(geneList, decreasing = TRUE)
+```
+
+```{r}
+## Benjamini & Hochberg correction
+# load(file = "data/GSEA_BH.RData")
+gsea_BH <- gseGO(geneList  = geneList,
+                 ont       = "BP",
+                 OrgDb     = org.Hs.eg.db,
+                 keyType   = 'SYMBOL',
+                 verbose   = T,
+                 minGSSize = 10,
+                 maxGSSize = 500,
+                 pvalueCutoff = 1,
+                 pAdjustMethod = "BH")
+# save(gsea_BH, file = "data/GSEA_BH.RData")
+print(paste("Número de términos significativos:",length(which(gsea_BH@result$pvalue < 0.05))))
+
+save(gsea_BH, file = "gsea_go_bp_120_72.RData")
+
+write.table(gsea_BH@result,
+            file = "gsea_go_bp_120_72.txt",
+            sep = "\t",
+            quote = FALSE,
+            row.names = FALSE)
+
+dotplot(gsea_BH, showCategory = 20, font.size = 8) + ggtitle("GSEA GO:BP 120 hpf vs 72 hpf")
+```
+
+```{r}
+tabla(gsea_BH@result[,c("Description", "setSize", "pvalue", "p.adjust", "core_enrichment")])
+```
+
+### KEGG
+
+```{r}
+## Ranked list. Id must be Entrez id
+geneList_kegg = diffexp$logFC
+names(geneList_kegg) = diffexp$EntrezGeneID_Human
+geneList_kegg = sort(geneList_kegg, decreasing = TRUE)
+
+# load("data/GSEA_KEGG.RData")
+gsea_kegg = gseKEGG(geneList     = geneList_kegg,
+                    organism     = 'hsa',
+                    keyType      = "ncbi-geneid",
+                    pvalueCutoff = 0.05,
+                    verbose      = TRUE)
+# save(gsea_kegg, file = "data/GSEA_KEGG.RData")
+print(paste("Número de términos significativos:",length(which(gsea_kegg@result$pvalue < 0.05))))
+
+save(gsea_kegg, file = "gsea_kegg_120_72.RData")
+
+write.table(gsea_kegg@result,
+            file = "gsea_kegg_120_72.txt",
+            sep = "\t",
+            quote = FALSE,
+            row.names = FALSE)
+
+dotplot(gsea_kegg, showCategory = 20, font.size = 8) + ggtitle("GSEA KEGG 120 hpf vs 72 hpf")
+```
+
+```{r}
+tabla(gsea_kegg@result[,c("Description", "setSize", "pvalue", "p.adjust", "core_enrichment")])
+```
+
+## Adult vs 120 hpf {.tabset}
+
+```{r data load 3}
+load("human_annotated_tt_adult_120.RData")
+
+diffexp <- annotated_data
+
+# differential expressed genes
+print(paste("Número de genes significativos:", table(diffexp$FDR < 0.05)[1]))
+```
+
+### Gene Ontology
+
+```{r}
+geneList <- diffexp$logFC
+names(geneList) <- diffexp$HGNC_Symbol
+geneList <- sort(geneList, decreasing = TRUE)
+```
+
+```{r}
+## Benjamini & Hochberg correction
+# load(file = "data/GSEA_BH.RData")
+gsea_BH <- gseGO(geneList  = geneList,
+                 ont       = "BP",
+                 OrgDb     = org.Hs.eg.db,
+                 keyType   = 'SYMBOL',
+                 verbose   = T,
+                 minGSSize = 10,
+                 maxGSSize = 500,
+                 pvalueCutoff = 1,
+                 pAdjustMethod = "BH")
+# save(gsea_BH, file = "data/GSEA_BH.RData")
+print(paste("Número de términos significativos:",length(which(gsea_BH@result$pvalue < 0.05))))
+
+save(gsea_BH, file = "gsea_go_bp_adult_120.RData")
+
+write.table(gsea_BH@result,
+            file = "gsea_go_bp_adult_120.txt",
+            sep = "\t",
+            quote = FALSE,
+            row.names = FALSE)
+
+dotplot(gsea_BH, showCategory = 20, font.size = 8) + ggtitle("GSEA GO:BP Adult vs 120 hpf")
+```
+
+```{r}
+tabla(gsea_BH@result[,c("Description", "setSize", "pvalue", "p.adjust", "core_enrichment")])
+```
+
+### KEGG
+
+```{r}
+## Ranked list. Id must be Entrez id
+geneList_kegg = diffexp$logFC
+names(geneList_kegg) = diffexp$EntrezGeneID_Human
+geneList_kegg = sort(geneList_kegg, decreasing = TRUE)
+
+# load("data/GSEA_KEGG.RData")
+gsea_kegg = gseKEGG(geneList     = geneList_kegg,
+                    organism     = 'hsa',
+                    keyType      = "ncbi-geneid",
+                    pvalueCutoff = 0.05,
+                    verbose      = TRUE)
+# save(gsea_kegg, file = "data/GSEA_KEGG.RData")
+print(paste("Número de términos significativos:",length(which(gsea_kegg@result$pvalue < 0.05))))
+
+save(gsea_kegg, file = "gsea_kegg_adult_120.RData")
+
+write.table(gsea_kegg@result,
+            file = "gsea_kegg_adult_120.txt",
+            sep = "\t",
+            quote = FALSE,
+            row.names = FALSE)
+
+dotplot(gsea_kegg, showCategory = 20, font.size = 8) + ggtitle("GSEA KEGG Adult vs 120 hpf")
+```
+
+```{r}
+tabla(gsea_kegg@result[,c("Description", "setSize", "pvalue", "p.adjust", "core_enrichment")])
+```
+
+<div class="tocify-extend-page" data-unique="tocify-extend-page" style="height: 0;"></div>

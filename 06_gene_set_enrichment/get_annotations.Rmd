@@ -1,0 +1,210 @@
+---
+title: "Anotación de genes y conversión de identificadores"
+author: "Aarón García Blázquez"
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    theme: cerulean
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, results = 'hide', eval = F, message = F)
+```
+
+&nbsp;
+
+# Enlaces de interés
+
+[Tutorial *biomaRt*](https://bioconductor.org/packages/release/bioc/vignettes/biomaRt/inst/doc/accessing_ensembl.html)
+
+[TAMI](https://www.uv.es/ayala/docencia/tami/tami13.pdf)
+
+&nbsp;
+
+# Cargar paquetes
+
+```{r load packages}
+library(biomaRt)
+library(org.Dr.eg.db)
+```
+
+# Paquetes org.XX.eg.db
+
+**-Ventajas:** fácil y rápido.
+
+**-Desventajas:** no hay tantas anotaciones disponibles como en biomaRt (por ejemplo
+rutas de Reactome).
+
+&nbsp;
+
+## Rutas KEGG
+
+```{r}
+keytypes(org.Dr.eg.db) # identificadores disponibles en el paquete
+
+# Por defecto el identificador que usa es el Entrezid
+# toTable da la información en forma de dataframe
+
+id2name <- toTable(org.Dr.egGENENAME) 
+
+# Obtener las rutas KEGG de cada gen con el identificador Gene symbol
+
+## 1. Lista de genes 
+keys <- keys(org.Dr.eg.db, keytype="SYMBOL")
+
+## 2. Asociar gen con pathway
+### Argumentos
+### keys -> genes de interés
+### columns -> identifadores de interés
+### keytype -> tipo de identificador de tus genes de interés
+zf_kegg <- AnnotationDbi::select(org.Dr.eg.db, keys=keys,
+                                        columns=c("SYMBOL", "PATH"), 
+                                        keytype="SYMBOL")
+
+## 3. Eliminar genes sin anotación
+zf_kegg <- na.exclude(zf_kegg) 
+
+## 4. Comprobaciones
+table(duplicated(zf_kegg)) 
+head(zf_kegg)
+
+# Obtener rutas KEGG con los identificadores de Ensembl
+keys <- keys(org.Dr.eg.db, keytype="ENSEMBL")
+zebrafish_ensembl_kegg <- AnnotationDbi::select(org.Dr.eg.db, keys= keys,
+                                        columns=c("ENSEMBL", "PATH"), keytype="ENSEMBL")
+zebrafish_ensembl_kegg <- na.exclude(zebrafish_ensembl_kegg) 
+table(duplicated(zebrafish_ensembl_kegg))
+head(zebrafish_ensembl_kegg)
+```
+
+
+## Términos GO
+
+```{r}
+keys <- keys(org.Dr.eg.db, keytype="SYMBOL")
+zebrafish_go <- AnnotationDbi::select(org.Dr.eg.db, keys= keys,
+                               columns=c("SYMBOL", "GO"), keytype="SYMBOL")
+
+zebrafish_go <- na.exclude(zebrafish_go)
+
+# No solo se incluye el identificador del término GO, también incluye el 
+# código de evidencia y la ontología.
+
+# Filtrar por ontologías
+
+## Biological process
+zf_bp <- zebrafish_go[zebrafish_go$ONTOLOGY == "BP",]
+zf_bp <- zf_bp[,1:2]
+table(duplicated(zf_bp))
+zf_bp <- zf_bp[!duplicated(zf_bp), ]
+
+## Biological process
+zf_mf <- zebrafish_go[zebrafish_go$ONTOLOGY == "MF",]
+zf_mf <- zf_mf[,1:2]
+table(duplicated(zf_mf))
+zf_mf <- zf_mf[!duplicated(zf_mf), ]
+
+## Cellular component
+zf_cc <- zebrafish_go[zebrafish_go$ONTOLOGY == "CC",]
+zf_cc <- zf_cc[,1:2]
+table(duplicated(zf_cc))
+zf_cc <- zf_cc[!duplicated(zf_cc), ]
+
+```
+
+# Paquete biomaRt
+
+**-Ventajas:** gran variedad de identificadores y atributos.
+
+**-Desventajas:** a veces los servidores no funcionan. Las consultas pueden llegar
+a tardar mucho. 
+
+```{r}
+# A veces no puede conectarse al servidor y da error. Si pasa esto
+# hay que cambiar de host:
+# "uswest.ensembl.org", "asia.ensembl.org", "useast.ensembl.org", "www.ensembl.org",
+
+mart <- useMart(biomart = "ensembl", dataset = "drerio_gene_ensembl")
+
+# mart <- useMart(biomart = "ensembl", dataset = "rnorvegicus_gene_ensembl",
+#                host="uswest.ensembl.org")
+
+# Ver atributos y filtros disponibles
+View(as.data.frame(listAttributes(mart)))
+View(as.data.frame(listFilters(mart)))
+
+# Obtener rutas de reactome de todos los genes
+zf_reac <- getBM(attributes=c('external_gene_name', 'reactome'), 
+               values = TRUE , mart = mart)
+
+# Eliminar genes sin anotación
+zf_reac <- zf_reac[!(zf_reac$reactome == ""),  ]
+table(duplicated(zf_reac))
+
+```
+
+
+# Escribir resultados
+
+```{r}
+# Lista de resultados
+list_results <- list(zf_bp, zf_mf, zf_cc, zf_reac, zf_kegg)
+names(list_results) <- c("zebrafish_symbol_GO.BP", "zebrafish_symbol_GO.MF", "zebrafish_symbol_GO.CC", 
+                        "zebrafish_symbol_Reactome", "zebrafish_symbol_KEGG")
+
+# Crear directorio de anotaciones
+dir.create("./annotations")
+
+# Escribir resutlados
+lapply(1:length(list_results), function(i){
+  file <- paste0("./annotations/", names(list_results)[i], ".txt")
+  write.table(list_results[[i]], file, sep = "\t", quote = F,  row.names = F, col.names = T)
+})
+```
+
+# Caso práctico 
+
+A. Anotar los resultados de un análisis de expresión diferencial con diferente
+información:
+
+1. Nombre del gen.
+
+2. Entrez id.
+
+3. Ensembl id.
+
+```{r}
+df <- read.table("data/diffexp_results.tsv", header = T, sep = "\t")
+
+annot <- AnnotationDbi::select(org.Hs.eg.db, 
+                               keys= as.character(df[,"Gene"]),
+                                  columns=c("GENENAME", "ENSEMBL", "ENTREZID"), 
+                              keytype="SYMBOL")
+
+# Eliminar duplicados. Un mismo gene symbol puede tener más de un identificador
+# en otra base de datos
+annot <- annot[!duplicated(annot$SYMBOL), ]
+
+# Unir dataframes  
+df <- merge(df, annot, by.x = "Gene", by.y = "SYMBOL")
+  
+# Reordenar por p valor
+df <- df[order(df$P.Value), ]
+```
+
+B. Identificar la localización cromosómica y posición de inicio y final de los 
+genes anteriores. 
+
+```{r}
+df_info <- getBM(attributes=c( "external_gene_name", "chromosome_name", 
+                              "start_position", "end_position"), 
+                filter = 'external_gene_name', # restringir busqueda a los genes de interés
+                values= df$Gene, # genes de interés
+                mart= mart)
+
+df_info <- df_info[!duplicated(df_info$external_gene_name), ]
+
+```

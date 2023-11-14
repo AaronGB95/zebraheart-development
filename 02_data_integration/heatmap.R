@@ -20,6 +20,7 @@ rm(list = ls())
 # Required packages
 require(rstudioapi)
 require(ComplexHeatmap)
+require(InteractiveComplexHeatmap)
 
 # Set document path as working directory
 setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
@@ -31,13 +32,20 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 ##-----------------------------------------------------------------------------
 datamatrix <- read.table("datamatrix_qn.txt", sep = "\t", header = TRUE)
 phenodata <- read.table("phenodata.txt", sep = "\t", header = TRUE)
+
+phenodata$name <- with(phenodata,
+                       paste0(phenodata$Sample, sep = " - ", phenodata$Age))
+colnames(datamatrix) <- phenodata$name
 ##-----------------------------------------------------------------------------
 
 
 ##-----------------------------------------------------------------------------
 ## Heatmap
 ##-----------------------------------------------------------------------------
-Heatmap(datamatrix)
+ht <- Heatmap(datamatrix)
+ht <- draw(ht)
+
+htShiny(ht, output_ui_float = TRUE)
 ##-----------------------------------------------------------------------------
 
 
