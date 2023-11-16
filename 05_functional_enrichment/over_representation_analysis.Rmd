@@ -31,6 +31,7 @@ library(tidyverse)
 library(limma)
 library(edgeR)
 library(xlsx)
+library(DT)
 ```
 
 Sacamos la lista de los genes y las rutas de KEGG.
@@ -53,6 +54,48 @@ dre_pathways$description <- path_descriptions
 ```
 
 # Contrastes {.tabset}
+
+```{r}
+tabla <- function(table) {
+  table %>%
+  DT::datatable(extensions = 'Buttons',
+                options = list(pageLength = 10,                
+                             dom = 'Blfrtip',
+                             order = list(list(1, 'asc')),
+                             buttons = list('colvis', 
+                                             list(title = NULL,
+                                                  extend = list('copy'),
+                                                  exportOptions = list(columns = ":visible"),
+                                                  text = "Copy"),
+                                             list(title = NULL,
+                                                  extend = list('csv'),
+                                                  exportOptions = list(columns = ":visible"),
+                                                  text = ".csv"),
+                                             list(title = NULL,
+                                                  extend = list('excel'),
+                                                  exportOptions = list(columns = ":visible"),
+                                                  text = "Excel"),
+                                             list(title = "Informe de los resultados en formato pdf",
+                                                  extend = list('pdf'),
+                                                  exportOptions = list(columns = ":visible"),
+                                                  text = ".pdf"),
+                                             list(title = NULL,
+                                                  extend = list('print'),
+                                                  exportOptions = list(columns = ":visible"),
+                                                  text = "Print")
+                                              )),
+              filter = "top", 
+              escape = FALSE, 
+              rownames = TRUE)  %>%
+  formatSignif(columns = c("pvalue", "p.adjust"), digits=3) %>%
+  formatStyle('pvalue', 
+              fontWeight = styleInterval(0.05, c('bold', 'normal')), 
+              color = styleInterval(0.05, c('green', 'black'))) %>%
+  formatStyle('p.adjust', 
+              fontWeight = styleInterval(0.05, c('bold', 'normal')), 
+              color = styleInterval(0.05, c('green', 'black')))
+}
+```
 
 ## 72 hpf vs 48 hpf {.tabset}
 
@@ -106,6 +149,10 @@ if (dim(oraTop)[1] > 0) {
   }
 ```
 
+```{r}
+tabla(oraTop@result[,c("Description", "GeneRatio", "pvalue", "p.adjust", "geneID")])
+```
+
 #### MF
 
 ```{r top mf 1}
@@ -131,6 +178,10 @@ if (dim(oraTop)[1] > 0) {
           x = "geneRatio",
           font.size = 6)
   }
+```
+
+```{r}
+tabla(oraTop@result[,c("Description", "GeneRatio", "pvalue", "p.adjust", "geneID")])
 ```
 
 #### CC
@@ -160,6 +211,10 @@ if (dim(oraTop)[1] > 0) {
   }
 ```
 
+```{r}
+tabla(oraTop@result[,c("Description", "GeneRatio", "pvalue", "p.adjust", "geneID")])
+```
+
 #### KEGG
 
 ```{r top kegg 1}
@@ -182,6 +237,10 @@ if (dim(keggTop)[1] > 0) {
           x = "geneRatio",
           font.size = 6)
   }
+```
+
+```{r}
+tabla(keggTop@result[,c("Description", "GeneRatio", "pvalue", "p.adjust", "geneID")])
 ```
 
 ### Bottom genes {.tabset}
@@ -222,6 +281,10 @@ if (dim(oraBottom)[1] > 0) {
   }
 ```
 
+```{r}
+tabla(oraBottom@result[,c("Description", "GeneRatio", "pvalue", "p.adjust", "geneID")])
+```
+
 #### MF
 
 ```{r bottom mf 1}
@@ -246,6 +309,10 @@ if (dim(oraBottom)[1] > 0) {
           x = "geneRatio",
           font.size = 6)
   }
+```
+
+```{r}
+tabla(oraBottom@result[,c("Description", "GeneRatio", "pvalue", "p.adjust", "geneID")])
 ```
 
 #### CC
@@ -274,6 +341,10 @@ if (dim(oraBottom)[1] > 0) {
 }
 ```
 
+```{r}
+tabla(oraBottom@result[,c("Description", "GeneRatio", "pvalue", "p.adjust", "geneID")])
+```
+
 #### KEGG
 
 ```{r bottom kegg 1}
@@ -296,6 +367,10 @@ if (dim(keggBottom)[1] > 0) {
           x = "geneRatio",
           font.size = 6)
   }
+```
+
+```{r}
+tabla(keggBottom@result[,c("Description", "GeneRatio", "pvalue", "p.adjust", "geneID")])
 ```
 
 ## 120 hpf vs 72 hpf {.tabset}
@@ -352,6 +427,10 @@ if (dim(oraTop)[1] > 0) {
   }
 ```
 
+```{r}
+tabla(oraTop@result[,c("Description", "GeneRatio", "pvalue", "p.adjust", "geneID")])
+```
+
 #### MF
 
 ```{r top mf 2}
@@ -377,6 +456,10 @@ if (dim(oraTop)[1] > 0) {
           x = "geneRatio",
           font.size = 6)
   }
+```
+
+```{r}
+tabla(oraTop@result[,c("Description", "GeneRatio", "pvalue", "p.adjust", "geneID")])
 ```
 
 #### CC
@@ -406,6 +489,10 @@ if (dim(oraTop)[1] > 0) {
   }
 ```
 
+```{r}
+tabla(oraTop@result[,c("Description", "GeneRatio", "pvalue", "p.adjust", "geneID")])
+```
+
 #### KEGG
 
 ```{r top kegg 2}
@@ -428,6 +515,10 @@ if (dim(keggTop)[1] > 0) {
           x = "geneRatio",
           font.size = 6)
   }
+```
+
+```{r}
+tabla(keggTop@result[,c("Description", "GeneRatio", "pvalue", "p.adjust", "geneID")])
 ```
 
 ### Bottom genes {.tabset}
@@ -468,6 +559,10 @@ if (dim(oraBottom)[1] > 0) {
   }
 ```
 
+```{r}
+tabla(oraBottom@result[,c("Description", "GeneRatio", "pvalue", "p.adjust", "geneID")])
+```
+
 #### MF
 
 ```{r bottom mf 2}
@@ -492,6 +587,10 @@ if (dim(oraBottom)[1] > 0) {
           x = "geneRatio",
           font.size = 6)
   }
+```
+
+```{r}
+tabla(oraBottom@result[,c("Description", "GeneRatio", "pvalue", "p.adjust", "geneID")])
 ```
 
 #### CC
@@ -520,6 +619,10 @@ if (dim(oraBottom)[1] > 0) {
   }
 ```
 
+```{r}
+tabla(oraBottom@result[,c("Description", "GeneRatio", "pvalue", "p.adjust", "geneID")])
+```
+
 #### KEGG
 
 ```{r bottom kegg 2}
@@ -542,6 +645,10 @@ if (dim(keggBottom)[1] > 0) {
           x = "geneRatio",
           font.size = 6)
   }
+```
+
+```{r}
+tabla(keggBottom@result[,c("Description", "GeneRatio", "pvalue", "p.adjust", "geneID")])
 ```
 
 ## Adulto vs 120 hpf {.tabset}
@@ -598,6 +705,10 @@ if (dim(oraTop)[1] > 0) {
   }
 ```
 
+```{r}
+tabla(oraTop@result[,c("Description", "GeneRatio", "pvalue", "p.adjust", "geneID")])
+```
+
 #### MF
 
 ```{r top mf 3}
@@ -623,6 +734,10 @@ if (dim(oraTop)[1] > 0) {
           x = "geneRatio",
           font.size = 6)
   }
+```
+
+```{r}
+tabla(oraTop@result[,c("Description", "GeneRatio", "pvalue", "p.adjust", "geneID")])
 ```
 
 #### CC
@@ -652,6 +767,10 @@ if (dim(oraTop)[1] > 0) {
   }
 ```
 
+```{r}
+tabla(oraTop@result[,c("Description", "GeneRatio", "pvalue", "p.adjust", "geneID")])
+```
+
 #### KEGG
 
 ```{r top kegg 3}
@@ -674,6 +793,10 @@ if (dim(keggTop)[1] > 0) {
           x = "geneRatio",
           font.size = 6)
   }
+```
+
+```{r}
+tabla(keggTop@result[,c("Description", "GeneRatio", "pvalue", "p.adjust", "geneID")])
 ```
 
 ### Bottom genes {.tabset}
@@ -714,6 +837,10 @@ if (dim(oraBottom)[1] > 0) {
   }
 ```
 
+```{r}
+tabla(oraBottom@result[,c("Description", "GeneRatio", "pvalue", "p.adjust", "geneID")])
+```
+
 #### MF
 
 ```{r bottom mf 3}
@@ -738,6 +865,10 @@ if (dim(oraBottom)[1] > 0) {
           x = "geneRatio",
           font.size = 6)
   }
+```
+
+```{r}
+tabla(oraBottom@result[,c("Description", "GeneRatio", "pvalue", "p.adjust", "geneID")])
 ```
 
 #### CC
@@ -768,6 +899,10 @@ if (dim(oraBottom)[1] > 0) {
   }
 ```
 
+```{r}
+tabla(oraBottom@result[,c("Description", "GeneRatio", "pvalue", "p.adjust", "geneID")])
+```
+
 #### KEGG
 
 ```{r bottom kegg 3}
@@ -790,6 +925,10 @@ if (dim(keggBottom)[1] > 0) {
           x = "geneRatio",
           font.size = 6)
   }
+```
+
+```{r}
+tabla(keggBottom@result[,c("Description", "GeneRatio", "pvalue", "p.adjust", "geneID")])
 ```
 
 <div class="tocify-extend-page" data-unique="tocify-extend-page" style="height: 0;"></div>

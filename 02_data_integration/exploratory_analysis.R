@@ -38,7 +38,7 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 ##-----------------------------------------------------------------------------
 ## Data load
 ##-----------------------------------------------------------------------------
-datamatrix <- read.table("datamatrix_combat.txt",
+datamatrix <- read.table("datamatrix.txt",
                          sep = "\t",
                          header = TRUE,
                          row.names = 1)
@@ -52,7 +52,7 @@ phenodata$Sample <- rownames(phenodata)
 phenodata <- phenodata[match(colnames(datamatrix), rownames(phenodata)), ]
 
 # Give file name to save plots
-file <- "combat_counts"
+file <- "raw_counts"
 ##-----------------------------------------------------------------------------
 
 
@@ -69,7 +69,7 @@ par(las = 2)
 # For the dataset
 group <- as.factor(phenodata$Set)
 
-datamatrix %>%
+log2(datamatrix + 1) %>%
   rownames_to_column("Genes") %>%
   gather(Sample, Sample_value, -Genes) %>%
   left_join(phenodata, by = "Sample") %>%
@@ -92,64 +92,45 @@ file_name <- paste(file, "_age_pca.png", sep = "")  # Change group here
 
 # PCA plot
 png(filename = file_name, width = 720, height = 720)
+
 biplot(p,
        colby = "Age",
        legendPosition = "right")  # Change group here
+
 dev.off()
 ##-----------------------------------------------------------------------------
 
 
 ##-----------------------------------------------------------------------------
-## Clustering by correlation distance
+## Correlation clustering
 ##-----------------------------------------------------------------------------
-# Correlation distance calculation
-correlacion <- cor(datamatrix)
-distancia <- as.dist((1 - correlacion) / 2)
-hc <- hclust(distancia)
-samples_order <- colnames(datamatrix)
-dend_data <- dendro_data(hc, type = "rectangle")
-
-# Name for Clustering plot
 file_name <- paste(file, "_age_cluster.png", sep = "")  # Change group here
 
 png(filename = file_name, width = 720, height = 720)
 
-plot <- ggplot(dend_data$segments) +
-  labs(title = file_name,
-       x = "Sample",
-       y = "Distance") +
-  geom_segment(aes(x = x,
-                   y = y,
-                   xend = xend,
-                   yend = yend),
-               linewidth = 1.5) +
-  theme(legend.text = element_text(size = 17),
-        legend.title = element_text(size = 17),
-        axis.title=element_text(size = 17))
+par(mar=c(3.1, 0.1, 0.1, 1.1))
 
-if (!is.null(group)) {
-  if (is.null(samples_order)) {
-    stop("samples_order is needed")
-  }
-  if (length(samples_order) != length(group) ||
-        length(group) != length(dend_data$labels$label)) {
-    stop("lengths are not equal")
-  }
-  group <- group[match(as.vector(dend_data$labels$label), samples_order)]
-  plot <- plot + scale_y_continuous(expand = c(0.2, 0)) +
-    geom_text(data = dend_data$labels,
-              aes(x,
-                  y,
-                  label = label,
-                  group = group,
-                  color = phenodata$Age),
-              hjust = 1,
-              size = 5,
-              angle = 90) +
-    theme_classic()
-}
+correlacion <- cor(datamatrix)
 
-plot
+distancia <- as.dist((1 - correlacion) / 2)
+
+dd <- hclust(distancia)
+
+ddata_x <- dendro_data(dd)
+
+ddata_x$labels <- merge(label(ddata_x),
+                       phenodata,
+                       by.x = "label",
+                       by.y = "Sample")
+
+dendroplot <- ggplot(segment(ddata_x)) +
+  geom_segment(aes(x=x, y=y, xend=xend, yend=yend)) +
+  geom_text(data = label(ddata_x),
+            aes(label = label, x = x, y = 0, colour = Age, hjust = 0)) +
+  coord_flip() + scale_y_reverse(expand=c(0.2, 0)) +
+  labs(color = "Age")
+
+dendroplot
 
 dev.off()
 ##-----------------------------------------------------------------------------

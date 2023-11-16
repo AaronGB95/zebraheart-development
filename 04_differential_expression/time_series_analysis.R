@@ -55,6 +55,8 @@ phenodata$Time <- as.factor(as.numeric(phenodata$Time))
 
 # Add a dummy variable
 phenodata$Animal <- "Fish"
+
+phenodata$Sample <- rownames(phenodata)
 ##-----------------------------------------------------------------------------
 
 
@@ -63,9 +65,9 @@ phenodata$Animal <- "Fish"
 ##-----------------------------------------------------------------------------
 # Make design matrix
 design <- make.design.matrix(phenodata,
-                             time.col = "Time",
-                             repl.col = "Set",
-                             group.cols = "Animal")
+                             degree = 1,
+                             time.col = 3,
+                             repl.col = 1)
 
 # Find significant genes
 significant_genes <- p.vector(datamatrix, design, counts = TRUE)

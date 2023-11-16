@@ -1,0 +1,935 @@
+---
+title: "Análisis de Sobrerrepresentación con ortólogos de humano"
+author: "Aarón García Blázquez"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    toc_depth: 2
+    number_sections: false
+    theme: cerulean
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE)
+```
+
+```{r load packages}
+rm(list = ls())
+
+library(mdgsa)
+library(clusterProfiler)
+library(enrichplot)
+library(fgsea)
+library(org.Hs.eg.db)
+library(ggplot2)
+library(pathview)
+library(KEGGREST)
+library(tidyverse)
+library(limma)
+library(edgeR)
+library(xlsx)
+library(DT)
+library(rstudioapi)
+
+setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
+```
+
+```{r}
+# Sacamos la lista de los genes y las rutas de KEGG.
+keys <- keys(org.Hs.eg.db, keytype="SYMBOL")
+r_kegg <- AnnotationDbi::select(org.Hs.eg.db, keys=keys,
+                                columns=c("SYMBOL", "PATH"),
+                                keytype="SYMBOL")
+r_kegg <- na.exclude(r_kegg)
+r_kegg <- r_kegg[,c(2,1)]
+
+hsa_pathways <- keggList("pathway", "hsa") %>% 
+    tibble(pathway = names(.), description = .)
+
+path_ids <- str_split_i(hsa_pathways$pathway, "hsa", 2)
+path_descriptions <- str_split_i(hsa_pathways$description, " -", 1)
+hsa_pathways$pathway <- path_ids
+hsa_pathways$description <- path_descriptions
+```
+
+# Contrastes {.tabset}
+
+```{r}
+tabla <- function(table) {
+  table %>%
+  DT::datatable(extensions = 'Buttons',
+                options = list(pageLength = 10,                
+                             dom = 'Blfrtip',
+                             order = list(list(1, 'asc')),
+                             buttons = list('colvis', 
+                                             list(title = NULL,
+                                                  extend = list('copy'),
+                                                  exportOptions = list(columns = ":visible"),
+                                                  text = "Copy"),
+                                             list(title = NULL,
+                                                  extend = list('csv'),
+                                                  exportOptions = list(columns = ":visible"),
+                                                  text = ".csv"),
+                                             list(title = NULL,
+                                                  extend = list('excel'),
+                                                  exportOptions = list(columns = ":visible"),
+                                                  text = "Excel"),
+                                             list(title = "Informe de los resultados en formato pdf",
+                                                  extend = list('pdf'),
+                                                  exportOptions = list(columns = ":visible"),
+                                                  text = ".pdf"),
+                                             list(title = NULL,
+                                                  extend = list('print'),
+                                                  exportOptions = list(columns = ":visible"),
+                                                  text = "Print")
+                                              )),
+              filter = "top", 
+              escape = FALSE, 
+              rownames = TRUE)  %>%
+  formatSignif(columns = c("pvalue", "p.adjust"), digits=3) %>%
+  formatStyle('pvalue', 
+              fontWeight = styleInterval(0.05, c('bold', 'normal')), 
+              color = styleInterval(0.05, c('green', 'black'))) %>%
+  formatStyle('p.adjust', 
+              fontWeight = styleInterval(0.05, c('bold', 'normal')), 
+              color = styleInterval(0.05, c('green', 'black')))
+}
+```
+
+## 72 hpf vs 48 hpf {.tabset}
+
+```{r data load 1}
+load("human_annotated_tt_72_48.RData")
+diffexp <- annotated_data
+
+# differential expressed genes
+print("Número de genes significativos")
+table(diffexp$FDR < 0.05)
+
+sig.genes <- diffexp[diffexp$FDR < 0.05, ] 
+```
+
+&nbsp;
+
+### Top genes {.tabset}
+
+```{r}
+threshold <- 1.5
+top <- sig.genes[sig.genes$logFC > threshold, ]
+top_genes <- top$HGNC_Symbol
+
+writeLines(as.character(top_genes), con = "72_48_top_genes_list.txt", sep = "\n")
+```
+
+#### BP
+
+```{r top bp 1}
+# load("data/oraTop.RData")
+oraTop <- enrichGO(gene        = top_genes,
+                 OrgDb         = org.Hs.eg.db,
+                 keyType       = 'SYMBOL',
+                 ont           = "BP",
+                 pAdjustMethod = "BH",
+                 qvalueCutoff  = 0.05)
+# save(oraTop, file = "data/oraTop.RData")
+
+print(paste0("Número de funciones significativas: ", dim(oraTop)[1]))
+```
+
+```{r top bp 1 plot}
+if (dim(oraTop)[1] > 0) {
+  oraTop_table <- oraTop@result[oraTop@result$p.adjust < 0.05,c("ID","p.adjust")]
+  write.table(oraTop_table, file = "top_bp_1.txt", sep = "\t", row.names = FALSE, quote = FALSE)
+  write.xlsx(oraTop@result, file = "funciones_72_48_bp_ups.xlsx")
+  dotplot(oraTop,
+          showCategory = 20,
+          x = "geneRatio",
+          font.size = 6)
+  }
+```
+
+```{r}
+tabla(oraTop@result[,c("Description", "GeneRatio", "pvalue", "p.adjust", "geneID")])
+```
+
+#### MF
+
+```{r top mf 1}
+# load("data/oraTop.RData")
+oraTop <- enrichGO(gene        = top_genes,
+                 OrgDb         = org.Hs.eg.db,
+                 keyType       = 'SYMBOL',
+                 ont           = "MF",
+                 pAdjustMethod = "BH",
+                 qvalueCutoff  = 0.05)
+# save(oraTop, file = "data/oraTop.RData")
+
+print(paste0("Número de funciones significativas: ", dim(oraTop)[1]))
+```
+
+```{r top mf 1 plot}
+if (dim(oraTop)[1] > 0) {
+  oraTop_table <- oraTop@result[oraTop@result$p.adjust < 0.05,c("ID","p.adjust")]
+  write.table(oraTop_table, file = "top_mf_1.txt", sep = "\t", row.names = FALSE, quote = FALSE)
+  write.xlsx(oraTop@result, file = "funciones_72_48_mf_ups.xlsx")
+  dotplot(oraTop,
+          showCategory = 20,
+          x = "geneRatio",
+          font.size = 6)
+  }
+```
+
+```{r}
+tabla(oraTop@result[,c("Description", "GeneRatio", "pvalue", "p.adjust", "geneID")])
+```
+
+#### CC
+
+```{r top cc 1}
+# load("data/oraTop.RData")
+oraTop <- enrichGO(gene        = top_genes,
+                 OrgDb         = org.Hs.eg.db,
+                 keyType       = 'SYMBOL',
+                 ont           = "CC",
+                 pAdjustMethod = "BH",
+                 qvalueCutoff  = 0.05)
+# save(oraTop, file = "data/oraTop.RData")
+
+print(paste0("Número de funciones significativas: ", dim(oraTop)[1]))
+```
+
+```{r top cc 1 plot}
+if (dim(oraTop)[1] > 0) {
+  oraTop_table <- oraTop@result[oraTop@result$p.adjust < 0.05,c("ID","p.adjust")]
+  write.table(oraTop_table, file = "top_cc_1.txt", sep = "\t", row.names = FALSE, quote = FALSE)
+  write.xlsx(oraTop@result, file = "funciones_72_48_cc_ups.xlsx")
+  dotplot(oraTop,
+          showCategory = 20,
+          x = "geneRatio",
+          font.size = 6)
+  }
+```
+
+```{r}
+tabla(oraTop@result[,c("Description", "GeneRatio", "pvalue", "p.adjust", "geneID")])
+```
+
+#### KEGG
+
+```{r top kegg 1}
+keggTop <- enricher(gene = top_genes,
+                    pAdjustMethod = "BH",
+                    qvalueCutoff = 0.05,
+                    TERM2GENE = r_kegg,
+                    TERM2NAME = hsa_pathways)
+
+print(paste0("Número de rutas significativas: ",dim(keggTop)[1]))
+```
+
+```{r top kegg 1 plot}
+if (dim(keggTop)[1] > 0) {
+  keggTop_table <- keggTop@result[keggTop@result$p.adjust < 0.05,c("ID","p.adjust")]
+  write.table(keggTop_table, file = "top_kegg_1.txt", sep = "\t", row.names = FALSE, quote = FALSE)
+  write.xlsx(keggTop@result, file = "funciones_72_48_kegg_ups.xlsx")
+  dotplot(keggTop,
+          showCategory = 20,
+          x = "geneRatio",
+          font.size = 6)
+  }
+```
+
+```{r}
+tabla(keggTop@result[,c("Description", "GeneRatio", "pvalue", "p.adjust", "geneID")])
+```
+
+### Bottom genes {.tabset}
+
+```{r}
+threshold <- -1.5
+bottom <- sig.genes[sig.genes$logFC < threshold, ]
+bottom_genes <- bottom$HGNC_Symbol
+
+writeLines(as.character(bottom_genes), con = "72_48_bottom_genes_list.txt", sep = "\n")
+
+kegg_genes <- bitr(bottom_genes, "SYMBOL", "ENTREZID", org.Hs.eg.db)$ENTREZID
+```
+
+#### BP
+
+```{r bottom bp 1}
+# load("data/oraBottom.RData")
+oraBottom <- enrichGO(gene     = bottom_genes,
+                 OrgDb         = org.Hs.eg.db,
+                 keyType       = 'SYMBOL',
+                 ont           = "BP",
+                 pAdjustMethod = "BH")
+# save(oraBottom, file = "data/oraBottom.RData")
+
+print(paste0("Número de funciones significativas: ", dim(oraBottom)[1]))
+```
+
+```{r bottom bp 1 plot}
+if (dim(oraBottom)[1] > 0) {
+  oraBottom_table <- oraBottom@result[oraBottom@result$p.adjust < 0.05,c("ID","p.adjust")]
+  write.table(oraBottom_table, file = "bottom_bp_1.txt", sep = "\t", row.names = FALSE, quote = FALSE)
+  write.xlsx(oraBottom@result, file = "funciones_72_48_bp_downs.xlsx")
+  dotplot(oraBottom,
+          showCategory = 20,
+          x = "geneRatio",
+          font.size = 6)
+  }
+```
+
+```{r}
+tabla(oraBottom@result[,c("Description", "GeneRatio", "pvalue", "p.adjust", "geneID")])
+```
+
+#### MF
+
+```{r bottom mf 1}
+# load("data/oraBottom.RData")
+oraBottom <- enrichGO(gene     = bottom_genes,
+                 OrgDb         = org.Hs.eg.db,
+                 keyType       = 'SYMBOL',
+                 ont           = "MF",
+                 pAdjustMethod = "BH")
+# save(oraBottom, file = "data/oraBottom.RData")
+
+print(paste0("Número de funciones significativas: ", dim(oraBottom)[1]))
+```
+
+```{r bottom mf 1 plot}
+if (dim(oraBottom)[1] > 0) {
+  oraBottom_table <- oraBottom@result[oraBottom@result$p.adjust < 0.05,c("ID","p.adjust")]
+  write.table(oraBottom_table, file = "bottom_mf_1.txt", sep = "\t", row.names = FALSE, quote = FALSE)
+  write.xlsx(oraBottom@result, file = "funciones_72_48_mf_downs.xlsx")
+  dotplot(oraBottom,
+          showCategory = 20,
+          x = "geneRatio",
+          font.size = 6)
+  }
+```
+
+```{r}
+tabla(oraBottom@result[,c("Description", "GeneRatio", "pvalue", "p.adjust", "geneID")])
+```
+
+#### CC
+
+```{r bottom cc 1}
+# load("data/oraBottom.RData")
+oraBottom <- enrichGO(gene     = bottom_genes,
+                 OrgDb         = org.Hs.eg.db,
+                 keyType       = 'SYMBOL',
+                 ont           = "CC",
+                 pAdjustMethod = "BH")
+# save(oraBottom, file = "data/oraBottom.RData")
+
+print(paste0("Número de funciones significativas: ", dim(oraBottom)[1]))
+```
+
+```{r bottom cc 1 plot}
+if (dim(oraBottom)[1] > 0) {
+  oraBottom_table <- oraBottom@result[oraBottom@result$p.adjust < 0.05,c("ID","p.adjust")]
+  write.table(oraBottom_table, file = "bottom_cc_1.txt", sep = "\t", row.names = FALSE, quote = FALSE)
+  write.xlsx(oraBottom@result, file = "funciones_72_48_cc_downs.xlsx")
+  dotplot(oraBottom,
+          showCategory = 20,
+          x = "geneRatio",
+          font.size = 6)
+}
+```
+
+```{r}
+tabla(oraBottom@result[,c("Description", "GeneRatio", "pvalue", "p.adjust", "geneID")])
+```
+
+#### KEGG
+
+```{r bottom kegg 1}
+keggBottom <- enricher(gene = bottom_genes,
+                    pAdjustMethod = "BH",
+                    qvalueCutoff = 0.05,
+                    TERM2GENE = r_kegg,
+                    TERM2NAME = hsa_pathways)
+
+print(paste0("Número de rutas significativas: ", dim(keggBottom)[1]))
+```
+
+```{r bottom kegg 1 plot}
+if (dim(keggBottom)[1] > 0) {
+  keggBottom_table <- keggBottom@result[keggBottom@result$p.adjust < 0.05,c("ID","p.adjust")]
+  write.table(keggBottom_table, file = "bottom_kegg_1.txt", sep = "\t", row.names = FALSE, quote = FALSE)
+  write.xlsx(keggBottom@result, file = "funciones_72_48_kegg_downs.xlsx")
+  dotplot(keggBottom,
+          showCategory = 20,
+          x = "geneRatio",
+          font.size = 6)
+  }
+```
+
+```{r}
+tabla(keggBottom@result[,c("Description", "GeneRatio", "pvalue", "p.adjust", "geneID")])
+```
+
+## 120 hpf vs 72 hpf {.tabset}
+
+```{r data load 2}
+load("human_annotated_tt_120_72.RData")
+diffexp <- annotated_data
+
+# differential expressed genes
+print("Número de genes significativos")
+table(diffexp$FDR < 0.05)
+
+sig.genes <- diffexp[diffexp$FDR < 0.05, ] 
+```
+
+&nbsp;
+
+### Top genes {.tabset}
+
+```{r}
+threshold <- 1.5
+top <- sig.genes[sig.genes$logFC > threshold, ]
+top_genes <- top$HGNC_Symbol
+
+writeLines(as.character(top_genes), con = "120_72_top_genes_list.txt", sep = "\n")
+
+kegg_genes <- bitr(top_genes, "SYMBOL", "ENTREZID", org.Hs.eg.db)$ENTREZID
+```
+
+#### BP
+
+```{r top bp 2}
+# load("data/oraTop.RData")
+oraTop <- enrichGO(gene        = top_genes,
+                 OrgDb         = org.Hs.eg.db,
+                 keyType       = 'SYMBOL',
+                 ont           = "BP",
+                 pAdjustMethod = "BH",
+                 qvalueCutoff  = 0.05)
+# save(oraTop, file = "data/oraTop.RData")
+
+print(paste0("Número de funciones significativas: ", dim(oraTop)[1]))
+```
+
+```{r top bp 2 plot}
+if (dim(oraTop)[1] > 0) {
+  oraTop_table <- oraTop@result[oraTop@result$p.adjust < 0.05,c("ID","p.adjust")]
+  write.table(oraTop_table, file = "top_bp_2.txt", sep = "\t", row.names = FALSE, quote = FALSE)
+  write.xlsx(oraTop@result, file = "funciones_120_72_bp_ups.xlsx")
+  dotplot(oraTop,
+          showCategory = 20,
+          x = "geneRatio",
+          font.size = 6)
+  }
+```
+
+```{r}
+tabla(oraTop@result[,c("Description", "GeneRatio", "pvalue", "p.adjust", "geneID")])
+```
+
+#### MF
+
+```{r top mf 2}
+# load("data/oraTop.RData")
+oraTop <- enrichGO(gene        = top_genes,
+                 OrgDb         = org.Hs.eg.db,
+                 keyType       = 'SYMBOL',
+                 ont           = "MF",
+                 pAdjustMethod = "BH",
+                 qvalueCutoff  = 0.05)
+# save(oraTop, file = "data/oraTop.RData")
+
+print(paste0("Número de funciones significativas: ", dim(oraTop)[1]))
+```
+
+```{r top mf 2 plot}
+if (dim(oraTop)[1] > 0) {
+  oraTop_table <- oraTop@result[oraTop@result$p.adjust < 0.05,c("ID","p.adjust")]
+  write.table(oraTop_table, file = "top_mf_2.txt", sep = "\t", row.names = FALSE, quote = FALSE)
+  write.xlsx(oraTop@result, file = "funciones_120_72_mf_ups.xlsx")
+  dotplot(oraTop,
+          showCategory = 20,
+          x = "geneRatio",
+          font.size = 6)
+  }
+```
+
+```{r}
+tabla(oraTop@result[,c("Description", "GeneRatio", "pvalue", "p.adjust", "geneID")])
+```
+
+#### CC
+
+```{r top cc 2}
+# load("data/oraTop.RData")
+oraTop <- enrichGO(gene        = top_genes,
+                 OrgDb         = org.Hs.eg.db,
+                 keyType       = 'SYMBOL',
+                 ont           = "CC",
+                 pAdjustMethod = "BH",
+                 qvalueCutoff  = 0.05)
+# save(oraTop, file = "data/oraTop.RData")
+
+print(paste0("Número de funciones significativas: ", dim(oraTop)[1]))
+```
+
+```{r top cc 2 plot}
+if (dim(oraTop)[1] > 0) {
+  oraTop_table <- oraTop@result[oraTop@result$p.adjust < 0.05,c("ID","p.adjust")]
+  write.table(oraTop_table, file = "top_cc_2.txt", sep = "\t", row.names = FALSE, quote = FALSE)
+  write.xlsx(oraTop@result, file = "funciones_120_72_cc_ups.xlsx")
+  dotplot(oraTop,
+          showCategory = 20,
+          x = "geneRatio",
+          font.size = 6)
+  }
+```
+
+```{r}
+tabla(oraTop@result[,c("Description", "GeneRatio", "pvalue", "p.adjust", "geneID")])
+```
+
+#### KEGG
+
+```{r top kegg 2}
+keggTop <- enricher(gene = top_genes,
+                    pAdjustMethod = "BH",
+                    qvalueCutoff = 0.05,
+                    TERM2GENE = r_kegg,
+                    TERM2NAME = hsa_pathways
+                    )
+print(paste0("Número de rutas significativas: ", dim(keggTop)[1]))
+```
+
+```{r top kegg 2 plot}
+if (dim(keggTop)[1] > 0) {
+  keggTop_table <- keggTop@result[keggTop@result$p.adjust < 0.05,c("ID","p.adjust")]
+  write.table(keggTop_table, file = "top_kegg_2.txt", sep = "\t", row.names = FALSE, quote = FALSE)
+  write.xlsx(keggTop@result, file = "funciones_120_72_kegg_ups.xlsx")
+  dotplot(keggTop,
+          showCategory = 20,
+          x = "geneRatio",
+          font.size = 6)
+  }
+```
+
+```{r}
+tabla(keggTop@result[,c("Description", "GeneRatio", "pvalue", "p.adjust", "geneID")])
+```
+
+### Bottom genes {.tabset}
+
+```{r}
+threshold <- -1.5
+bottom <- sig.genes[sig.genes$logFC < threshold, ]
+bottom_genes <- bottom$HGNC_Symbol
+
+writeLines(as.character(bottom_genes), con = "120_72_bottom_genes_list.txt", sep = "\n")
+
+kegg_genes <- bitr(bottom_genes, "SYMBOL", "ENTREZID", org.Hs.eg.db)$ENTREZID
+```
+
+#### BP
+
+```{r bottom bp 2}
+# load("data/oraBottom.RData")
+oraBottom <- enrichGO(gene     = bottom_genes,
+                 OrgDb         = org.Hs.eg.db,
+                 keyType       = 'SYMBOL',
+                 ont           = "BP",
+                 pAdjustMethod = "BH")
+# save(oraBottom, file = "data/oraBottom.RData")
+
+print(paste0("Número de funciones significativas: ", dim(oraBottom)[1]))
+```
+
+```{r bottom bp 2 plot}
+if (dim(oraBottom)[1] > 0) {
+  oraBottom_table <- oraBottom@result[oraBottom@result$p.adjust < 0.05,c("ID","p.adjust")]
+  write.table(oraBottom_table, file = "bottom_bp_2.txt", sep = "\t", row.names = FALSE, quote = FALSE)
+  write.xlsx(oraBottom@result, file = "funciones_120_72_bp_downs.xlsx")
+  dotplot(oraBottom,
+          showCategory = 20,
+          x = "geneRatio",
+          font.size = 6)
+  }
+```
+
+```{r}
+tabla(oraBottom@result[,c("Description", "GeneRatio", "pvalue", "p.adjust", "geneID")])
+```
+
+#### MF
+
+```{r bottom mf 2}
+# load("data/oraBottom.RData")
+oraBottom <- enrichGO(gene     = bottom_genes,
+                 OrgDb         = org.Hs.eg.db,
+                 keyType       = 'SYMBOL',
+                 ont           = "MF",
+                 pAdjustMethod = "BH")
+# save(oraBottom, file = "data/oraBottom.RData")
+
+print(paste0("Número de funciones significativas: ", dim(oraBottom)[1]))
+```
+
+```{r bottom mf 2 plot}
+if (dim(oraBottom)[1] > 0) {
+  oraBottom_table <- oraBottom@result[oraBottom@result$p.adjust < 0.05,c("ID","p.adjust")]
+  write.table(oraBottom_table, file = "bottom_mf_2.txt", sep = "\t", row.names = FALSE, quote = FALSE)
+  write.xlsx(oraBottom@result, file = "funciones_120_72_mf_downs.xlsx")
+  dotplot(oraBottom,
+          showCategory = 20,
+          x = "geneRatio",
+          font.size = 6)
+  }
+```
+
+```{r}
+tabla(oraBottom@result[,c("Description", "GeneRatio", "pvalue", "p.adjust", "geneID")])
+```
+
+#### CC
+
+```{r bottom cc 2}
+# load("data/oraBottom.RData")
+oraBottom <- enrichGO(gene     = bottom_genes,
+                 OrgDb         = org.Hs.eg.db,
+                 keyType       = 'SYMBOL',
+                 ont           = "CC",
+                 pAdjustMethod = "BH")
+# save(oraBottom, file = "data/oraBottom.RData")
+
+print(paste0("Número de funciones significativas: ", dim(oraBottom)[1]))
+```
+
+```{r bottom cc 2 plot}
+if (dim(oraBottom)[1] > 0) {
+  oraBottom_table <- oraBottom@result[oraBottom@result$p.adjust < 0.05,c("ID","p.adjust")]
+  write.table(oraBottom_table, file = "bottom_cc_2.txt", sep = "\t", row.names = FALSE, quote = FALSE)
+  write.xlsx(oraBottom@result, file = "funciones_120_72_cc_downs.xlsx")
+  dotplot(oraBottom,
+          showCategory = 20,
+          x = "geneRatio",
+          font.size = 6)
+  }
+```
+
+```{r}
+tabla(oraBottom@result[,c("Description", "GeneRatio", "pvalue", "p.adjust", "geneID")])
+```
+
+#### KEGG
+
+```{r bottom kegg 2}
+keggBottom <- enricher(gene = bottom_genes,
+                    pAdjustMethod = "BH",
+                    qvalueCutoff = 0.05,
+                    TERM2GENE = r_kegg,
+                    TERM2NAME = hsa_pathways)
+
+print(paste0("Número de rutas significativas: ", dim(keggBottom)[1]))
+```
+
+```{r bottom kegg 2 plot}
+if (dim(keggBottom)[1] > 0) {
+  keggBottom_table <- keggBottom@result[keggBottom@result$p.adjust < 0.05,c("ID","p.adjust")]
+  write.table(keggBottom_table, file = "bottom_kegg_2.txt", sep = "\t", row.names = FALSE, quote = FALSE)
+  write.xlsx(keggBottom@result, file = "funciones_120_72_kegg_downs.xlsx")
+  dotplot(keggBottom,
+          showCategory = 20,
+          x = "geneRatio",
+          font.size = 6)
+  }
+```
+
+```{r}
+tabla(keggBottom@result[,c("Description", "GeneRatio", "pvalue", "p.adjust", "geneID")])
+```
+
+## Adulto vs 120 hpf {.tabset}
+
+```{r data load 3}
+load("human_annotated_tt_adult_120.RData")
+diffexp <- annotated_data
+
+# differential expressed genes
+print("Número de genes significativos")
+table(diffexp$FDR < 0.05)
+
+sig.genes <- diffexp[diffexp$FDR < 0.05, ] 
+```
+
+&nbsp;
+
+### Top genes {.tabset}
+
+```{r}
+threshold <- 1.5
+top <- sig.genes[sig.genes$logFC > threshold, ]
+top_genes <- top$HGNC_Symbol
+
+writeLines(as.character(top_genes), con = "Adult_120_top_genes_list.txt", sep = "\n")
+
+kegg_genes <- bitr(top_genes, "SYMBOL", "ENTREZID", org.Hs.eg.db)$ENTREZID
+```
+
+#### BP
+
+```{r top bp 3}
+# load("data/oraTop.RData")
+oraTop <- enrichGO(gene        = top_genes,
+                 OrgDb         = org.Hs.eg.db,
+                 keyType       = 'SYMBOL',
+                 ont           = "BP",
+                 pAdjustMethod = "BH",
+                 qvalueCutoff  = 0.05)
+# save(oraTop, file = "data/oraTop.RData")
+
+print(paste0("Número de funciones significativas: ", dim(oraTop)[1]))
+```
+
+```{r top bp 3 plot}
+if (dim(oraTop)[1] > 0) {
+  oraTop_table <- oraTop@result[oraTop@result$p.adjust < 0.05,c("ID","p.adjust")]
+  write.table(oraTop_table, file = "top_bp_3.txt", sep = "\t", row.names = FALSE, quote = FALSE)
+  write.xlsx(oraTop@result, file = "funciones_Adulto_120_bp_ups.xlsx")
+  dotplot(oraTop,
+          showCategory = 20,
+          x = "geneRatio",
+          font.size = 6)
+  }
+```
+
+```{r}
+tabla(oraTop@result[,c("Description", "GeneRatio", "pvalue", "p.adjust", "geneID")])
+```
+
+#### MF
+
+```{r top mf 3}
+# load("data/oraTop.RData")
+oraTop <- enrichGO(gene        = top_genes,
+                 OrgDb         = org.Hs.eg.db,
+                 keyType       = 'SYMBOL',
+                 ont           = "MF",
+                 pAdjustMethod = "BH",
+                 qvalueCutoff  = 0.05)
+# save(oraTop, file = "data/oraTop.RData")
+
+print(paste0("Número de funciones significativas: ", dim(oraTop)[1]))
+```
+
+```{r top mf 3 plot}
+if (dim(oraTop)[1] > 0) {
+  oraTop_table <- oraTop@result[oraTop@result$p.adjust < 0.05,c("ID","p.adjust")]
+  write.table(oraTop_table, file = "top_mf_3.txt", sep = "\t", row.names = FALSE, quote = FALSE)
+  write.xlsx(oraTop@result, file = "funciones_Adulto_120_mf_ups.xlsx")
+  dotplot(oraTop,
+          showCategory = 20,
+          x = "geneRatio",
+          font.size = 6)
+  }
+```
+
+```{r}
+tabla(oraTop@result[,c("Description", "GeneRatio", "pvalue", "p.adjust", "geneID")])
+```
+
+#### CC
+
+```{r top cc 3}
+# load("data/oraTop.RData")
+oraTop <- enrichGO(gene        = top_genes,
+                 OrgDb         = org.Hs.eg.db,
+                 keyType       = 'SYMBOL',
+                 ont           = "CC",
+                 pAdjustMethod = "BH",
+                 qvalueCutoff  = 0.05)
+# save(oraTop, file = "data/oraTop.RData")
+
+print(paste0("Número de funciones significativas: ", dim(oraTop)[1]))
+```
+
+```{r top cc 3 plot}
+if (dim(oraTop)[1] > 0) {
+  oraTop_table <- oraTop@result[oraTop@result$p.adjust < 0.05,c("ID","p.adjust")]
+  write.table(oraTop_table, file = "top_cc_3.txt", sep = "\t", row.names = FALSE, quote = FALSE)
+  write.xlsx(oraTop@result, file = "funciones_Adulto_120_cc_ups.xlsx")
+  dotplot(oraTop,
+          showCategory = 20,
+          x = "geneRatio",
+          font.size = 6)
+  }
+```
+
+```{r}
+tabla(oraTop@result[,c("Description", "GeneRatio", "pvalue", "p.adjust", "geneID")])
+```
+
+#### KEGG
+
+```{r top kegg 3}
+keggTop <- enricher(gene = top_genes,
+                    pAdjustMethod = "BH",
+                    qvalueCutoff = 0.05,
+                    TERM2GENE = r_kegg,
+                    TERM2NAME = hsa_pathways)
+
+print(paste0("Número de rutas significativas: ", dim(keggTop)[1]))
+```
+
+```{r top kegg 3 plot}
+if (dim(keggTop)[1] > 0) {
+  keggTop_table <- keggTop@result[keggTop@result$p.adjust < 0.05,c("ID","p.adjust")]
+  write.table(keggTop_table, file = "top_kegg_3.txt", sep = "\t", row.names = FALSE, quote = FALSE)
+  write.xlsx(keggTop@result, file = "funciones_Adulto_120_kegg_ups.xlsx")
+  dotplot(keggTop,
+          showCategory = 20,
+          x = "geneRatio",
+          font.size = 6)
+  }
+```
+
+```{r}
+tabla(keggTop@result[,c("Description", "GeneRatio", "pvalue", "p.adjust", "geneID")])
+```
+
+### Bottom genes {.tabset}
+
+```{r}
+threshold <- -1.5
+bottom <- sig.genes[sig.genes$logFC < threshold, ]
+bottom_genes <- bottom$HGNC_Symbol
+
+writeLines(as.character(bottom_genes), con = "Adult_120_bottom_genes_list.txt", sep = "\n")
+
+kegg_genes <- bitr(bottom_genes, "SYMBOL", "ENTREZID", org.Hs.eg.db)$ENTREZID
+```
+
+#### BP
+
+```{r bottom bp 3}
+# load("data/oraBottom.RData")
+oraBottom <- enrichGO(gene     = bottom_genes,
+                 OrgDb         = org.Hs.eg.db,
+                 keyType       = 'SYMBOL',
+                 ont           = "BP",
+                 pAdjustMethod = "BH")
+# save(oraBottom, file = "data/oraBottom.RData")
+
+print(paste0("Número de funciones significativas: ", dim(oraBottom)[1]))
+```
+
+```{r bottom bp 3 plot}
+if (dim(oraBottom)[1] > 0) {
+  oraBottom_table <- oraBottom@result[oraBottom@result$p.adjust < 0.05,c("ID","p.adjust")]
+  write.table(oraBottom_table, file = "bottom_bp_3.txt", sep = "\t", row.names = FALSE, quote = FALSE)
+  write.xlsx(oraBottom@result, file = "funciones_Adulto_120_bp_downs.xlsx")
+  dotplot(oraBottom,
+          showCategory = 20,
+          x = "geneRatio",
+          font.size = 6)
+  }
+```
+
+```{r}
+tabla(oraBottom@result[,c("Description", "GeneRatio", "pvalue", "p.adjust", "geneID")])
+```
+
+#### MF
+
+```{r bottom mf 3}
+# load("data/oraBottom.RData")
+oraBottom <- enrichGO(gene     = bottom_genes,
+                 OrgDb         = org.Hs.eg.db,
+                 keyType       = 'SYMBOL',
+                 ont           = "MF",
+                 pAdjustMethod = "BH")
+# save(oraBottom, file = "data/oraBottom.RData")
+
+print(paste0("Número de funciones significativas: ", dim(oraBottom)[1]))
+```
+
+```{r bottom mf 3 plot}
+if (dim(oraBottom)[1] > 0) {
+  oraBottom_table <- oraBottom@result[oraBottom@result$p.adjust < 0.05,c("ID","p.adjust")]
+  write.table(oraBottom_table, file = "bottom_mf_3.txt", sep = "\t", row.names = FALSE, quote = FALSE)
+  write.xlsx(oraBottom@result, file = "funciones_Adulto_120_mf_downs.xlsx")
+  dotplot(oraBottom,
+          showCategory = 20,
+          x = "geneRatio",
+          font.size = 6)
+  }
+```
+
+```{r}
+tabla(oraBottom@result[,c("Description", "GeneRatio", "pvalue", "p.adjust", "geneID")])
+```
+
+#### CC
+
+```{r bottom cc 3}
+# load("data/oraBottom.RData")
+oraBottom <- enrichGO(gene     = bottom_genes,
+                 OrgDb         = org.Hs.eg.db,
+                 keyType       = 'SYMBOL',
+                 ont           = "CC",
+                 pAdjustMethod = "BH",
+                 minGSSize = 10,
+                 maxGSSize = 500)
+# save(oraBottom, file = "data/oraBottom.RData")
+
+print(paste0("Número de funciones significativas: ", dim(oraBottom)[1]))
+```
+
+```{r bottom cc 3 plot}
+if (dim(oraBottom)[1] > 0) {
+  oraBottom_table <- oraBottom@result[oraBottom@result$p.adjust < 0.05,c("ID","p.adjust")]
+  write.table(oraBottom_table, file = "bottom_cc_3.txt", sep = "\t", row.names = FALSE, quote = FALSE)
+  write.xlsx(oraBottom@result, file = "funciones_Adulto_120_cc_downs.xlsx")
+  dotplot(oraBottom,
+          showCategory = 20,
+          x = "geneRatio",
+          font.size = 6)
+  }
+```
+
+```{r}
+tabla(oraBottom@result[,c("Description", "GeneRatio", "pvalue", "p.adjust", "geneID")])
+```
+
+#### KEGG
+
+```{r bottom kegg 3}
+keggBottom <- enricher(gene = bottom_genes,
+                    pAdjustMethod = "BH",
+                    qvalueCutoff = 0.05,
+                    TERM2GENE = r_kegg,
+                    TERM2NAME = hsa_pathways)
+
+print(paste0("Número de rutas significativas: ", dim(keggBottom)[1]))
+```
+
+```{r bottom kegg 3 plot}
+if (dim(keggBottom)[1] > 0) {
+  keggBottom_table <- keggBottom@result[keggBottom@result$p.adjust < 0.05,c("ID","p.adjust")]
+  write.table(keggBottom_table, file = "bottom_kegg_3.txt", sep = "\t", row.names = FALSE, quote = FALSE)
+  write.xlsx(keggBottom@result, file = "funciones_Adulto_120_kegg_downs.xlsx")
+  dotplot(keggBottom,
+          showCategory = 20,
+          x = "geneRatio",
+          font.size = 6)
+  }
+```
+
+```{r}
+tabla(keggBottom@result[,c("Description", "GeneRatio", "pvalue", "p.adjust", "geneID")])
+```
+
+<div class="tocify-extend-page" data-unique="tocify-extend-page" style="height: 0;"></div>

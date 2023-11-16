@@ -14,7 +14,7 @@ require(dplyr)
 require(DT)
 ```
 
-# Corrección del efecto lote {.tabset}
+## Corrección del efecto lote {.tabset}
 
 ### SVA {.tabset}
 
