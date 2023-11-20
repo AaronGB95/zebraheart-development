@@ -34,7 +34,7 @@ require(ggplot2)
 setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 ## Cargamos los datos necesarios
-datamatrix <- read.table("datamatrix_qn.txt",
+datamatrix <- read.table("datamatrix_tmm.txt",
                          sep = "\t",
                          row.names = 1,
                          header = 1)

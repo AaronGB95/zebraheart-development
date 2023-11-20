@@ -52,7 +52,7 @@ tabla <- function(table) {
               filter = "top", 
               escape = FALSE, 
               rownames = TRUE)  %>%
-  formatSignif(columns = c(1:5), digits=3) %>%
+  formatSignif(columns = c("logFC", "logCPM", "LR", "PValue", "FDR"), digits=3) %>%
   formatStyle('PValue', 
               fontWeight = styleInterval(0.05, c('bold', 'normal')), 
               color = styleInterval(0.05, c('green', 'black'))) %>%
