@@ -29,7 +29,7 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 ##-----------------------------------------------------------------------------
 ## Data load
 ##-----------------------------------------------------------------------------
-datamatrix <- read.table("datamatrix_qn.txt",
+datamatrix <- read.table("datamatrix_tmm.txt",
                          sep = "\t",
                          header = 1,
                          row.names = 1)
