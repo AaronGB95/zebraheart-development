@@ -57,7 +57,7 @@ file <- "raw_counts"
 
 
 ##-----------------------------------------------------------------------------
-## Boxplot
+## Boxplot with Age
 ##-----------------------------------------------------------------------------
 file_name <- paste(file, "_age_boxplot.png", sep = "")
 
@@ -74,6 +74,30 @@ log2(datamatrix + 1) %>%
   gather(Sample, Sample_value, -Genes) %>%
   left_join(phenodata, by = "Sample") %>%
   ggplot(aes(x = Sample, y = Sample_value, fill = Age)) + 
+  geom_boxplot() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+dev.off()
+##-----------------------------------------------------------------------------
+
+##-----------------------------------------------------------------------------
+## Boxplot with Set
+##-----------------------------------------------------------------------------
+file_name <- paste(file, "_set_boxplot.png", sep = "")
+
+png(filename = file_name, width = 720, height = 720)
+par(mar = c(10, 4.1, 4.1, 2.1))
+par(cex.axis = 1.3)
+par(las = 2)
+
+# For the dataset
+group <- as.factor(phenodata$Set)
+
+log2(datamatrix + 1) %>%
+  rownames_to_column("Genes") %>%
+  gather(Sample, Sample_value, -Genes) %>%
+  left_join(phenodata, by = "Sample") %>%
+  ggplot(aes(x = Sample, y = Sample_value, fill = Set)) + 
   geom_boxplot() +
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
@@ -98,18 +122,24 @@ biplot(p,
        legendPosition = "right")  # Change group here
 
 dev.off()
+
+# Name for PCA plot file
+file_name <- paste(file, "_set_pca.png", sep = "")  # Change group here
+
+# PCA plot
+png(filename = file_name, width = 720, height = 720)
+
+biplot(p,
+       colby = "Set",
+       legendPosition = "right")  # Change group here
+
+dev.off()
 ##-----------------------------------------------------------------------------
 
 
 ##-----------------------------------------------------------------------------
 ## Correlation clustering
 ##-----------------------------------------------------------------------------
-file_name <- paste(file, "_age_cluster.png", sep = "")  # Change group here
-
-png(filename = file_name, width = 720, height = 720)
-
-par(mar=c(3.1, 0.1, 0.1, 1.1))
-
 correlacion <- cor(datamatrix)
 
 distancia <- as.dist((1 - correlacion) / 2)
@@ -119,9 +149,18 @@ dd <- hclust(distancia)
 ddata_x <- dendro_data(dd)
 
 ddata_x$labels <- merge(label(ddata_x),
-                       phenodata,
-                       by.x = "label",
-                       by.y = "Sample")
+                        phenodata,
+                        by.x = "label",
+                        by.y = "Sample")
+
+# Correlation with Age
+file_name <- paste(file, "_age_cluster.png", sep = "")  # Change group here
+
+png(filename = file_name, width = 720, height = 720)
+
+par(mar=c(3.1, 0.1, 0.1, 1.1))
+
+
 
 dendroplot <- ggplot(segment(ddata_x)) +
   geom_segment(aes(x=x, y=y, xend=xend, yend=yend)) +
@@ -129,6 +168,26 @@ dendroplot <- ggplot(segment(ddata_x)) +
             aes(label = label, x = x, y = 0, colour = Age, hjust = 0)) +
   coord_flip() + scale_y_reverse(expand=c(0.2, 0)) +
   labs(color = "Age")
+
+dendroplot
+
+dev.off()
+
+# Correlation with Set
+file_name <- paste(file, "_set_cluster.png", sep = "")  # Change group here
+
+png(filename = file_name, width = 720, height = 720)
+
+par(mar=c(3.1, 0.1, 0.1, 1.1))
+
+
+
+dendroplot <- ggplot(segment(ddata_x)) +
+  geom_segment(aes(x=x, y=y, xend=xend, yend=yend)) +
+  geom_text(data = label(ddata_x),
+            aes(label = label, x = x, y = 0, colour = Set, hjust = 0)) +
+  coord_flip() + scale_y_reverse(expand=c(0.2, 0)) +
+  labs(color = "Set")
 
 dendroplot
 
