@@ -74,7 +74,7 @@ log2(datamatrix + 1) %>%
   rownames_to_column("Genes") %>%
   gather(Sample, Sample_value, -Genes) %>%
   left_join(phenodata, by = "Sample") %>%
-  ggplot(aes(x = Sample, y = Sample_value, fill = Age)) + 
+  ggplot(aes(x = Sample, y = Sample_value, fill = Age)) +
   geom_boxplot() +
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
@@ -98,7 +98,7 @@ log2(datamatrix + 1) %>%
   rownames_to_column("Genes") %>%
   gather(Sample, Sample_value, -Genes) %>%
   left_join(phenodata, by = "Sample") %>%
-  ggplot(aes(x = Sample, y = Sample_value, fill = Set)) + 
+  ggplot(aes(x = Sample, y = Sample_value, fill = Set)) +
   geom_boxplot() +
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
@@ -170,10 +170,10 @@ par(mar=c(3.1, 0.1, 0.1, 1.1))
 
 
 dendroplot <- ggplot(segment(ddata_x)) +
-  geom_segment(aes(x=x, y=y, xend=xend, yend=yend)) +
+  geom_segment(aes(x = x, y = y, xend = xend, yend = yend)) +
   geom_text(data = label(ddata_x),
             aes(label = label, x = x, y = 0, colour = Age, hjust = 0)) +
-  coord_flip() + scale_y_reverse(expand=c(0.2, 0)) +
+  coord_flip() + scale_y_reverse(expand = c(0.2, 0)) +
   labs(color = "Age")
 
 dendroplot
@@ -185,15 +185,15 @@ file_name <- paste(file, "_set_cluster.png", sep = "")  # Change group here
 
 png(filename = file_name, width = 720, height = 720)
 
-par(mar=c(3.1, 0.1, 0.1, 1.1))
+par(mar = c(3.1, 0.1, 0.1, 1.1))
 
 
 
 dendroplot <- ggplot(segment(ddata_x)) +
-  geom_segment(aes(x=x, y=y, xend=xend, yend=yend)) +
+  geom_segment(aes(x = x, y = y, xend = xend, yend = yend)) +
   geom_text(data = label(ddata_x),
             aes(label = label, x = x, y = 0, colour = Set, hjust = 0)) +
-  coord_flip() + scale_y_reverse(expand=c(0.2, 0)) +
+  coord_flip() + scale_y_reverse(expand = c(0.2, 0)) +
   labs(color = "Set")
 
 dendroplot

@@ -32,9 +32,9 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 ## Data load
 datamatrix <- read.table("datamatrix_qn.txt", sep = "\t")
 phenodata <- read.table("phenodata.txt",
-                                  sep = "\t",
-                                  header = 1,
-                                  row.names = 1)
+                        sep = "\t",
+                        header = 1,
+                        row.names = 1)
 
 # Variable of interest as factor
 phenodata$Age <- as.factor(phenodata$Age)
@@ -181,7 +181,6 @@ write.table(combat_data,
 volcanoplot <- function(tt, contrname) {
 
   res <- as.data.frame(tt$table)
-  
   keyvals <- ifelse(
     res$logFC < -1.5 & res$PValue < 0.05, "royalblue",
     ifelse(res$logFC > 1.5 & res$PValue < 0.05, "firebrick2", "black")
@@ -190,9 +189,7 @@ volcanoplot <- function(tt, contrname) {
   names(keyvals)[keyvals == "firebrick2"] <- "up"
   names(keyvals)[keyvals == "black"] <- "n.s."
   names(keyvals)[keyvals == "royalblue"] <- "down"
-  
   file_name <- paste0("volcano_", paste0(contrname, ".png"))
-  
   p <- EnhancedVolcano(res,
                        lab = rownames(res),
                        x = "logFC",

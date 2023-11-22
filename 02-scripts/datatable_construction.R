@@ -80,7 +80,8 @@ datamatrix <- as.data.frame(datamatrix)
 
 colnames(annotations) <- c("ENSEMBLID", "Gene", "ENTREZID")
 
-annotations <- annotations[!duplicated(annotations$Gene) & !(annotations$Gene == ""), ]
+annotations <- annotations[!duplicated(annotations$Gene) &
+                             !(annotations$Gene == ""), ]
 
 datamatrix$ENSEMBLID <- rownames(datamatrix)
 

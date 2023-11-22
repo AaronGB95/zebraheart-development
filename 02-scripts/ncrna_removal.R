@@ -28,7 +28,8 @@ annotations <- read.table("annotations.txt",
                           sep = "\t",
                           header = 1)
 colnames(annotations) <- c("ENSEMBLID", "Gene", "ENTREZID")
-annotations <- annotations[!duplicated(annotations$Gene) & !(annotations$Gene == ""), ]
+annotations <- annotations[!duplicated(annotations$Gene) &
+                             !(annotations$Gene == ""), ]
 
 ncrna_genes <- subset(annotations, ENSEMBLID %in% ids)
 
@@ -42,9 +43,3 @@ datamatrix <- read.table("datamatrix_tmm.txt",
                          header = 1)
 
 datamatrix_filtered <- datamatrix[!ids, ]
-
-
-
-
-
-

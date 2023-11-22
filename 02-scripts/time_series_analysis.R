@@ -45,10 +45,10 @@ phenodata <- read.table("phenodata.txt",
 ## Data processing
 ##-----------------------------------------------------------------------------
 # Add Age as a time variable
-phenodata$Time <- revalue(phenodata$Age, c("48 hpf"="0",
-                                           "72 hpf"="1",
-                                           "120 hpf"="2",
-                                           "Adult"="3"))
+phenodata$Time <- revalue(phenodata$Age, c("48 hpf" = "0",
+                                           "72 hpf" = "1",
+                                           "120 hpf" = "2",
+                                           "Adult" = "3"))
 
 # Turn variable to factor
 phenodata$Time <- as.factor(as.numeric(phenodata$Time))

@@ -41,57 +41,64 @@ annotations <- read.table("annotations.txt",
                           sep = "\t",
                           header = 1)
 colnames(annotations) <- c("ENSEMBLID", "Gene", "ENTREZID")
-annotations <- annotations[!duplicated(annotations$Gene) & !(annotations$Gene == ""), ]
+annotations <- annotations[!duplicated(annotations$Gene) &
+                             !(annotations$Gene == ""), ]
 
-differentialExpression <- function(datamatrix, phenodata, annotations, normalization) {
+differential_expression <- function(datamatrix,
+                                    phenodata,
+                                    annotations,
+                                    normalization) {
 
   ## Expresión diferencial
   ##-----------------------
-  
+
   # Crea la matriz modelo y la matriz nula
   mod <- model.matrix(~ 0 + phenodata$Age + phenodata$Set, data = phenodata)
   mod0 <- model.matrix(~1, data = phenodata)
-  
+
   colnames(mod)[1:4] <- c("hpf120", "hpf48", "hpf72", "Adult")
-  
+
   dge <- DGEList(counts = datamatrix)
-  
+
   dge <- estimateDisp(dge, design = mod)
-  
+
   fit <- glmFit(dge, design = mod)
-  
-  
+
+
   ## Contrastes
   ##-----------
-  
+
   ## Creamos los contrastes
   cont_mod <- makeContrasts(hpf72vshpf48 = hpf72 - hpf48,
                             hpf120vshpf72 = hpf120 - hpf72,
                             Adultvshpf120 = Adult - hpf120,
                             levels = mod)
-  
+
   lrt1 <- glmLRT(fit, contrast = cont_mod[, 1])
   tt_72_48 <- topTags(lrt1, n = Inf, adjust.method = "fdr")
   tt_72_48$table$Gene <- rownames(tt_72_48$table)
   tt_72_48$table <- merge(tt_72_48$table, annotations, by = "Gene")
-  save(tt_72_48, file = paste0(normalization, "_control_tt_72_48.RData"))
-  
+  save(tt_72_48, file = paste0(normalization,
+                               "_control_tt_72_48.RData"))
+
   lrt2 <- glmLRT(fit, contrast = cont_mod[, 2])
   tt_120_72 <- topTags(lrt2, n = Inf, adjust.method = "fdr")
   tt_120_72$table$Gene <- rownames(tt_120_72$table)
   tt_120_72$table <- merge(tt_120_72$table, annotations, by = "Gene")
-  save(tt_120_72, file = paste0(normalization, "_control_tt_120_72.RData"))
-  
+  save(tt_120_72, file = paste0(normalization,
+                                "_control_tt_120_72.RData"))
+
   lrt3 <- glmLRT(fit, contrast = cont_mod[, 3])
   tt_adult_120 <- topTags(lrt3, n = Inf, adjust.method = "fdr")
   tt_adult_120$table$Gene <- rownames(tt_adult_120$table)
   tt_adult_120$table <- merge(tt_adult_120$table, annotations, by = "Gene")
-  save(tt_adult_120, file = paste0(normalization, "_control_tt_adult_120.RData"))
-  
+  save(tt_adult_120, file = paste0(normalization,
+                                   "_control_tt_adult_120.RData"))
+
   ## Guardado de los resultados en excel
-  
+
   ## Todos los genes
-  
+
   write.table(tt_72_48$table,
               file = paste0(normalization, "_control_72_vs_48_todos.txt"),
               sep = "\t",
@@ -104,11 +111,11 @@ differentialExpression <- function(datamatrix, phenodata, annotations, normaliza
               file = paste0(normalization, "_control_Adulto_vs_120_todos.txt"),
               sep = "\t",
               quote = FALSE)
-  
+
   ## Ups y Downs por separado
-  
+
   ### Downs
-  
+
   write.table(tt_72_48$table[which(tt_72_48$table$logFC < -1.5 &
                                      tt_72_48$table$FDR < 0.05), ],
               file = paste0(normalization, "_control_72_vs_48_downs.txt"),
@@ -124,9 +131,9 @@ differentialExpression <- function(datamatrix, phenodata, annotations, normaliza
               file = paste0(normalization, "_control_Adulto_vs_120_downs.txt"),
               sep = "\t",
               quote = FALSE)
-  
+
   ### Ups
-  
+
   write.table(tt_72_48$table[which(tt_72_48$table$logFC > 1.5 &
                                      tt_72_48$table$FDR < 0.05), ],
               file = paste0(normalization, "_control_72_vs_48_ups.txt"),
@@ -142,18 +149,11 @@ differentialExpression <- function(datamatrix, phenodata, annotations, normaliza
               file = paste0(normalization, "_control_Adulto_vs_120_ups.txt"),
               sep = "\t",
               quote = FALSE)
-  
-  
-  ##------------------------------------------------------------------------------
-  ##
-  ##  Volcano Plots
-  ##
-  ##------------------------------------------------------------------------------
-  
+
   # Función que realiza los volcano plots
   volcanoplot <- function(tt, contrname, normalization) {
     res <- as.data.frame(tt$table)
-  
+
     keyvals <- ifelse(
       res$logFC < -1.5 & res$PValue < 0.05, "royalblue",
       ifelse(res$logFC > 1.5 & res$PValue < 0.05, "firebrick2", "black")
@@ -162,9 +162,9 @@ differentialExpression <- function(datamatrix, phenodata, annotations, normaliza
     names(keyvals)[keyvals == "firebrick2"] <- "up"
     names(keyvals)[keyvals == "black"] <- "n.s."
     names(keyvals)[keyvals == "royalblue"] <- "down"
-  
+
     file_name <- paste0(normalization, "_control_volcano_", contrname, ".png")
-  
+
     p <- EnhancedVolcano(res,
                          lab = "Gene",
                          x = "logFC",
@@ -183,19 +183,25 @@ differentialExpression <- function(datamatrix, phenodata, annotations, normaliza
                          legendLabSize = 8,
                          legendIconSize = 2.0,
                          axisLabSize = 8)
-  
+
     ggsave(filename = file_name, plot = p, dpi = 300)
-  
+
   }
-  
+
   contrname <- "72 hpf vs 48 hpf"
-  volcanoplot(tt_72_48, contrname = contrname, normalization = normalization)
-  
+  volcanoplot(tt_72_48,
+              contrname = contrname,
+              normalization = normalization)
+
   contrname <- "120 hpf vs 72 hpf"
-  volcanoplot(tt_120_72, contrname = contrname, normalization = normalization)
-  
+  volcanoplot(tt_120_72,
+              contrname = contrname,
+              normalization = normalization)
+
   contrname <- "Adult vs 120 hpf"
-  volcanoplot(tt_adult_120, contrname = contrname, normalization = normalization)
+  volcanoplot(tt_adult_120,
+              contrname = contrname,
+              normalization = normalization)
 
 }
 
@@ -204,7 +210,7 @@ datamatrix <- read.table("datamatrix_tmm.txt",
                          row.names = 1,
                          header = 1)
 
-differentialExpression(datamatrix = datamatrix,
+differential_expression(datamatrix = datamatrix,
                        phenodata = phenodata,
                        annotations = annotations,
                        normalization = "TMM")
@@ -214,7 +220,9 @@ datamatrix <- read.table("datamatrix_qn.txt",
                          row.names = 1,
                          header = 1)
 
-differentialExpression(datamatrix = datamatrix,
+differential_expression(datamatrix = datamatrix,
                        phenodata = phenodata,
                        annotations = annotations,
                        normalization = "QN")
+
+rm(list = ls())

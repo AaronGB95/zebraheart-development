@@ -48,53 +48,50 @@ for (file in contrasts) {
 ##-----------------------------------------------------------------------------
 ## Annotation Function
 ##-----------------------------------------------------------------------------
-convertDanio2Mouse <- function(m){
-  
-  dre <- useEnsembl(biomart = 'ensembl', 
-                    dataset = 'drerio_gene_ensembl',
+convert_danio_to_mouse <- function(m) {
+
+  dre <- useEnsembl(biomart = "ensembl",
+                    dataset = "drerio_gene_ensembl",
                     version = 102)
-  
-  mmus <- useEnsembl(biomart = 'ensembl', 
-                     dataset = 'mmusculus_gene_ensembl',
+
+  mmus <- useEnsembl(biomart = "ensembl",
+                     dataset = "mmusculus_gene_ensembl",
                      version = 102)
-  
-  danio_ensembl_id_attributes <-c("ensembl_gene_id",
-                                  "mmusculus_homolog_perc_id")#,# attributes to query from danio database (query organism) 
-  #"mmusculus_homolog_goc_score") #orthology score to mouse from danio side
-  
-  danio_zfin_id_attributes <-c("ensembl_gene_id",
-                               "entrezgene_id",
-                               "zfin_id_symbol",
-                               "description") # attributes to convert ensembl id to zfin id 
-  
+
+  danio_ensembl_id_attributes <- c("ensembl_gene_id",
+                                   "mmusculus_homolog_perc_id")
+
+  danio_zfin_id_attributes <- c("ensembl_gene_id",
+                                "entrezgene_id",
+                                "zfin_id_symbol",
+                                "description")
+
   mmus_attributes <- c("mgi_symbol",
                        "ensembl_gene_id",
-                       "entrezgene_id") # attributes that you want from mouse database
-  
-  # make a converted dataframe with ensemble ids and mouse orthology scores 
-  genes_conv_ensembl <- getLDS(values = m ,
-                               filters = "ensembl_gene_id",  # query using ensemble ids
-                               attributes = danio_ensembl_id_attributes, # query these attributes from danio mart
+                       "entrezgene_id")
+
+  # make a converted dataframe with ensemble ids and mouse orthology scores
+  genes_conv_ensembl <- getLDS(values = m,
+                               filters = "ensembl_gene_id",
+                               attributes = danio_ensembl_id_attributes,
                                mart = dre, # use danio mart
-                               attributesL = mmus_attributes, # convert to attributes of mouse mart 
-                               martL = mmus,# use mouse mart
-                               uniqueRows=T) 
-  
-  
+                               attributesL = mmus_attributes,
+                               martL = mmus, # use mouse mart
+                               uniqueRows = TRUE)
+
   # make dataframe for dre ensembl id and zfin
   genes_conv_zfin <- getBM(attributes = danio_zfin_id_attributes,
                            filters = "ensembl_gene_id",
                            values = m,
                            mart = dre)
-  
-  
+
   # merge conversion df with zfin id df
   gene_merge <- merge(genes_conv_ensembl,
                       genes_conv_zfin,
-                      by.x= "Gene.stable.ID",
-                      by.y="ensembl_gene_id",
-                      all.y=TRUE)
-  
+                      by.x = "Gene.stable.ID",
+                      by.y = "ensembl_gene_id",
+                      all.y = TRUE)
+
   # rename column names to readable format
   colnames(gene_merge)[colnames(gene_merge)== "Gene.stable.ID"] <- "Ensembl_Danio"
   colnames(gene_merge)[colnames(gene_merge)== "X.id..target.Mouse.gene.identical.to.query.gene"] <- "Mouse_homology_percentage"
@@ -104,17 +101,18 @@ convertDanio2Mouse <- function(m){
   colnames(gene_merge)[colnames(gene_merge)== "MGI.symbol"] <- "MGI_Symbol"
   colnames(gene_merge)[colnames(gene_merge)== "zfin_id_symbol"] <- "Zfin_Symbol"
   colnames(gene_merge)[colnames(gene_merge)== "description"] <- "Description"
-  
-  
-  # select the top ortholog with max homology percentage 
-  
-  gene_merge <- gene_merge %>% group_by(Ensembl_Danio) %>% # group by ensembl id (since ensemble ids are the one used for query)
-    arrange(desc(Mouse_homology_percentage),.by_group = TRUE) %>% #arrange each of them by homology score then by GOC score
-    mutate(num_orthologues=n()) %>% #write in a column how many orthologues are possible
-    distinct(Ensembl_Danio,.keep_all = TRUE) %>%   # if two orthologues have same homology percentage and goc then choose the top one
-    mutate(unique_ortho_check=n()) %>%
-    arrange(desc(num_orthologues)) # arrange by the genes which have maximum orthogues
-  cat('If worked try again switching old host=\"https://www.ensembl.org\" and mirror = \"useast\" ')
+
+
+  # select the top ortholog with max homology percentage
+
+  gene_merge <- gene_merge %>% group_by(Ensembl_Danio) %>%
+    arrange(desc(Mouse_homology_percentage), .by_group = TRUE) %>%
+    mutate(num_orthologues = n()) %>%
+    distinct(Ensembl_Danio, .keep_all = TRUE) %>%
+    mutate(unique_ortho_check = n()) %>%
+    arrange(desc(num_orthologues))
+  cat('If worked try again switching old host=\
+  \"https://www.ensembl.org\" and mirror = \"useast\" ')
   return(gene_merge)
 }
 ##-----------------------------------------------------------------------------
@@ -124,20 +122,19 @@ convertDanio2Mouse <- function(m){
 ## Apply Annotation Function
 ##-----------------------------------------------------------------------------
 
-mouseAnnotation <- function(datatable) {
-  
+mouse_annotation <- function(datatable) {
+
   name <- deparse(substitute(datatable))
-  
-  annotations <- convertDanio2Mouse(datatable$table$ENSEMBLID)
+
+  annotations <- convert_danio_to_mouse(datatable$table$ENSEMBLID)
 
   annotated_data <- merge(x = annotations,
-                        y = datatable$table |>
-                          distinct(ENSEMBLID,
-                                   .keep_all = TRUE),
-                        by.x = "Ensembl_Danio",
-                        by.y = "ENSEMBLID",
-                        all.x = TRUE)
-  
+                          y = datatable$table |>
+                            distinct(ENSEMBLID, .keep_all = TRUE),
+                          by.x = "Ensembl_Danio",
+                          by.y = "ENSEMBLID",
+                          all.x = TRUE)
+
   save(annotated_data, file = paste0("mouse_annotated_", name, ".RData"))
 }
 
@@ -147,15 +144,10 @@ mouseAnnotation <- function(datatable) {
 ##-----------------------------------------------------------------------------
 ## Data save
 ##-----------------------------------------------------------------------------
-mouseAnnotation(tt_72_48)
-mouseAnnotation(tt_120_72)
-mouseAnnotation(tt_adult_120)
+mouse_annotation(tt_72_48)
+mouse_annotation(tt_120_72)
+mouse_annotation(tt_adult_120)
 ##-----------------------------------------------------------------------------
 
 # Clean environment
 rm(list = ls())
-
-
-
-
-
