@@ -7,42 +7,17 @@
 ##
 ## Author: Aarón García Blázquez
 ##
-##
-##-----------------------------------------------------------------------------
-
-##-----------------------------------------------------------------------------
-## Setup
-##-----------------------------------------------------------------------------
-# Clean environment
-rm(list = ls())
-
-# Load required packages
-require(rstudioapi)
-require(tidyverse)
-require(data.table)
-require(knitr)
-require(dplyr)
-require(ggplot2)
-require(ggpubr)
-require(ggdendro)
-require(PCAtools)
-require(tidyr)
-require(tibble)
-require(RColorBrewer)
-
-# Set file path to working directory
-setwd("..")
 ##-----------------------------------------------------------------------------
 
 
 ##-----------------------------------------------------------------------------
 ## Data load
 ##-----------------------------------------------------------------------------
-datamatrix <- read.table("03-data/datamatrix.txt",
+datamatrix <- read.table(paste0(dir_data,"datatables/datamatrix_tmm.txt"),
                          sep = "\t",
                          header = TRUE,
                          row.names = 1)
-phenodata <- read.table("01-documentation/phenodata.txt",
+phenodata <- read.table(paste0(dir_docs, "phenodata_5_groups.txt"),
                         sep = "\t",
                         header = TRUE,
                         row.names = 1)
@@ -52,15 +27,15 @@ phenodata$Sample <- rownames(phenodata)
 phenodata <- phenodata[match(colnames(datamatrix), rownames(phenodata)), ]
 
 # Give file name to save plots
-file <- "raw_counts"
-dir_plots <- "05-results/plots"
+file <- "tmm_counts"
+dir_plots <- "04-output/plots/"
 ##-----------------------------------------------------------------------------
 
 
 ##-----------------------------------------------------------------------------
 ## Boxplot
 ##-----------------------------------------------------------------------------
-file_name <- paste0(dir_plots, "/_", file, "_age_boxplot.png")
+file_name <- paste0(dir_plots, "boxplots/", file, "_age_boxplot.png")
 
 png(filename = file_name, width = 720, height = 720)
 par(mar = c(10, 4.1, 4.1, 2.1))
@@ -84,7 +59,7 @@ dev.off()
 ##-----------------------------------------------------------------------------
 ## Boxplot with Set
 ##-----------------------------------------------------------------------------
-file_name <- paste(file, "_set_boxplot.png", sep = "")
+file_name <- paste0(dir_plots, "boxplots/", file, "_set_boxplot.png")
 
 png(filename = file_name, width = 720, height = 720)
 par(mar = c(10, 4.1, 4.1, 2.1))
@@ -113,7 +88,7 @@ dev.off()
 p <- pca(datamatrix, metadata = phenodata)
 
 # Name for PCA plot file
-file_name <- paste0(dir_plots, "/_", file, "_age_pca.png")
+file_name <- paste0(dir_plots, "pca_plots/", file, "_age_pca.png")
 
 # PCA plot
 png(filename = file_name, width = 720, height = 720)
@@ -125,7 +100,7 @@ biplot(p,
 dev.off()
 
 # Name for PCA plot file
-file_name <- paste(file, "_set_pca.png", sep = "")  # Change group here
+file_name <- paste0(dir_plots, "pca_plots/", file, "_set_pca.png")
 
 # PCA plot
 png(filename = file_name, width = 720, height = 720)
@@ -141,11 +116,6 @@ dev.off()
 ##-----------------------------------------------------------------------------
 ## Correlation clustering
 ##-----------------------------------------------------------------------------
-file_name <- paste0(dir_plots, "/_", file, "_age_cluster.png")
-
-png(filename = file_name, width = 720, height = 720)
-
-par(mar=c(3.1, 0.1, 0.1, 1.1))
 
 correlacion <- cor(datamatrix)
 
@@ -161,13 +131,11 @@ ddata_x$labels <- merge(label(ddata_x),
                         by.y = "Sample")
 
 # Correlation with Age
-file_name <- paste(file, "_age_cluster.png", sep = "")  # Change group here
+file_name <- paste0(dir_plots, "clustering/", file, "_age_cluster.png")
 
 png(filename = file_name, width = 720, height = 720)
 
 par(mar=c(3.1, 0.1, 0.1, 1.1))
-
-
 
 dendroplot <- ggplot(segment(ddata_x)) +
   geom_segment(aes(x = x, y = y, xend = xend, yend = yend)) +
@@ -180,14 +148,13 @@ dendroplot
 
 dev.off()
 
+
 # Correlation with Set
-file_name <- paste(file, "_set_cluster.png", sep = "")  # Change group here
+file_name <- paste0(dir_plots, "clustering/", file, "_set_cluster.png")
 
 png(filename = file_name, width = 720, height = 720)
 
 par(mar = c(3.1, 0.1, 0.1, 1.1))
-
-
 
 dendroplot <- ggplot(segment(ddata_x)) +
   geom_segment(aes(x = x, y = y, xend = xend, yend = yend)) +
@@ -200,6 +167,3 @@ dendroplot
 
 dev.off()
 ##-----------------------------------------------------------------------------
-
-# Clean environment
-rm(list = ls())

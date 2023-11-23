@@ -11,27 +11,12 @@
 ##
 ##------------------------------------------------------------------------------
 
-rm(list = ls())
-
-## Required libraries
-require(rstudioapi)
-require(sva)
-require(limma)
-require(edgeR)
-require(DESeq2)
-require(dplyr)
-require(ggplot2)
-require(EnhancedVolcano)
 
 ## Data load
-##--------------------
+datamatrix <- read.table(paste0(dir_data, "datatables/datamatrix_tmm.txt"),
+                         sep = "\t")
 
-## Change working directory to script path
-setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
-
-## Data load
-datamatrix <- read.table("datamatrix_qn.txt", sep = "\t")
-phenodata <- read.table("phenodata.txt",
+phenodata <- read.table(paste0(dir_docs, "phenodata_5_groups.txt"),
                         sep = "\t",
                         header = 1,
                         row.names = 1)
@@ -43,7 +28,7 @@ phenodata$Age <- as.factor(phenodata$Age)
 mod <- as.matrix(model.matrix(~ 0 + phenodata$Age, data = phenodata))
 mod0 <- as.matrix(model.matrix(~1, data = phenodata))
 
-colnames(mod) <- c("hpf120", "hpf48", "hpf72", "Adult")
+colnames(mod) <- c("hpf120", "hpf48", "hpf56", "hpf72", "Adult")
 
 datamatrix <- as.matrix(log2(datamatrix + 1))
 

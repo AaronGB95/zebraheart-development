@@ -8,25 +8,6 @@
 ##
 ## Author: Aarón García Blázquez
 ##
-##
-##-----------------------------------------------------------------------------
-
-##-----------------------------------------------------------------------------
-## Setup
-##-----------------------------------------------------------------------------
-# Clean environment
-rm(list = ls())
-
-# Required packages
-require(rstudioapi)
-require(stringr)
-require(tidyverse)
-require(edgeR)
-require(preprocessCore)
-require(biomaRt)
-
-# Set document path as working directory
-setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 ##-----------------------------------------------------------------------------
 
 
@@ -34,12 +15,17 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 ## Data Load
 ##-----------------------------------------------------------------------------
 # Get featureCounts output files
-files <- list.files(path = "./counts/", full.names = TRUE)
+files <- list.files(path = paste0(dir_data, "counts/"),
+                    full.names = TRUE)
 
 # Loop through each file and read it into a data frame
-datalist <- lapply(files, FUN = read.table, header = TRUE)
+datalist <- lapply(files,
+                   FUN = read.table,
+                   header = TRUE)
 
-annotations <- read.table("annotations.txt", sep = "\t", header = TRUE)
+annotations <- read.table(paste0(dir_docs, "annotations.txt"),
+                          sep = "\t",
+                          header = TRUE)
 ##-----------------------------------------------------------------------------
 
 
@@ -74,28 +60,6 @@ for (i in seq_along(datalist)) {
 datamatrix <- as.data.frame(datamatrix)
 ##-----------------------------------------------------------------------------
 
-##-----------------------------------------------------------------------------
-## Annotation
-##-----------------------------------------------------------------------------
-
-colnames(annotations) <- c("ENSEMBLID", "Gene", "ENTREZID")
-
-annotations <- annotations[!duplicated(annotations$Gene) &
-                             !(annotations$Gene == ""), ]
-
-datamatrix$ENSEMBLID <- rownames(datamatrix)
-
-datamatrix <- merge(datamatrix, annotations, by = "ENSEMBLID")
-
-datamatrix <- datamatrix[!is.na(datamatrix$Gene), ]
-
-rownames(datamatrix) <- datamatrix$Gene
-
-columns_to_remove <- c("ENSEMBLID", "Gene", "ENTREZID")
-
-datamatrix <- datamatrix[, !names(datamatrix) %in% columns_to_remove]
-##-----------------------------------------------------------------------------
-
 
 ##-----------------------------------------------------------------------------
 ## TMM normalization
@@ -124,10 +88,16 @@ qn_counts <- normalize.quantiles(as.matrix(tmm_counts),
 ##-----------------------------------------------------------------------------
 ## Data Save
 ##-----------------------------------------------------------------------------
-write.table(datamatrix, file = "datamatrix.txt", sep = "\t", quote = FALSE)
-write.table(tmm_counts, file = "datamatrix_tmm.txt", sep = "\t", quote = FALSE)
-write.table(qn_counts, file = "datamatrix_qn.txt", sep = "\t", quote = FALSE)
+write.table(datamatrix,
+            file = paste0(dir_data, "datatables/datamatrix_raw.txt"),
+            sep = "\t",
+            quote = FALSE)
+write.table(tmm_counts,
+            file = paste0(dir_data, "datatables/datamatrix_tmm.txt"),
+            sep = "\t",
+            quote = FALSE)
+write.table(qn_counts,
+            file = paste0(dir_data, "datatables/datamatrix_qn.txt"),
+            sep = "\t", 
+            quote = FALSE)
 ##-----------------------------------------------------------------------------
-
-# Clean environment
-rm(list = ls())
