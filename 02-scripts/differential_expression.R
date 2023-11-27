@@ -13,8 +13,6 @@
 ##
 ##------------------------------------------------------------------------------
 
-rm(list = ls())
-
 ## Librerías necesarias
 ##----------------------
 
@@ -30,19 +28,13 @@ require(ggplot2)
 ## Carga de los datos
 ##--------------------
 
-## Cambiamos el directorio de trabajo a la ubicacion del script
-setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
-
 ## Cargamos los datos necesarios
-phenodata <- read.table("phenodata.txt",
+phenodata <- read.table(paste0(dir_docs, "phenodata_4_groups.txt"),
                         sep = "\t",
                         header = 1)
-annotations <- read.table("annotations.txt",
+annotations <- read.table(paste0(dir_docs, "annotations.txt"),
                           sep = "\t",
                           header = 1)
-colnames(annotations) <- c("ENSEMBLID", "Gene", "ENTREZID")
-annotations <- annotations[!duplicated(annotations$Gene) &
-                             !(annotations$Gene == ""), ]
 
 differential_expression <- function(datamatrix,
                                     phenodata,
@@ -205,7 +197,9 @@ differential_expression <- function(datamatrix,
 
 }
 
-datamatrix <- read.table("datamatrix_tmm.txt",
+datamatrix <- read.table(paste0(dir_data,
+                                "datatables/",
+                                "datamatrix_tmm.txt"),
                          sep = "\t",
                          row.names = 1,
                          header = 1)
@@ -215,7 +209,9 @@ differential_expression(datamatrix = datamatrix,
                        annotations = annotations,
                        normalization = "TMM")
 
-datamatrix <- read.table("datamatrix_qn.txt",
+datamatrix <- read.table(paste0(dir_data,
+                                "datatables/",
+                                "datamatrix_qn.txt"),
                          sep = "\t",
                          row.names = 1,
                          header = 1)
@@ -225,4 +221,15 @@ differential_expression(datamatrix = datamatrix,
                        annotations = annotations,
                        normalization = "QN")
 
-rm(list = ls())
+datamatrix <- read.table(paste0(dir_data,
+                                "datatables/",
+                                "datamatrix_ncrna_removed.txt"),
+                         sep = "\t",
+                         row.names = 1,
+                         header = 1)
+
+differential_expression(datamatrix = datamatrix,
+                        phenodata = phenodata,
+                        annotations = annotations,
+                        normalization = "TMM")
+
