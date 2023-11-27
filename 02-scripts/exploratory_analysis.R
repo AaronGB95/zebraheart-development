@@ -81,6 +81,7 @@ log2(datamatrix + 1) %>%
 dev.off()
 ##-----------------------------------------------------------------------------
 
+
 ##-----------------------------------------------------------------------------
 ## Boxplot with Set
 ##-----------------------------------------------------------------------------
@@ -123,24 +124,13 @@ biplot(p,
        legendPosition = "right")
 
 dev.off()
-
-# Name for PCA plot file
-file_name <- paste(file, "_set_pca.png", sep = "")  # Change group here
-
-# PCA plot
-png(filename = file_name, width = 720, height = 720)
-
-biplot(p,
-       colby = "Set",
-       legendPosition = "right")  # Change group here
-
-dev.off()
 ##-----------------------------------------------------------------------------
 
 
 ##-----------------------------------------------------------------------------
 ## Correlation clustering
 ##-----------------------------------------------------------------------------
+
 file_name <- paste0(dir_plots, "/_", file, "_age_cluster.png")
 
 png(filename = file_name, width = 720, height = 720)
@@ -156,18 +146,9 @@ dd <- hclust(distancia)
 ddata_x <- dendro_data(dd)
 
 ddata_x$labels <- merge(label(ddata_x),
-                        phenodata,
-                        by.x = "label",
-                        by.y = "Sample")
-
-# Correlation with Age
-file_name <- paste(file, "_age_cluster.png", sep = "")  # Change group here
-
-png(filename = file_name, width = 720, height = 720)
-
-par(mar=c(3.1, 0.1, 0.1, 1.1))
-
-
+                       phenodata,
+                       by.x = "label",
+                       by.y = "Sample")
 
 dendroplot <- ggplot(segment(ddata_x)) +
   geom_segment(aes(x = x, y = y, xend = xend, yend = yend)) +
