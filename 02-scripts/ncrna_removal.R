@@ -43,6 +43,20 @@ datamatrix_filtered <- datamatrix[!(rownames(datamatrix) %in% ncrna_genes$Gene),
 write.table(datamatrix_filtered,
             file = paste0(dir_data,
                           "datatables/",
-                          "datamatrix_ncrna_removed.txt"),
+                          "datamatrix_tmm_ncrna_removed.txt"),
+            sep = "\t",
+            quote = FALSE)
+
+datamatrix <- read.table(paste0(dir_data, "datatables/","datamatrix_qn.txt"),
+                         sep = "\t",
+                         row.names = 1,
+                         header = 1)
+
+datamatrix_filtered <- datamatrix[!(rownames(datamatrix) %in% ncrna_genes$Gene), ]
+
+write.table(datamatrix_filtered,
+            file = paste0(dir_data,
+                          "datatables/",
+                          "datamatrix_qn_ncrna_removed.txt"),
             sep = "\t",
             quote = FALSE)

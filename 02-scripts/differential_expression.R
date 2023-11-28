@@ -45,7 +45,7 @@ differential_expression <- function(datamatrix,
   ##-----------------------
 
   # Crea la matriz modelo y la matriz nula
-  mod <- model.matrix(~ 0 + phenodata$Age + phenodata$Set, data = phenodata)
+  mod <- model.matrix(~ 0 + phenodata$Age, data = phenodata)
   mod0 <- model.matrix(~1, data = phenodata)
 
   colnames(mod)[1:4] <- c("hpf120", "hpf48", "hpf72", "Adult")
@@ -70,77 +70,28 @@ differential_expression <- function(datamatrix,
   tt_72_48 <- topTags(lrt1, n = Inf, adjust.method = "fdr")
   tt_72_48$table$Gene <- rownames(tt_72_48$table)
   tt_72_48$table <- merge(tt_72_48$table, annotations, by = "Gene")
-  save(tt_72_48, file = paste0(normalization,
+  save(tt_72_48, file = paste0(dir_output,
+                               "differential_expression/",
+                               normalization,
                                "_control_tt_72_48.RData"))
 
   lrt2 <- glmLRT(fit, contrast = cont_mod[, 2])
   tt_120_72 <- topTags(lrt2, n = Inf, adjust.method = "fdr")
   tt_120_72$table$Gene <- rownames(tt_120_72$table)
   tt_120_72$table <- merge(tt_120_72$table, annotations, by = "Gene")
-  save(tt_120_72, file = paste0(normalization,
+  save(tt_120_72, file = paste0(dir_output,
+                                "differential_expression/",
+                                normalization,
                                 "_control_tt_120_72.RData"))
 
   lrt3 <- glmLRT(fit, contrast = cont_mod[, 3])
   tt_adult_120 <- topTags(lrt3, n = Inf, adjust.method = "fdr")
   tt_adult_120$table$Gene <- rownames(tt_adult_120$table)
   tt_adult_120$table <- merge(tt_adult_120$table, annotations, by = "Gene")
-  save(tt_adult_120, file = paste0(normalization,
+  save(tt_adult_120, file = paste0(dir_output,
+                                   "differential_expression/",
+                                   normalization,
                                    "_control_tt_adult_120.RData"))
-
-  ## Guardado de los resultados en excel
-
-  ## Todos los genes
-
-  write.table(tt_72_48$table,
-              file = paste0(normalization, "_control_72_vs_48_todos.txt"),
-              sep = "\t",
-              quote = FALSE)
-  write.table(tt_120_72$table,
-              file = paste0(normalization, "_control_120_vs_72_todos.txt"),
-              sep = "\t",
-              quote = FALSE)
-  write.table(tt_adult_120$table,
-              file = paste0(normalization, "_control_Adulto_vs_120_todos.txt"),
-              sep = "\t",
-              quote = FALSE)
-
-  ## Ups y Downs por separado
-
-  ### Downs
-
-  write.table(tt_72_48$table[which(tt_72_48$table$logFC < -1.5 &
-                                     tt_72_48$table$FDR < 0.05), ],
-              file = paste0(normalization, "_control_72_vs_48_downs.txt"),
-              sep = "\t",
-              quote = FALSE)
-  write.table(tt_120_72$table[which(tt_120_72$table$logFC < -1.5 &
-                                      tt_120_72$table$FDR < 0.05), ],
-              file = paste0(normalization, "_control_120_vs_72_downs.txt"),
-              sep = "\t",
-              quote = FALSE)
-  write.table(tt_adult_120$table[which(tt_adult_120$table$logFC < -1.5 &
-                                         tt_adult_120$table$FDR < 0.05), ],
-              file = paste0(normalization, "_control_Adulto_vs_120_downs.txt"),
-              sep = "\t",
-              quote = FALSE)
-
-  ### Ups
-
-  write.table(tt_72_48$table[which(tt_72_48$table$logFC > 1.5 &
-                                     tt_72_48$table$FDR < 0.05), ],
-              file = paste0(normalization, "_control_72_vs_48_ups.txt"),
-              sep = "\t",
-              quote = FALSE)
-  write.table(tt_120_72$table[which(tt_120_72$table$logFC > 1.5 &
-                                      tt_120_72$table$FDR < 0.05), ],
-              file = paste0(normalization, "_control_120_vs_72_ups.txt"),
-              sep = "\t",
-              quote = FALSE)
-  write.table(tt_adult_120$table[which(tt_adult_120$table$logFC > 1.5 &
-                                         tt_adult_120$table$FDR < 0.05), ],
-              file = paste0(normalization, "_control_Adulto_vs_120_ups.txt"),
-              sep = "\t",
-              quote = FALSE)
 
   # Función que realiza los volcano plots
   volcanoplot <- function(tt, contrname, normalization) {
@@ -155,7 +106,12 @@ differential_expression <- function(datamatrix,
     names(keyvals)[keyvals == "black"] <- "n.s."
     names(keyvals)[keyvals == "royalblue"] <- "down"
 
-    file_name <- paste0(normalization, "_control_volcano_", contrname, ".png")
+    file_name <- paste0(dir_output,
+                        "plots/volcano_plots/",
+                        normalization,
+                        "_control_volcano_",
+                        contrname,
+                        ".png")
 
     p <- EnhancedVolcano(res,
                          lab = "Gene",
@@ -223,7 +179,7 @@ differential_expression(datamatrix = datamatrix,
 
 datamatrix <- read.table(paste0(dir_data,
                                 "datatables/",
-                                "datamatrix_ncrna_removed.txt"),
+                                "datamatrix_tmm_ncrna_removed.txt"),
                          sep = "\t",
                          row.names = 1,
                          header = 1)
@@ -231,5 +187,17 @@ datamatrix <- read.table(paste0(dir_data,
 differential_expression(datamatrix = datamatrix,
                         phenodata = phenodata,
                         annotations = annotations,
-                        normalization = "TMM")
+                        normalization = "TMM_ncRNA")
+
+datamatrix <- read.table(paste0(dir_data,
+                                "datatables/",
+                                "datamatrix_qn_ncrna_removed.txt"),
+                         sep = "\t",
+                         row.names = 1,
+                         header = 1)
+
+differential_expression(datamatrix = datamatrix,
+                        phenodata = phenodata,
+                        annotations = annotations,
+                        normalization = "QN_ncRNA")
 

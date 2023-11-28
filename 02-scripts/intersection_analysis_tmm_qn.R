@@ -15,7 +15,9 @@ normalizations <- c("TMM", "QN")
 ## TMM normalization
 
 ### 72 hpf vs 48 hpf
-load(paste0(dir_output, "differential_expression/", "TMM_tt_72_48.RData"))
+load(paste0(dir_output,
+            "differential_expression/",
+            "TMM_ncRNA_control_tt_72_48.RData"))
 
 #### Upregulated genes
 tmm_72_48_ups <- tt_72_48$table[tt_72_48$table$logFC > 1.5 &
@@ -28,7 +30,9 @@ tmm_72_48_downs <- tt_72_48$table[tt_72_48$table$logFC < -1.5 &
                                   "Gene"]
 
 ### 120 hpf vs 72 hpf
-load(paste0(dir_output, "differential_expression/", "TMM_tt_120_72.RData"))
+load(paste0(dir_output,
+            "differential_expression/",
+            "TMM_ncRNA_control_tt_120_72.RData"))
 
 #### Upregulated genes
 tmm_120_72_ups <- tt_120_72$table[tt_120_72$table$logFC > 1.5 &
@@ -41,7 +45,9 @@ tmm_120_72_downs <- tt_120_72$table[tt_120_72$table$logFC < -1.5 &
                                     "Gene"]
 
 ### Adults vs 120 hpf
-load(paste0(dir_output, "differential_expression/", "TMM_tt_adult_120.RData"))
+load(paste0(dir_output,
+            "differential_expression/",
+            "TMM_ncRNA_control_tt_adult_120.RData"))
 
 #### Upregulated genes
 tmm_adult_120_ups <- tt_adult_120$table[tt_adult_120$table$logFC > 1.5 &
@@ -56,7 +62,9 @@ tmm_adult_120_downs <- tt_adult_120$table[tt_adult_120$table$logFC < -1.5 &
 ## TMM + QN normalization
 
 ### 72 hpf vs 48 hpf
-load(paste0(dir_output, "differential_expression/", "QN_tt_72_48.RData"))
+load(paste0(dir_output,
+            "differential_expression/",
+            "QN_ncRNA_control_tt_72_48.RData"))
 
 #### Upregulated genes
 qn_72_48_ups <- tt_72_48$table[tt_72_48$table$logFC > 1.5 &
@@ -69,7 +77,9 @@ qn_72_48_downs <- tt_72_48$table[tt_72_48$table$logFC < -1.5 &
                                   "Gene"]
 
 ### 120 hpf vs 72 hpf
-load(paste0(dir_output, "differential_expression/", "QN_tt_120_72.RData"))
+load(paste0(dir_output,
+            "differential_expression/",
+            "QN_ncRNA_control_tt_120_72.RData"))
 
 #### Upregulated genes
 qn_120_72_ups <- tt_120_72$table[tt_120_72$table$logFC > 1.5 &
@@ -82,7 +92,9 @@ qn_120_72_downs <- tt_120_72$table[tt_120_72$table$logFC < -1.5 &
                                     "Gene"]
 
 ### Adults vs 120 hpf
-load(paste0(dir_output, "differential_expression/", "QN_tt_adult_120.RData"))
+load(paste0(dir_output,
+            "differential_expression/",
+            "QN_ncRNA_control_tt_adult_120.RData"))
 
 #### Upregulated genes
 qn_adult_120_ups <- tt_adult_120$table[tt_adult_120$table$logFC > 1.5 &
@@ -130,7 +142,7 @@ draw_venn_diagram <- function(genes_list, groups, file_name) {
 
 D_list <- list(tmm_72_48_ups, qn_72_48_ups)
 
-file_name <- paste0(dir_plot, "venn_tmm_qn_72_48_up.png")
+file_name <- paste0(dir_plot, "venn_ncRNA_tmm_qn_72_48_up.png")
 
 draw_venn_diagram(genes_list = D_list,
                   groups = normalizations,
@@ -140,7 +152,7 @@ draw_venn_diagram(genes_list = D_list,
 
 D_list <- list(tmm_72_48_downs, qn_72_48_downs)
 
-file_name <- paste0(dir_plot, "venn_tmm_qn_72_48_down.png")
+file_name <- paste0(dir_plot, "venn_ncRNA_tmm_qn_72_48_down.png")
 
 draw_venn_diagram(genes_list = D_list,
                   groups = normalizations,
@@ -152,7 +164,7 @@ draw_venn_diagram(genes_list = D_list,
 
 D_list <- list(tmm_120_72_ups, qn_120_72_ups)
 
-file_name <- paste0(dir_plot, "venn_tmm_qn_120_72_up.png")
+file_name <- paste0(dir_plot, "venn_ncRNA_tmm_qn_120_72_up.png")
 
 draw_venn_diagram(genes_list = D_list,
                   groups = normalizations,
@@ -162,7 +174,7 @@ draw_venn_diagram(genes_list = D_list,
 
 D_list <- list(tmm_120_72_downs, qn_120_72_downs)
 
-file_name <- paste0(dir_plot, "venn_tmm_qn_120_72_down.png")
+file_name <- paste0(dir_plot, "venn_ncRNA_tmm_qn_120_72_down.png")
 
 draw_venn_diagram(genes_list = D_list,
                   groups = normalizations,
@@ -174,7 +186,7 @@ draw_venn_diagram(genes_list = D_list,
 
 D_list <- list(tmm_adult_120_ups, qn_adult_120_ups)
 
-file_name <- paste0(dir_plot, "venn_tmm_qn_adult_120_up.png")
+file_name <- paste0(dir_plot, "venn_ncRNA_tmm_qn_adult_120_up.png")
 
 draw_venn_diagram(genes_list = D_list,
                   groups = normalizations,
@@ -184,7 +196,7 @@ draw_venn_diagram(genes_list = D_list,
 
 D_list <- list(tmm_adult_120_downs, qn_adult_120_downs)
 
-file_name <- paste0(dir_plot, "venn_tmm_qn_adult_120_down.png")
+file_name <- paste0(dir_plot, "venn_ncRNA_tmm_qn_adult_120_down.png")
 
 draw_venn_diagram(genes_list = D_list,
                   groups = normalizations,
