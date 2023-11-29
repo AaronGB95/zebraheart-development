@@ -15,16 +15,9 @@
 ##-----------------------------------------------------------------------------
 ## Setup
 ##-----------------------------------------------------------------------------
-# Clean environment
-rm(list = ls())
-
-require(rstudioapi)
 require(biomaRt)
 require(dplyr)
 require(curl)
-
-# Set document path as working directory
-setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 ##-----------------------------------------------------------------------------
 
 
@@ -32,9 +25,9 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 ## Data Load
 ##-----------------------------------------------------------------------------
 
-contrasts <- list.files(path = ".",
+contrasts <- list.files(path = paste0(dir_output, "differential_expression"),
                         all.files = TRUE,
-                        pattern = "^tt_",
+                        pattern = "^TMM_control",
                         recursive = TRUE,
                         full.names = TRUE)
 
@@ -135,7 +128,12 @@ mouse_annotation <- function(datatable) {
                           by.y = "ENSEMBLID",
                           all.x = TRUE)
 
-  save(annotated_data, file = paste0("mouse_annotated_", name, ".RData"))
+  save(annotated_data,
+       file = paste0(dir_output,
+                     "differential_expression/",
+                     "mouse_annotated_",
+                     name,
+                     ".RData"))
 }
 
 ##-----------------------------------------------------------------------------
@@ -148,6 +146,3 @@ mouse_annotation(tt_72_48)
 mouse_annotation(tt_120_72)
 mouse_annotation(tt_adult_120)
 ##-----------------------------------------------------------------------------
-
-# Clean environment
-rm(list = ls())

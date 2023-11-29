@@ -52,7 +52,11 @@ gsea_GO_OG <- GSEA(geneList = geneList,
                    minGSSize = 10,
                    maxGSSize = 500,
                    pAdjustMethod = "BH",
-                   eps = 0)
+                   pvalueCutoff = 1)
+
+save(gsea_GO_OG, file = paste0(dir_output,
+                               "gene_set_enrichment_analysis/",
+                               "TMM_GSEA_OG_GOBP_72_48.RData"))
 
 gsea_GO_DB <- gseGO(geneList = geneList,
                     ont = "BP",
@@ -64,40 +68,27 @@ gsea_GO_DB <- gseGO(geneList = geneList,
                     pvalueCutoff = 1,
                     pAdjustMethod = "BH")
 
-save(gsea_BH, file = paste0(dir_output,
-                            "gene_set_enrichment_analysis/",
-                            "TMM_GSEA_GOBP_72_48.RData"))
-
-print(paste("Número de términos significativos:",
-            length(which(gsea_BH@result$pvalue < 0.05))))
-
-dotplot(gsea_BH, showCategory = 20, font.size = 8) +
-  ggtitle("GSEA GO:BP 72 hpf vs 48 hpf")
+save(gsea_GO_DB, file = paste0(dir_output,
+                               "gene_set_enrichment_analysis/",
+                               "TMM_GSEA_DB_GOBP_72_48.RData"))
 
 ### KEGG
 
 ## Ranked list. Id must be Entrez id
-geneList_kegg = diffexp$logFC
-names(geneList_kegg) = diffexp$ENTREZID
-geneList_kegg = sort(geneList_kegg, decreasing = TRUE)
+geneList_kegg <- diffexp$logFC
+names(geneList_kegg) <- diffexp$ENTREZID
+geneList_kegg <- sort(geneList_kegg, decreasing = TRUE)
 
 
-gsea_kegg = gseKEGG(geneList     = geneList_kegg,
-                    organism     = 'dre',
-                    keyType      = "ncbi-geneid",
-                    pvalueCutoff = 0.05,
-                    verbose      = TRUE)
+gsea_kegg <- gseKEGG(geneList = geneList_kegg,
+                     organism = 'dre',
+                     keyType = "ncbi-geneid",
+                     pvalueCutoff = 0.05,
+                     verbose = TRUE)
 
 save(gsea_kegg, file = paste0(dir_output,
                               "gene_set_enrichment_analysis/",
                               "TMM_GSEA_KEGG_72_48.RData"))
-
-print(paste("Número de términos significativos:",
-            length(which(gsea_kegg@result$pvalue < 0.05))))
-
-dotplot(gsea_kegg, showCategory = 20, font.size = 8) +
-  ggtitle("GSEA KEGG 72 hpf vs 48 hpf")
-
 
 ## 120 hpf vs 72 hpf
 
@@ -113,50 +104,48 @@ geneList <- diffexp$logFC
 names(geneList) <- diffexp$Gene
 geneList <- sort(geneList, decreasing = TRUE)
 
-gsea_BH <- gseGO(geneList  = geneList,
-                 ont       = "BP",
-                 OrgDb     = org.Dr.eg.db,
-                 keyType   = 'SYMBOL',
-                 verbose   = T,
-                 minGSSize = 10,
-                 maxGSSize = 500,
-                 pvalueCutoff = 1,
-                 pAdjustMethod = "BH")
+gsea_GO_OG <- GSEA(geneList = geneList,
+                   TERM2GENE = drerio_bp,
+                   verbose = T,
+                   minGSSize = 10,
+                   maxGSSize = 500,
+                   pAdjustMethod = "BH",
+                   pvalueCutoff = 1)
 
-save(gsea_BH, file = paste0(dir_output,
-                            "gene_set_enrichment_analysis/",
-                            "TMM_GSEA_GOBP_120_72.RData"))
+save(gsea_GO_OG, file = paste0(dir_output,
+                               "gene_set_enrichment_analysis/",
+                               "TMM_GSEA_OG_GOBP_120_72.RData"))
 
-print(paste("Número de términos significativos:",
-            length(which(gsea_BH@result$pvalue < 0.05))))
+gsea_GO_DB <- gseGO(geneList = geneList,
+                    ont = "BP",
+                    OrgDb = org.Dr.eg.db,
+                    keyType = 'SYMBOL',
+                    verbose = T,
+                    minGSSize = 10,
+                    maxGSSize = 500,
+                    pvalueCutoff = 1,
+                    pAdjustMethod = "BH")
 
-dotplot(gsea_BH, showCategory = 20, font.size = 8) +
-  ggtitle("GSEA GO:BP 120 hpf vs 72 hpf")
-
+save(gsea_GO_DB, file = paste0(dir_output,
+                               "gene_set_enrichment_analysis/",
+                               "TMM_GSEA_DB_GOBP_120_72.RData"))
 
 ### KEGG
 
 ## Ranked list. Id must be Entrez id
-geneList_kegg = diffexp$logFC
-names(geneList_kegg) = diffexp$ENTREZID
-geneList_kegg = sort(geneList_kegg, decreasing = TRUE)
+geneList_kegg <- diffexp$logFC
+names(geneList_kegg) <- diffexp$ENTREZID
+geneList_kegg <- sort(geneList_kegg, decreasing = TRUE)
 
-gsea_kegg = gseKEGG(geneList     = geneList_kegg,
-                    organism     = 'dre',
-                    keyType      = "ncbi-geneid",
-                    pvalueCutoff = 0.05,
-                    verbose      = TRUE)
+gsea_kegg <- gseKEGG(geneList     = geneList_kegg,
+                     organism     = 'dre',
+                     keyType      = "ncbi-geneid",
+                     pvalueCutoff = 0.05,
+                     verbose      = TRUE)
 
 save(gsea_kegg, file = paste0(dir_output,
                               "gene_set_enrichment_analysis/",
                               "TMM_GSEA_KEGG_120_72.RData"))
-
-print(paste("Número de términos significativos:",
-            length(which(gsea_kegg@result$pvalue < 0.05))))
-
-dotplot(gsea_kegg, showCategory = 20, font.size = 8) +
-  ggtitle("GSEA KEGG 120 hpf vs 72 hpf")
-
 
 ## Adult vs 120 hpf
 
@@ -172,47 +161,48 @@ geneList <- diffexp$logFC
 names(geneList) <- diffexp$Gene
 geneList <- sort(geneList, decreasing = TRUE)
 
-gsea_BH <- gseGO(geneList  = geneList,
-                 ont       = "BP",
-                 OrgDb     = org.Dr.eg.db,
-                 keyType   = 'SYMBOL',
-                 verbose   = T,
-                 minGSSize = 10,
-                 maxGSSize = 500,
-                 pvalueCutoff = 1,
-                 pAdjustMethod = "BH")
+gsea_GO_OG <- GSEA(geneList = geneList,
+                   TERM2GENE = drerio_bp,
+                   verbose = T,
+                   minGSSize = 10,
+                   maxGSSize = 500,
+                   pAdjustMethod = "BH",
+                   pvalueCutoff = 1)
 
-save(gsea_BH, file = paste0(dir_output,
-                            "gene_set_enrichment_analysis",
-                            "TMM_GSEA_GOBP_adult_120.RData"))
+save(gsea_GO_OG, file = paste0(dir_output,
+                               "gene_set_enrichment_analysis/",
+                               "TMM_GSEA_OG_GOBP_adult_120.RData"))
 
-print(paste("Número de términos significativos:",
-            length(which(gsea_BH@result$pvalue < 0.05))))
+gsea_GO_DB <- gseGO(geneList = geneList,
+                    ont = "BP",
+                    OrgDb = org.Dr.eg.db,
+                    keyType = 'SYMBOL',
+                    verbose = T,
+                    minGSSize = 10,
+                    maxGSSize = 500,
+                    pvalueCutoff = 1,
+                    pAdjustMethod = "BH")
 
-dotplot(gsea_BH, showCategory = 20, font.size = 8) +
-  ggtitle("GSEA GO:BP Adult vs 120 hpf")
-
+save(gsea_GO_DB, file = paste0(dir_output,
+                               "gene_set_enrichment_analysis/",
+                               "TMM_GSEA_DB_GOBP_adult_120.RData"))
 
 ### KEGG
 
 ## Ranked list. Id must be Entrez id
-geneList_kegg = diffexp$logFC
-names(geneList_kegg) = diffexp$ENTREZID
-geneList_kegg = sort(geneList_kegg, decreasing = TRUE)
+geneList_kegg <- diffexp$logFC
+names(geneList_kegg) <- diffexp$ENTREZID
+geneList_kegg <- sort(geneList_kegg, decreasing = TRUE)
 
-gsea_kegg = gseKEGG(geneList     = geneList_kegg,
+gsea_kegg <- gseKEGG(geneList     = geneList_kegg,
                     organism     = 'dre',
                     keyType      = "ncbi-geneid",
                     pvalueCutoff = 0.05,
                     verbose      = TRUE)
 
 save(gsea_kegg, file = paste0(dir_output,
-                              "gene_set_enrichment_analysis",
+                              "gene_set_enrichment_analysis/",
                               "TMM_GSEA_KEGG_adult_120.RData"))
 
-print(paste("Número de términos significativos:",
-            length(which(gsea_kegg@result$pvalue < 0.05))))
 
-dotplot(gsea_kegg, showCategory = 20, font.size = 8) +
-  ggtitle("GSEA KEGG Adult vs 120 hpf")
 
