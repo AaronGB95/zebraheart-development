@@ -14,6 +14,7 @@ mart <- useMart(biomart = "ensembl",
 
 drerio_go <- getBM(attributes = c("external_gene_name",
                                   "go_id",
+                                  "name_1006",
                                   "namespace_1003"),
                    mart = mart)
 
@@ -21,7 +22,7 @@ drerio_go <- getBM(attributes = c("external_gene_name",
 drerio_go <- drerio_go[!(drerio_go$external_gene_name == "" |
                            drerio_go$go_id == ""), ]
 
-write.table(drerio_go[, c("go_id", "external_gene_name")],
+write.table(drerio_go,
             file = paste0(dir_docs, "zebrafish_go_terms.txt"),
             sep = "\t",
             quote = FALSE)
@@ -82,6 +83,7 @@ mart <- useMart(biomart = "ensembl",
 
 hsapiens_go <- getBM(attributes = c("external_gene_name",
                                     "go_id",
+                                    "name_1006",
                                     "namespace_1003"),
                      mart = mart)
 
@@ -89,7 +91,7 @@ hsapiens_go <- getBM(attributes = c("external_gene_name",
 hsapiens_go <- hsapiens_go[!(hsapiens_go$external_gene_name == "" |
                              hsapiens_go$go_id == ""), ]
 
-write.table(hsapiens_go[, c("go_id", "external_gene_name")],
+write.table(hsapiens_go,
             file = paste0(dir_docs, "human_go_terms.txt"),
             sep = "\t",
             quote = FALSE)
@@ -98,7 +100,7 @@ write.table(hsapiens_go[, c("go_id", "external_gene_name")],
 hsapiens_bp <- hsapiens_go[hsapiens_go$namespace_1003 == "biological_process", ]
 hsapiens_bp <- hsapiens_bp[, c("go_id", "external_gene_name")]
 
-write.table(hsapiens_go,
+write.table(hsapiens_bp,
             file = paste0(dir_docs, "human_go_bp.txt"),
             sep = "\t",
             quote = FALSE)
@@ -150,6 +152,7 @@ mart <- useMart(biomart = "ensembl",
 
 mmusculus_go <- getBM(attributes = c("external_gene_name",
                                      "go_id",
+                                     "name_1006",
                                      "namespace_1003"),
                       mart = mart)
 
@@ -157,7 +160,7 @@ mmusculus_go <- getBM(attributes = c("external_gene_name",
 mmusculus_go <- mmusculus_go[!(mmusculus_go$external_gene_name == "" |
                                mmusculus_go$go_id == ""), ]
 
-write.table(mmusculus_go[, c("go_id", "external_gene_name")],
+write.table(mmusculus_go,
             file = paste0(dir_docs, "mouse_go_terms.txt"),
             sep = "\t",
             quote = FALSE)
@@ -166,7 +169,7 @@ write.table(mmusculus_go[, c("go_id", "external_gene_name")],
 mmusculus_bp <- mmusculus_go[mmusculus_go$namespace_1003 == "biological_process", ]
 mmusculus_bp <- mmusculus_bp[, c("go_id", "external_gene_name")]
 
-write.table(mmusculus_go,
+write.table(mmusculus_bp,
             file = paste0(dir_docs, "mouse_go_bp.txt"),
             sep = "\t",
             quote = FALSE)
