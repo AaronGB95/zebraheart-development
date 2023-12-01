@@ -26,7 +26,12 @@ library(DT)
 
 Se realizó un análisis de conjunto de genes (GSEA, Gene set expression analysis) empleando los términos funcionales de Gene Ontology para la ontología de Biological Process (BP) y las rutas de KEGG.
 
-Cada gráfico muestra los 20 términos funcionales más significativos ordenados por la proporción de genes significativos frente al número de genes presentes en ese término. El grosor del punto indica más genes significativos
+Cada gráfico muestra los 20 términos funcionales más significativos ordenados por la proporción de genes significativos frente al número de genes presentes en ese término. El grosor del punto indica más genes significativos.
+
+```{r}
+dir_load <- "~/GitHub/zebraheart-development/04-output/gene_set_enrichment_analysis/"
+dir_plots <- "~/GitHub/zebraheart-development/04-output/plots/gsea/"
+```
 
 # Contrastes {.tabset}
 
@@ -84,13 +89,12 @@ print(paste("Número de genes significativos:", dim(gsea_GO_OG)[1]))
 ```
 
 ```{r}
-knitr::include_graphics(paste0(dir_output,
-                               "plots/gsea/",
+knitr::include_graphics(paste0(dir_plots,
                                "dotplot_human_TMM_GSEA_OG_GOBP_72_48.jpg"))
 ```
 
 ```{r}
-tabla(gsea_BH@result[,c("Description", "setSize", "pvalue", "p.adjust", "core_enrichment")])
+tabla(gsea_GO_OG@result[,c("Description", "setSize", "pvalue", "p.adjust", "core_enrichment")])
 ```
 
 ### Gene Ontology con base de datos
@@ -103,8 +107,7 @@ print(paste("Número de genes significativos:", dim(gsea_GO_DB)[1]))
 ```
 
 ```{r}
-knitr::include_graphics(paste0(dir_output,
-                               "plots/gsea/",
+knitr::include_graphics(paste0(dir_plots,
                                "dotplot_human_TMM_GSEA_DB_GOBP_72_48.jpg"))
 ```
 
@@ -122,8 +125,7 @@ print(paste("Número de genes significativos:", dim(gsea_kegg)[1]))
 ```
 
 ```{r}
-knitr::include_graphics(paste0(dir_output,
-                               "plots/gsea/",
+knitr::include_graphics(paste0(dir_plots,
                                "dotplot_human_TMM_GSEA_KEGG_72_48.jpg"))
 ```
 
@@ -143,13 +145,12 @@ print(paste("Número de genes significativos:", dim(gsea_GO_OG)[1]))
 ```
 
 ```{r}
-knitr::include_graphics(paste0(dir_output,
-                               "plots/gsea/",
+knitr::include_graphics(paste0(dir_plots,
                                "dotplot_human_TMM_GSEA_OG_GOBP_120_72.jpg"))
 ```
 
 ```{r}
-tabla(gsea_BH@result[,c("Description", "setSize", "pvalue", "p.adjust", "core_enrichment")])
+tabla(gsea_GO_OG@result[,c("Description", "setSize", "pvalue", "p.adjust", "core_enrichment")])
 ```
 
 ### Gene Ontology con base de datos
@@ -162,8 +163,7 @@ print(paste("Número de genes significativos:", dim(gsea_GO_DB)[1]))
 ```
 
 ```{r}
-knitr::include_graphics(paste0(dir_output,
-                               "plots/gsea/",
+knitr::include_graphics(paste0(dir_plots,
                                "dotplot_human_TMM_GSEA_DB_GOBP_120_72.jpg"))
 ```
 
@@ -181,8 +181,7 @@ print(paste("Número de genes significativos:", dim(gsea_kegg)[1]))
 ```
 
 ```{r}
-knitr::include_graphics(paste0(dir_output,
-                               "plots/gsea/",
+knitr::include_graphics(paste0(dir_plots,
                                "dotplot_human_TMM_GSEA_KEGG_120_72.jpg"))
 ```
 
@@ -202,13 +201,12 @@ print(paste("Número de genes significativos:", dim(gsea_GO_OG)[1]))
 ```
 
 ```{r}
-knitr::include_graphics(paste0(dir_output,
-                               "plots/gsea/",
+knitr::include_graphics(paste0(dir_plots,
                                "dotplot_human_TMM_GSEA_OG_GOBP_adult_120.jpg"))
 ```
 
 ```{r}
-tabla(gsea_BH@result[,c("Description", "setSize", "pvalue", "p.adjust", "core_enrichment")])
+tabla(gsea_GO_OG@result[,c("Description", "setSize", "pvalue", "p.adjust", "core_enrichment")])
 ```
 
 ### Gene Ontology con base de datos
@@ -221,8 +219,7 @@ print(paste("Número de genes significativos:", dim(gsea_GO_DB)[1]))
 ```
 
 ```{r}
-knitr::include_graphics(paste0(dir_output,
-                               "plots/gsea/",
+knitr::include_graphics(paste0(dir_plots,
                                "dotplot_human_TMM_GSEA_DB_GOBP_adult_120.jpg"))
 ```
 
@@ -240,8 +237,7 @@ print(paste("Número de genes significativos:", dim(gsea_kegg)[1]))
 ```
 
 ```{r}
-knitr::include_graphics(paste0(dir_output,
-                               "plots/gsea/",
+knitr::include_graphics(paste0(dir_plots,
                                "dotplot_human_TMM_GSEA_KEGG_adult_120.jpg"))
 ```
 

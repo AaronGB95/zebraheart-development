@@ -4,6 +4,7 @@ library(clusterProfiler)
 library(enrichplot)
 library(ggplot2)
 library(fgsea)
+library(dplyr)
 library(org.Dr.eg.db)
 library(org.Hs.eg.db)
 library(org.Mm.eg.db)
@@ -54,6 +55,10 @@ gsea_GO_OG <- GSEA(geneList = geneList,
                    pvalueCutoff = 1,
                    eps = 0)
 
+matching_terms <- match(gsea_GO_OG@result$ID, drerio_go$go_id)
+
+gsea_GO_OG@result$Description <- drerio_go$name_1006[matching_terms]
+
 save(gsea_GO_OG, file = paste0(dir_output,
                                "gene_set_enrichment_analysis/",
                                "TMM_GSEA_OG_GOBP_72_48.RData"))
@@ -62,9 +67,10 @@ gsea_go_og_plot <- enrichplot::dotplot(gsea_GO_OG,
                                        x = "GeneRatio",
                                        color = "p.adjust",
                                        showCategory = 20,
+                                       font.size = 10,
                                        orderBy = "x",
                                        label_format = function(x)
-                                         stringr::str_wrap(x, width = 80)) +
+                                         stringr::str_wrap(x, width = 60)) +
   ggtitle("Dotplot for GSEA with own genes. 72 hpf vs 48 hpf") +
   theme(plot.title = element_text(hjust = 0.5))
 
@@ -87,10 +93,11 @@ gsea_GO_DB <- gseGO(geneList = geneList,
 gsea_go_db_plot <- enrichplot::dotplot(gsea_GO_DB,
                                        x = "GeneRatio",
                                        color = "p.adjust",
-                                       showCategory = 30,
+                                       showCategory = 20,
+                                       font.size = 10,
                                        orderBy = "x",
                                        label_format = function(x)
-                                         stringr::str_wrap(x, width = 80)) +
+                                         stringr::str_wrap(x, width = 60)) +
   ggtitle("Dotplot for GSEA with database package. 72 hpf vs 48 hpf") +
   theme(plot.title = element_text(hjust = 0.5),
         plot.margin = margin(l = 50))
@@ -121,10 +128,11 @@ gsea_kegg <- gseKEGG(geneList = geneList_kegg,
 gsea_kegg_plot <- enrichplot::dotplot(gsea_kegg,
                                       x = "GeneRatio",
                                       color = "p.adjust",
-                                      showCategory = 30,
+                                      showCategory = 20,
+                                      font.size = 10,
                                       orderBy = "x",
                                       label_format = function(x)
-                                        stringr::str_wrap(x, width = 80)) +
+                                        stringr::str_wrap(x, width = 60)) +
   ggtitle("Dotplot for KEGG. 72 hpf vs 48 hpf") +
   theme(plot.title = element_text(hjust = 1),
         plot.margin = margin(l = 40))
@@ -161,6 +169,10 @@ gsea_GO_OG <- GSEA(geneList = geneList,
                    pvalueCutoff = 1,
                    eps = 0)
 
+matching_terms <- match(gsea_GO_OG@result$ID, drerio_go$go_id)
+
+gsea_GO_OG@result$Description <- drerio_go$name_1006[matching_terms]
+
 save(gsea_GO_OG, file = paste0(dir_output,
                                "gene_set_enrichment_analysis/",
                                "TMM_GSEA_OG_GOBP_120_72.RData"))
@@ -169,9 +181,10 @@ gsea_go_og_plot <- enrichplot::dotplot(gsea_GO_OG,
                                        x = "GeneRatio",
                                        color = "p.adjust",
                                        showCategory = 20,
+                                       font.size = 10,
                                        orderBy = "x",
                                        label_format = function(x)
-                                         stringr::str_wrap(x, width = 80)) +
+                                         stringr::str_wrap(x, width = 60)) +
   ggtitle("Dotplot for GSEA with own genes. 120 hpf vs 72 hpf") +
   theme(plot.title = element_text(hjust = 0.5))
 
@@ -194,10 +207,11 @@ gsea_GO_DB <- gseGO(geneList = geneList,
 gsea_go_db_plot <- enrichplot::dotplot(gsea_GO_DB,
                                        x = "GeneRatio",
                                        color = "p.adjust",
-                                       showCategory = 30,
+                                       showCategory = 20,
+                                       font.size = 10,
                                        orderBy = "x",
                                        label_format = function(x)
-                                         stringr::str_wrap(x, width = 80)) +
+                                         stringr::str_wrap(x, width = 60)) +
   ggtitle("Dotplot for GSEA with database package. 120 hpf vs 72 hpf") +
   theme(plot.title = element_text(hjust = 0.5),
         plot.margin = margin(l = 50))
@@ -228,10 +242,11 @@ gsea_kegg <- gseKEGG(geneList = geneList_kegg,
 gsea_kegg_plot <- enrichplot::dotplot(gsea_kegg,
                                       x = "GeneRatio",
                                       color = "p.adjust",
-                                      showCategory = 30,
+                                      showCategory = 20,
+                                      font.size = 10,
                                       orderBy = "x",
                                       label_format = function(x)
-                                        stringr::str_wrap(x, width = 80)) +
+                                        stringr::str_wrap(x, width = 60)) +
   ggtitle("Dotplot for KEGG. 120 hpf vs 72 hpf") +
   theme(plot.title = element_text(hjust = 1),
         plot.margin = margin(l = 40))
@@ -268,6 +283,10 @@ gsea_GO_OG <- GSEA(geneList = geneList,
                    pvalueCutoff = 1,
                    eps = 0)
 
+matching_terms <- match(gsea_GO_OG@result$ID, drerio_go$go_id)
+
+gsea_GO_OG@result$Description <- drerio_go$name_1006[matching_terms]
+
 save(gsea_GO_OG, file = paste0(dir_output,
                                "gene_set_enrichment_analysis/",
                                "TMM_GSEA_OG_GOBP_adult_120.RData"))
@@ -276,9 +295,10 @@ gsea_go_og_plot <- enrichplot::dotplot(gsea_GO_OG,
                                        x = "GeneRatio",
                                        color = "p.adjust",
                                        showCategory = 20,
+                                       font.size = 10,
                                        orderBy = "x",
                                        label_format = function(x)
-                                         stringr::str_wrap(x, width = 80)) +
+                                         stringr::str_wrap(x, width = 60)) +
   ggtitle("Dotplot for GSEA with own genes. Adult vs 120 hpf") +
   theme(plot.title = element_text(hjust = 0.5))
 
@@ -301,10 +321,11 @@ gsea_GO_DB <- gseGO(geneList = geneList,
 gsea_go_db_plot <- enrichplot::dotplot(gsea_GO_DB,
                                        x = "GeneRatio",
                                        color = "p.adjust",
-                                       showCategory = 30,
+                                       showCategory = 20,
+                                       font.size = 10,
                                        orderBy = "x",
                                        label_format = function(x)
-                                         stringr::str_wrap(x, width = 80)) +
+                                         stringr::str_wrap(x, width = 60)) +
   ggtitle("Dotplot for GSEA with database package. Adult vs 120 hpf") +
   theme(plot.title = element_text(hjust = 0.5),
         plot.margin = margin(l = 50))
@@ -335,10 +356,11 @@ gsea_kegg <- gseKEGG(geneList = geneList_kegg,
 gsea_kegg_plot <- enrichplot::dotplot(gsea_kegg,
                                       x = "GeneRatio",
                                       color = "p.adjust",
-                                      showCategory = 30,
+                                      showCategory = 20,
+                                      font.size = 10,
                                       orderBy = "x",
                                       label_format = function(x)
-                                        stringr::str_wrap(x, width = 80)) +
+                                        stringr::str_wrap(x, width = 60)) +
   ggtitle("Dotplot for KEGG. Adult vs 120 hpf") +
   theme(plot.title = element_text(hjust = 1),
         plot.margin = margin(l = 40))
@@ -405,6 +427,10 @@ gsea_GO_OG <- GSEA(geneList = geneList,
                    pvalueCutoff = 1,
                    eps = 0)
 
+matching_terms <- match(gsea_GO_OG@result$ID, hsapiens_go$go_id)
+
+gsea_GO_OG@result$Description <- hsapiens_go$name_1006[matching_terms]
+
 save(gsea_GO_OG, file = paste0(dir_output,
                                "gene_set_enrichment_analysis/",
                                "human_TMM_GSEA_OG_GOBP_72_48.RData"))
@@ -413,9 +439,10 @@ gsea_go_og_plot <- enrichplot::dotplot(gsea_GO_OG,
                                        x = "GeneRatio",
                                        color = "p.adjust",
                                        showCategory = 20,
+                                       font.size = 10,
                                        orderBy = "x",
                                        label_format = function(x)
-                                         stringr::str_wrap(x, width = 80)) +
+                                         stringr::str_wrap(x, width = 60)) +
   ggtitle("Dotplot for GSEA with human own genes. 72 hpf vs 48 hpf") +
   theme(plot.title = element_text(hjust = 0.5))
 
@@ -438,10 +465,11 @@ gsea_GO_DB <- gseGO(geneList = geneList,
 gsea_go_db_plot <- enrichplot::dotplot(gsea_GO_DB,
                                        x = "GeneRatio",
                                        color = "p.adjust",
-                                       showCategory = 30,
+                                       showCategory = 20,
+                                       font.size = 10,
                                        orderBy = "x",
                                        label_format = function(x)
-                                         stringr::str_wrap(x, width = 80)) +
+                                         stringr::str_wrap(x, width = 60)) +
   ggtitle("Dotplot for GSEA with human database package. 72 hpf vs 48 hpf") +
   theme(plot.title = element_text(hjust = 0.5),
         plot.margin = margin(l = 50))
@@ -472,10 +500,11 @@ gsea_kegg <- gseKEGG(geneList = geneList_kegg,
 gsea_kegg_plot <- enrichplot::dotplot(gsea_kegg,
                                       x = "GeneRatio",
                                       color = "p.adjust",
-                                      showCategory = 30,
+                                      showCategory = 20,
+                                      font.size = 10,
                                       orderBy = "x",
                                       label_format = function(x)
-                                        stringr::str_wrap(x, width = 80)) +
+                                        stringr::str_wrap(x, width = 60)) +
   ggtitle("Dotplot for human KEGG pathways. 72 hpf vs 48 hpf") +
   theme(plot.title = element_text(hjust = 1),
         plot.margin = margin(l = 40))
@@ -512,6 +541,10 @@ gsea_GO_OG <- GSEA(geneList = geneList,
                    pvalueCutoff = 1,
                    eps = 0)
 
+matching_terms <- match(gsea_GO_OG@result$ID, hsapiens_go$go_id)
+
+gsea_GO_OG@result$Description <- hsapiens_go$name_1006[matching_terms]
+
 save(gsea_GO_OG, file = paste0(dir_output,
                                "gene_set_enrichment_analysis/",
                                "human_TMM_GSEA_OG_GOBP_120_72.RData"))
@@ -520,9 +553,10 @@ gsea_go_og_plot <- enrichplot::dotplot(gsea_GO_OG,
                                        x = "GeneRatio",
                                        color = "p.adjust",
                                        showCategory = 20,
+                                       font.size = 10,
                                        orderBy = "x",
                                        label_format = function(x)
-                                         stringr::str_wrap(x, width = 80)) +
+                                         stringr::str_wrap(x, width = 60)) +
   ggtitle("Dotplot for GSEA with human own genes. 120 hpf vs 72 hpf") +
   theme(plot.title = element_text(hjust = 0.5))
 
@@ -545,22 +579,23 @@ gsea_GO_DB <- gseGO(geneList = geneList,
 gsea_go_db_plot <- enrichplot::dotplot(gsea_GO_DB,
                                        x = "GeneRatio",
                                        color = "p.adjust",
-                                       showCategory = 30,
+                                       showCategory = 20,
+                                       font.size = 10,
                                        orderBy = "x",
                                        label_format = function(x)
-                                         stringr::str_wrap(x, width = 80)) +
-  ggtitle("Dotplot for GSEA with human database package. 72 hpf vs 48 hpf") +
+                                         stringr::str_wrap(x, width = 60)) +
+  ggtitle("Dotplot for GSEA with human database package. 120 hpf vs 72 hpf") +
   theme(plot.title = element_text(hjust = 0.5),
         plot.margin = margin(l = 50))
 
 ggsave(plot = gsea_go_db_plot,
-       filename = "dotplot_human_TMM_GSEA_DB_GOBP_72_48.jpg",
+       filename = "dotplot_human_TMM_GSEA_DB_GOBP_120_72.jpg",
        path = paste0(dir_output, "plots/gsea/"),
        dpi = 300)
 
 save(gsea_GO_DB, file = paste0(dir_output,
                                "gene_set_enrichment_analysis/",
-                               "human_TMM_GSEA_DB_GOBP_72_48.RData"))
+                               "human_TMM_GSEA_DB_GOBP_120_72.RData"))
 
 ### KEGG
 
@@ -579,22 +614,23 @@ gsea_kegg <- gseKEGG(geneList = geneList_kegg,
 gsea_kegg_plot <- enrichplot::dotplot(gsea_kegg,
                                       x = "GeneRatio",
                                       color = "p.adjust",
-                                      showCategory = 30,
+                                      showCategory = 20,
+                                      font.size = 10,
                                       orderBy = "x",
                                       label_format = function(x)
-                                        stringr::str_wrap(x, width = 80)) +
-  ggtitle("Dotplot for human KEGG pathways. 72 hpf vs 48 hpf") +
+                                        stringr::str_wrap(x, width = 60)) +
+  ggtitle("Dotplot for human KEGG pathways. 120 hpf vs 72 hpf") +
   theme(plot.title = element_text(hjust = 1),
         plot.margin = margin(l = 40))
 
 ggsave(plot = gsea_kegg_plot,
-       filename = "dotplot_human_TMM_GSEA_KEGG_72_48.jpg",
+       filename = "dotplot_human_TMM_GSEA_KEGG_120_72.jpg",
        path = paste0(dir_output, "plots/gsea/"),
        dpi = 300)
 
 save(gsea_kegg, file = paste0(dir_output,
                               "gene_set_enrichment_analysis/",
-                              "human_TMM_GSEA_KEGG_72_48.RData"))
+                              "human_TMM_GSEA_KEGG_120_72.RData"))
 
 ## Adult vs 120 hpf
 
@@ -619,9 +655,29 @@ gsea_GO_OG <- GSEA(geneList = geneList,
                    pvalueCutoff = 1,
                    eps = 0)
 
+matching_terms <- match(gsea_GO_OG@result$ID, hsapiens_go$go_id)
+
+gsea_GO_OG@result$Description <- hsapiens_go$name_1006[matching_terms]
+
 save(gsea_GO_OG, file = paste0(dir_output,
                                "gene_set_enrichment_analysis/",
-                               "human_GSEA_OG_GOBP_adult_120.RData"))
+                               "human_TMM_GSEA_OG_GOBP_adult_120.RData"))
+
+gsea_go_og_plot <- enrichplot::dotplot(gsea_GO_OG,
+                                       x = "GeneRatio",
+                                       color = "p.adjust",
+                                       showCategory = 20,
+                                       font.size = 10,
+                                       orderBy = "x",
+                                       label_format = function(x)
+                                         stringr::str_wrap(x, width = 60)) +
+  ggtitle("Dotplot for GSEA with human own genes. Adults vs 120 hpf") +
+  theme(plot.title = element_text(hjust = 0.5))
+
+ggsave(plot = gsea_go_og_plot,
+       filename = "dotplot_human_TMM_GSEA_OG_GOBP_adult_120.jpg",
+       path = paste0(dir_output, "plots/gsea/"),
+       dpi = 300)
 
 gsea_GO_DB <- gseGO(geneList = geneList,
                     ont = "BP",
@@ -634,9 +690,26 @@ gsea_GO_DB <- gseGO(geneList = geneList,
                     pAdjustMethod = "BH",
                     eps = 0)
 
+gsea_go_db_plot <- enrichplot::dotplot(gsea_GO_DB,
+                                       x = "GeneRatio",
+                                       color = "p.adjust",
+                                       showCategory = 20,
+                                       font.size = 10,
+                                       orderBy = "x",
+                                       label_format = function(x)
+                                         stringr::str_wrap(x, width = 60)) +
+  ggtitle("Dotplot for GSEA with human database package. Adults vs 120 hpf") +
+  theme(plot.title = element_text(hjust = 0.5),
+        plot.margin = margin(l = 50))
+
+ggsave(plot = gsea_go_db_plot,
+       filename = "dotplot_human_TMM_GSEA_DB_GOBP_adult_120.jpg",
+       path = paste0(dir_output, "plots/gsea/"),
+       dpi = 300)
+
 save(gsea_GO_DB, file = paste0(dir_output,
                                "gene_set_enrichment_analysis/",
-                               "human_GSEA_DB_GOBP_adult_120.RData"))
+                               "human_TMM_GSEA_DB_GOBP_adult_120.RData"))
 
 ### KEGG
 
@@ -651,9 +724,26 @@ gsea_kegg <- gseKEGG(geneList     = geneList_kegg,
                      pvalueCutoff = 0.05,
                      verbose      = TRUE)
 
+gsea_kegg_plot <- enrichplot::dotplot(gsea_kegg,
+                                      x = "GeneRatio",
+                                      color = "p.adjust",
+                                      showCategory = 20,
+                                      font.size = 10,
+                                      orderBy = "x",
+                                      label_format = function(x)
+                                        stringr::str_wrap(x, width = 60)) +
+  ggtitle("Dotplot for human KEGG pathways. Adults vs 120 hpf") +
+  theme(plot.title = element_text(hjust = 1),
+        plot.margin = margin(l = 40))
+
+ggsave(plot = gsea_kegg_plot,
+       filename = "dotplot_human_TMM_GSEA_KEGG_adult_120.jpg",
+       path = paste0(dir_output, "plots/gsea/"),
+       dpi = 300)
+
 save(gsea_kegg, file = paste0(dir_output,
                               "gene_set_enrichment_analysis/",
-                              "human_GSEA_KEGG_adult_120.RData"))
+                              "human_TMM_GSEA_KEGG_adult_120.RData"))
 
 ##-----------------------------------------------------------------------------
 ##-----------------------------------------------------------------------------
@@ -708,6 +798,10 @@ gsea_GO_OG <- GSEA(geneList = geneList,
                    pvalueCutoff = 1,
                    eps = 0)
 
+matching_terms <- match(gsea_GO_OG@result$ID, mmusculus_go$go_id)
+
+gsea_GO_OG@result$Description <- mmusculus_go$name_1006[matching_terms]
+
 save(gsea_GO_OG, file = paste0(dir_output,
                                "gene_set_enrichment_analysis/",
                                "mouse_TMM_GSEA_OG_GOBP_72_48.RData"))
@@ -718,7 +812,7 @@ gsea_go_og_plot <- enrichplot::dotplot(gsea_GO_OG,
                                        showCategory = 20,
                                        orderBy = "x",
                                        label_format = function(x)
-                                         stringr::str_wrap(x, width = 80)) +
+                                         stringr::str_wrap(x, width = 60)) +
   ggtitle("Dotplot for GSEA with mouse own genes. 72 hpf vs 48 hpf") +
   theme(plot.title = element_text(hjust = 0.5))
 
@@ -741,10 +835,10 @@ gsea_GO_DB <- gseGO(geneList = geneList,
 gsea_go_db_plot <- enrichplot::dotplot(gsea_GO_DB,
                                        x = "GeneRatio",
                                        color = "p.adjust",
-                                       showCategory = 30,
+                                       showCategory = 20,
                                        orderBy = "x",
                                        label_format = function(x)
-                                         stringr::str_wrap(x, width = 80)) +
+                                         stringr::str_wrap(x, width = 60)) +
   ggtitle("Dotplot for GSEA with mouse database package. 72 hpf vs 48 hpf") +
   theme(plot.title = element_text(hjust = 0.5),
         plot.margin = margin(l = 50))
@@ -775,10 +869,10 @@ gsea_kegg <- gseKEGG(geneList = geneList_kegg,
 gsea_kegg_plot <- enrichplot::dotplot(gsea_kegg,
                                       x = "GeneRatio",
                                       color = "p.adjust",
-                                      showCategory = 30,
+                                      showCategory = 20,
                                       orderBy = "x",
                                       label_format = function(x)
-                                        stringr::str_wrap(x, width = 80)) +
+                                        stringr::str_wrap(x, width = 60)) +
   ggtitle("Dotplot for mouse KEGG pathways. 72 hpf vs 48 hpf") +
   theme(plot.title = element_text(hjust = 1),
         plot.margin = margin(l = 40))
@@ -815,6 +909,10 @@ gsea_GO_OG <- GSEA(geneList = geneList,
                    pvalueCutoff = 1,
                    eps = 0)
 
+matching_terms <- match(gsea_GO_OG@result$ID, mmusculus_go$go_id)
+
+gsea_GO_OG@result$Description <- mmusculus_go$name_1006[matching_terms]
+
 save(gsea_GO_OG, file = paste0(dir_output,
                                "gene_set_enrichment_analysis/",
                                "mouse_TMM_GSEA_OG_GOBP_120_72.RData"))
@@ -825,7 +923,7 @@ gsea_go_og_plot <- enrichplot::dotplot(gsea_GO_OG,
                                        showCategory = 20,
                                        orderBy = "x",
                                        label_format = function(x)
-                                         stringr::str_wrap(x, width = 80)) +
+                                         stringr::str_wrap(x, width = 60)) +
   ggtitle("Dotplot for GSEA with mouse own genes. 120 hpf vs 72 hpf") +
   theme(plot.title = element_text(hjust = 0.5))
 
@@ -848,10 +946,10 @@ gsea_GO_DB <- gseGO(geneList = geneList,
 gsea_go_db_plot <- enrichplot::dotplot(gsea_GO_DB,
                                        x = "GeneRatio",
                                        color = "p.adjust",
-                                       showCategory = 30,
+                                       showCategory = 20,
                                        orderBy = "x",
                                        label_format = function(x)
-                                         stringr::str_wrap(x, width = 80)) +
+                                         stringr::str_wrap(x, width = 60)) +
   ggtitle("Dotplot for GSEA with mouse database package. 120 hpf vs 72 hpf") +
   theme(plot.title = element_text(hjust = 0.5),
         plot.margin = margin(l = 50))
@@ -882,10 +980,11 @@ gsea_kegg <- gseKEGG(geneList = geneList_kegg,
 gsea_kegg_plot <- enrichplot::dotplot(gsea_kegg,
                                       x = "GeneRatio",
                                       color = "p.adjust",
-                                      showCategory = 30,
+                                      showCategory = 20,
+                                      font.size = 10,
                                       orderBy = "x",
                                       label_format = function(x)
-                                        stringr::str_wrap(x, width = 80)) +
+                                        stringr::str_wrap(x, width = 60)) +
   ggtitle("Dotplot for mouse KEGG pathways. 120 hpf vs 72 hpf") +
   theme(plot.title = element_text(hjust = 1),
         plot.margin = margin(l = 40))
@@ -922,6 +1021,10 @@ gsea_GO_OG <- GSEA(geneList = geneList,
                    pvalueCutoff = 1,
                    eps = 0)
 
+matching_terms <- match(gsea_GO_OG@result$ID, mmusculus_go$go_id)
+
+gsea_GO_OG@result$Description <- mmusculus_go$name_1006[matching_terms]
+
 save(gsea_GO_OG, file = paste0(dir_output,
                                "gene_set_enrichment_analysis/",
                                "mouse_TMM_GSEA_OG_GOBP_adult_120.RData"))
@@ -932,7 +1035,7 @@ gsea_go_og_plot <- enrichplot::dotplot(gsea_GO_OG,
                                        showCategory = 20,
                                        orderBy = "x",
                                        label_format = function(x)
-                                         stringr::str_wrap(x, width = 80)) +
+                                         stringr::str_wrap(x, width = 60)) +
   ggtitle("Dotplot for GSEA with mouse own genes. Adult vs 120 hpf") +
   theme(plot.title = element_text(hjust = 0.5))
 
@@ -955,10 +1058,10 @@ gsea_GO_DB <- gseGO(geneList = geneList,
 gsea_go_db_plot <- enrichplot::dotplot(gsea_GO_DB,
                                        x = "GeneRatio",
                                        color = "p.adjust",
-                                       showCategory = 30,
+                                       showCategory = 20,
                                        orderBy = "x",
                                        label_format = function(x)
-                                         stringr::str_wrap(x, width = 80)) +
+                                         stringr::str_wrap(x, width = 60)) +
   ggtitle("Dotplot for GSEA with mouse database package. Adult vs 120 hpf") +
   theme(plot.title = element_text(hjust = 0.5),
         plot.margin = margin(l = 50))
@@ -989,10 +1092,10 @@ gsea_kegg <- gseKEGG(geneList = geneList_kegg,
 gsea_kegg_plot <- enrichplot::dotplot(gsea_kegg,
                                       x = "GeneRatio",
                                       color = "p.adjust",
-                                      showCategory = 30,
+                                      showCategory = 20,
                                       orderBy = "x",
                                       label_format = function(x)
-                                        stringr::str_wrap(x, width = 80)) +
+                                        stringr::str_wrap(x, width = 60)) +
   ggtitle("Dotplot for mouse KEGG pathways. Adult vs 120 hpf") +
   theme(plot.title = element_text(hjust = 1),
         plot.margin = margin(l = 40))
