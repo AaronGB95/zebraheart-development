@@ -1,16 +1,12 @@
 ---
-title: "Expresión diferencial"
+title: "Differential Expression Analysis"
 author: "Aarón García Blázquez"
 date: "`r Sys.Date()`"
 output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE, out.width = "100%", message = FALSE)
-```
-
-```{r}
-rm(list = ls())
+knitr::opts_chunk$set(echo = FALSE, out.width = "100%", message = FALSE, warning = FALSE)
 ```
 
 ```{r packages}
@@ -20,6 +16,11 @@ require(kableExtra)
 require(tidyr)
 require(knitr)
 require(data.table)
+```
+
+```{r}
+dir_tables <- "~/zebraheart-development/04-output/differential_expression/"
+dir_volcano <- "~/zebraheart-development/04-output/plots/volcano_plots/"
 ```
 
 ```{r}
@@ -64,44 +65,18 @@ tabla <- function(table) {
 }
 ```
 
-# Normalización TMM
+# Results {.tabset}
 
-## Resultados {.tabset}
-
-### 72 hpf vs 48 hpf
+## TMM with ncRNA {.tabset}
 
 ```{r}
-load("TMM_tt_72_48.RData")
-tabla(tt_72_48)
+load(paste0(dir_tables,
+            "TMM_control_tt_72_48.RData"))
+load(paste0(dir_tables,
+            "TMM_control_tt_120_72.RData"))
+load(paste0(dir_tables,
+            "TMM_control_tt_Adult_120.RData"))
 ```
-
-```{r}
-knitr::include_graphics("TMM_volcano_72 hpf vs 48 hpf.png")
-```
-
-### 120 hpf vs 72 hpf
-
-```{r}
-load("TMM_tt_120_72.RData")
-tabla(tt_120_72)
-```
-
-```{r}
-knitr::include_graphics("TMM_volcano_120 hpf vs 72 hpf.png")
-```
-
-### Adult vs 120 hpf
-
-```{r}
-load("TMM_tt_Adult_120.RData")
-tabla(tt_adult_120)
-```
-
-```{r}
-knitr::include_graphics("TMM_volcano_Adult vs 120 hpf.png")
-```
-
-## Número de genes
 
 ```{r}
 # Genes upregulated en la estrategia control
@@ -125,44 +100,49 @@ rownames(tab_tmm) <- c("72 hpf vs 48 hpf", "120 hpf vs 72 hpf", "Adult vs 120 hp
 datatable(tab_tmm)
 ```
 
-# Normalización TMM+QN
-
-## Resulatdos {.tabset}
-
 ### 72 hpf vs 48 hpf
 
 ```{r}
-load("QN_tt_72_48.RData")
 tabla(tt_72_48)
 ```
 
 ```{r}
-knitr::include_graphics("QN_volcano_72 hpf vs 48 hpf.png")
+knitr::include_graphics(paste0(dir_volcano,
+                               "TMM_control_volcano_72 hpf vs 48 hpf.png"))
 ```
 
 ### 120 hpf vs 72 hpf
 
 ```{r}
-load("QN_tt_120_72.RData")
 tabla(tt_120_72)
 ```
 
 ```{r}
-knitr::include_graphics("QN_volcano_120 hpf vs 72 hpf.png")
+knitr::include_graphics(paste0(dir_volcano,
+                               "TMM_control_volcano_120 hpf vs 72 hpf.png"))
 ```
 
-### Adult vs 120 hpf
+### Adults vs 120 hpf
 
 ```{r}
-load("QN_tt_Adult_120.RData")
 tabla(tt_adult_120)
 ```
 
 ```{r}
-knitr::include_graphics("QN_volcano_Adult vs 120 hpf.png")
+knitr::include_graphics(paste0(dir_volcano,
+                               "TMM_control_volcano_Adult vs 120 hpf.png"))
 ```
 
-## Número de genes
+## TMM+QN with ncRNA {.tabset}
+
+```{r}
+load(paste0(dir_tables,
+            "QN_control_tt_72_48.RData"))
+load(paste0(dir_tables,
+            "QN_control_tt_120_72.RData"))
+load(paste0(dir_tables,
+            "QN_control_tt_Adult_120.RData"))
+```
 
 ```{r}
 # Genes upregulated en la estrategia control
@@ -186,7 +166,168 @@ rownames(tab_qn) <- c("72 hpf vs 48 hpf", "120 hpf vs 72 hpf", "Adult vs 120 hpf
 datatable(tab_qn)
 ```
 
+### 72 hpf vs 48 hpf
+
 ```{r}
-rm(list = ls())
+tabla(tt_72_48)
 ```
 
+```{r}
+knitr::include_graphics(paste0(dir_volcano,
+                               "QN_control_volcano_72 hpf vs 48 hpf.png"))
+```
+
+### 120 hpf vs 72 hpf
+
+```{r}
+tabla(tt_120_72)
+```
+
+```{r}
+knitr::include_graphics(paste0(dir_volcano,
+                               "QN_control_volcano_120 hpf vs 72 hpf.png"))
+```
+
+### Adult vs 120 hpf
+
+```{r}
+tabla(tt_adult_120)
+```
+
+```{r}
+knitr::include_graphics(paste0(dir_volcano,
+                               "QN_control_volcano_Adult vs 120 hpf.png"))
+```
+
+## TMM without ncRNA {.tabset}
+
+```{r}
+load(paste0(dir_tables,
+            "TMM_ncRNA_control_tt_72_48.RData"))
+load(paste0(dir_tables,
+            "TMM_ncRNA_control_tt_120_72.RData"))
+load(paste0(dir_tables,
+            "TMM_ncRNA_control_tt_Adult_120.RData"))
+```
+
+```{r}
+# Genes upregulated en la estrategia control
+tmm_ups_1_control <- length(which(tt_72_48$table$FDR < 0.05 & tt_72_48$table$logFC > 1.5))
+tmm_ups_2_control <- length(which(tt_120_72$table$FDR < 0.05 & tt_120_72$table$logFC > 1.5))
+tmm_ups_3_control <- length(which(tt_adult_120$table$FDR < 0.05 & tt_adult_120$table$logFC > 1.5))
+
+# Genes downregulated en la estrategia control
+tmm_downs_1_control <- length(which(tt_72_48$table$FDR < 0.05 & tt_72_48$table$logFC < -1.5))
+tmm_downs_2_control <- length(which(tt_120_72$table$FDR < 0.05 & tt_120_72$table$logFC < -1.5))
+tmm_downs_3_control <- length(which(tt_adult_120$table$FDR < 0.05 & tt_adult_120$table$logFC < -1.5))
+```
+
+```{r}
+tmm_ups <- c(tmm_ups_1_control, tmm_ups_2_control, tmm_ups_3_control)
+tmm_downs <- c(tmm_downs_1_control, tmm_downs_2_control, tmm_downs_3_control)
+
+tab_tmm <- data.frame(tmm_ups, tmm_downs)
+colnames(tab_tmm) <- c("Up", "Down")
+rownames(tab_tmm) <- c("72 hpf vs 48 hpf", "120 hpf vs 72 hpf", "Adult vs 120 hpf")
+datatable(tab_tmm)
+```
+
+### 72 hpf vs 48 hpf
+
+```{r}
+tabla(tt_72_48)
+```
+
+```{r}
+knitr::include_graphics(paste0(dir_volcano,
+                               "TMM_ncRNA_control_volcano_72 hpf vs 48 hpf.png"))
+```
+
+### 120 hpf vs 72 hpf
+
+```{r}
+tabla(tt_120_72)
+```
+
+```{r}
+knitr::include_graphics(paste0(dir_volcano,
+                               "TMM_ncRNA_control_volcano_120 hpf vs 72 hpf.png"))
+```
+
+### Adults vs 120 hpf
+
+```{r}
+tabla(tt_adult_120)
+```
+
+```{r}
+knitr::include_graphics(paste0(dir_volcano,
+                               "TMM_ncRNA_control_volcano_Adult vs 120 hpf.png"))
+```
+
+## TMM+QN without ncRNA {.tabset}
+
+```{r}
+load(paste0(dir_tables,
+            "QN_ncRNA_control_tt_72_48.RData"))
+load(paste0(dir_tables,
+            "QN_ncRNA_control_tt_120_72.RData"))
+load(paste0(dir_tables,
+            "QN_ncRNA_control_tt_Adult_120.RData"))
+
+```
+
+```{r}
+# Genes upregulated en la estrategia control
+qn_ups_1_control <- length(which(tt_72_48$table$FDR < 0.05 & tt_72_48$table$logFC > 1.5))
+qn_ups_2_control <- length(which(tt_120_72$table$FDR < 0.05 & tt_120_72$table$logFC > 1.5))
+qn_ups_3_control <- length(which(tt_adult_120$table$FDR < 0.05 & tt_adult_120$table$logFC > 1.5))
+
+# Genes downregulated en la estrategia control
+qn_downs_1_control <- length(which(tt_72_48$table$FDR < 0.05 & tt_72_48$table$logFC < -1.5))
+qn_downs_2_control <- length(which(tt_120_72$table$FDR < 0.05 & tt_120_72$table$logFC < -1.5))
+qn_downs_3_control <- length(which(tt_adult_120$table$FDR < 0.05 & tt_adult_120$table$logFC < -1.5))
+```
+
+```{r}
+qn_ups <- c(qn_ups_1_control, qn_ups_2_control, qn_ups_3_control)
+qn_downs <- c(qn_downs_1_control, qn_downs_2_control, qn_downs_3_control)
+
+tab_qn <- data.frame(qn_ups, qn_downs)
+colnames(tab_qn) <- c("Up", "Down")
+rownames(tab_qn) <- c("72 hpf vs 48 hpf", "120 hpf vs 72 hpf", "Adult vs 120 hpf")
+datatable(tab_qn)
+```
+
+### 72 hpf vs 48 hpf
+
+```{r}
+tabla(tt_72_48)
+```
+
+```{r}
+knitr::include_graphics(paste0(dir_volcano,
+                               "QN_ncRNA_control_volcano_72 hpf vs 48 hpf.png"))
+```
+
+### 120 hpf vs 72 hpf
+
+```{r}
+tabla(tt_120_72)
+```
+
+```{r}
+knitr::include_graphics(paste0(dir_volcano,
+                               "QN_ncRNA_control_volcano_120 hpf vs 72 hpf.png"))
+```
+
+### Adult vs 120 hpf
+
+```{r}
+tabla(tt_adult_120)
+```
+
+```{r}
+knitr::include_graphics(paste0(dir_volcano,
+                               "QN_ncRNA_control_volcano_Adult vs 120 hpf.png"))
+```

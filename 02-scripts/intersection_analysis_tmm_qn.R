@@ -111,10 +111,12 @@ qn_adult_120_downs <- tt_adult_120$table[tt_adult_120$table$logFC < -1.5 &
 
 dir_plot <- paste0(dir_output, "plots/venn_diagrams/")
 
-draw_venn_diagram <- function(genes_list, groups, file_name) {
+draw_venn_diagram <- function(genes_list, groups, file_name, title) {
   VennDiagram::venn.diagram(x = genes_list,
                             category.names = normalizations,
                             filename = file_name,
+                            main = title,
+                            main.cex = 0.8,
                             disable.logging = TRUE,
                             output = TRUE,
                             imagetype = "png",
@@ -131,7 +133,7 @@ draw_venn_diagram <- function(genes_list, groups, file_name) {
                             cat.pos = c(325, 35),
                             cat.cex = 0.7,
                             cat.default.pos = "outer",
-                            cat.dist = c(0.05, 0.05),
+                            cat.dist = c(0.03, 0.03),
                             cat.fontfamily = "sans",
                             cat.col = "black")
 }
@@ -146,7 +148,8 @@ file_name <- paste0(dir_plot, "venn_ncRNA_tmm_qn_72_48_up.png")
 
 draw_venn_diagram(genes_list = D_list,
                   groups = normalizations,
-                  file_name = file_name)
+                  file_name = file_name,
+                  title = "72 hpf vs 48 hpf Upregulated")
 
 ### Dowregulated genes
 
@@ -156,7 +159,8 @@ file_name <- paste0(dir_plot, "venn_ncRNA_tmm_qn_72_48_down.png")
 
 draw_venn_diagram(genes_list = D_list,
                   groups = normalizations,
-                  file_name = file_name)
+                  file_name = file_name,
+                  title = "72 hpf vs 48 hpf Downregulated")
 
 ## 120 hpf vs 72 hpf
 
@@ -168,7 +172,8 @@ file_name <- paste0(dir_plot, "venn_ncRNA_tmm_qn_120_72_up.png")
 
 draw_venn_diagram(genes_list = D_list,
                   groups = normalizations,
-                  file_name = file_name)
+                  file_name = file_name,
+                  title = "120 hpf vs 72 hpf Upregulated")
 
 ### Downregulated genes
 
@@ -178,7 +183,8 @@ file_name <- paste0(dir_plot, "venn_ncRNA_tmm_qn_120_72_down.png")
 
 draw_venn_diagram(genes_list = D_list,
                   groups = normalizations,
-                  file_name = file_name)
+                  file_name = file_name,
+                  title = "120 hpf vs 72 hpf Downregulated")
 
 ## Adults vs 120 hpf
 
@@ -190,7 +196,8 @@ file_name <- paste0(dir_plot, "venn_ncRNA_tmm_qn_adult_120_up.png")
 
 draw_venn_diagram(genes_list = D_list,
                   groups = normalizations,
-                  file_name = file_name)
+                  file_name = file_name,
+                  title = "Adult vs 120 hpf Upregulated")
 
 ### Downregulated genes
 
@@ -200,5 +207,6 @@ file_name <- paste0(dir_plot, "venn_ncRNA_tmm_qn_adult_120_down.png")
 
 draw_venn_diagram(genes_list = D_list,
                   groups = normalizations,
-                  file_name = file_name)
+                  file_name = file_name,
+                  title = "Adult vs 120 hpf Downregulated")
 

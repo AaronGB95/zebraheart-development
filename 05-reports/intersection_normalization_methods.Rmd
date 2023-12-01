@@ -1,159 +1,82 @@
 ---
-title: "Intersection TMM y TMM+QN"
+title: "Intersection Analysis"
 author: "Aarón García Blázquez"
 date: "`r Sys.Date()`"
 output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = FALSE)
 ```
 
 ```{r}
-rm(list = ls())
+library(png)
+library(grid)
+library(gridExtra)
 ```
 
 ```{r}
-require(rstudioapi)
+dir_venns <- "~/zebraheart-development/04-output/plots/venn_diagrams/"
+```
+
+# Normalization method
+
+```{r}
+img1 <- rasterGrob(readPNG(paste0(dir_venns, "venn_tmm_qn_72_48_up.png")))
+img2 <- rasterGrob(readPNG(paste0(dir_venns, "venn_tmm_qn_72_48_down.png")))
+img3 <- rasterGrob(readPNG(paste0(dir_venns, "venn_tmm_qn_120_72_up.png")))
+img4 <- rasterGrob(readPNG(paste0(dir_venns, "venn_tmm_qn_120_72_down.png")))
+img5 <- rasterGrob(readPNG(paste0(dir_venns, "venn_tmm_qn_adult_120_up.png")))
+img6 <- rasterGrob(readPNG(paste0(dir_venns, "venn_tmm_qn_adult_120_down.png")))
 ```
 
 ```{r}
-setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
+grid.arrange(img1, img2, img3, img4, img5, img6, ncol = 2, nrow = 3)
 ```
 
-# Carga de los datos
+# non-coding RNA removal {.tabset}
 
-## TMM {.tabset}
-
-```{r}
-normalization <- "TMM"
-```
+## TMM
 
 ```{r}
-load(paste0(normalization, "_tt_72_48.RData"))
-load(paste0(normalization, "_tt_120_72.RData"))
-load(paste0(normalization, "_tt_adult_120.RData"))
-```
-
-### Genes significativos 72 hpf vs 48 hpf
-
-#### Genes sobreexpresados
-
-```{r}
-tmm_up_72_48 <- tt_72_48$table[which(tt_72_48$table['FDR'] < 0.05 & tt_72_48$table['logFC'] > 1.5) , "Gene"]
-```
-
-#### Genes infraexpresados
-
-```{r}
-tmm_down_72_48 <- tt_72_48$table[which(tt_72_48$table['FDR'] < 0.05 & tt_72_48$table['logFC'] < -1.5) , "Gene"]
-```
-
-### Genes significativos 120 hpf vs 72 hpf
-
-#### Genes sobreexpresados
-
-```{r}
-tmm_up_120_72 <- tt_120_72$table[which(tt_120_72$table['FDR'] < 0.05 & tt_120_72$table['logFC'] > 1.5) , "Gene"]
-```
-
-#### Genes infraexpresados
-
-```{r}
-tmm_down_120_72 <- tt_120_72$table[which(tt_120_72$table['FDR'] < 0.05 & tt_120_72$table['logFC'] < -1.5) , "Gene"]
-```
-
-### Genes significativos Adultos vs 120 hpf
-
-#### Genes sobreexpresados
-
-```{r}
-tmm_up_adult_120 <- tt_adult_120$table[which(tt_adult_120$table['FDR'] < 0.05 & tt_adult_120$table['logFC'] > 1.5) , "Gene"]
-```
-
-#### Genes infraexpresados
-
-```{r}
-tmm_down_adult_120 <- tt_adult_120$table[which(tt_adult_120$table['FDR'] < 0.05 & tt_adult_120$table['logFC'] < -1.5) , "Gene"]
-```
-
-## TMM + QN {.tabset}
-
-```{r}
-normalization <- "QN"
+img1 <- rasterGrob(readPNG(paste0(dir_venns, "venn_ncRNA_tmm_72_48_up.png")))
+img2 <- rasterGrob(readPNG(paste0(dir_venns, "venn_ncRNA_tmm_72_48_down.png")))
+img3 <- rasterGrob(readPNG(paste0(dir_venns, "venn_ncRNA_tmm_120_72_up.png")))
+img4 <- rasterGrob(readPNG(paste0(dir_venns, "venn_ncRNA_tmm_120_72_down.png")))
+img5 <- rasterGrob(readPNG(paste0(dir_venns, "venn_ncRNA_tmm_adult_120_up.png")))
+img6 <- rasterGrob(readPNG(paste0(dir_venns, "venn_ncRNA_tmm_adult_120_down.png")))
 ```
 
 ```{r}
-load(paste0(normalization, "_tt_72_48.RData"))
-load(paste0(normalization, "_tt_120_72.RData"))
-load(paste0(normalization, "_tt_adult_120.RData"))
+grid.arrange(img1, img2, img3, img4, img5, img6, ncol = 2, nrow = 3)
 ```
 
-### Genes significativos 72 hpf vs 48 hpf {.tabset}
-
-#### Genes sobreexpresados
+## TMM+QN
 
 ```{r}
-qn_up_72_48 <- tt_72_48$table[which(tt_72_48$table['FDR'] < 0.05 & tt_72_48$table['logFC'] > 1.5) , "Gene"]
-```
-
-#### Genes infraexpresados
-
-```{r}
-qn_down_72_48 <- tt_72_48$table[which(tt_72_48$table['FDR'] < 0.05 & tt_72_48$table['logFC'] < -1.5) , "Gene"]
-```
-
-### Genes significativos 120 hpf vs 72 hpf
-
-#### Genes sobreexpresados
-
-```{r}
-qn_up_120_72 <- tt_120_72$table[which(tt_120_72$table['FDR'] < 0.05 & tt_120_72$table['logFC'] > 1.5) , "Gene"]
-```
-
-#### Genes infraexpresados
-
-```{r}
-qn_down_120_72 <- tt_120_72$table[which(tt_120_72$table['FDR'] < 0.05 & tt_120_72$table['logFC'] < -1.5) , "Gene"]
-```
-
-### Genes significativos Adultos vs 120 hpf
-
-#### Genes sobreexpresados
-
-```{r}
-qn_up_adult_120 <- tt_adult_120$table[which(tt_adult_120$table['FDR'] < 0.05 & tt_adult_120$table['logFC'] > 1.5) , "Gene"]
-```
-
-#### Genes infraexpresados
-
-```{r}
-qn_down_adult_120 <- tt_adult_120$table[which(tt_adult_120$table['FDR'] < 0.05 & tt_adult_120$table['logFC'] < -1.5) , "Gene"]
-```
-
-# Intersección de los genes significativos
-
-```{r}
-groups <- c("TMM", "TMM + QN")
+img1 <- rasterGrob(readPNG(paste0(dir_venns, "venn_ncRNA_qn_72_48_up.png")))
+img2 <- rasterGrob(readPNG(paste0(dir_venns, "venn_ncRNA_qn_72_48_down.png")))
+img3 <- rasterGrob(readPNG(paste0(dir_venns, "venn_ncRNA_qn_120_72_up.png")))
+img4 <- rasterGrob(readPNG(paste0(dir_venns, "venn_ncRNA_qn_120_72_down.png")))
+img5 <- rasterGrob(readPNG(paste0(dir_venns, "venn_ncRNA_qn_adult_120_up.png")))
+img6 <- rasterGrob(readPNG(paste0(dir_venns, "venn_ncRNA_qn_adult_120_down.png")))
 ```
 
 ```{r}
-ups_72_48 <- list(tmm_up_72_48, qn_up_72_48)
-ups_120_72 <- list(tmm_up_120_72, qn_up_120_72)
-ups_adult_120 <- list(tmm_up_adult_120, qn_up_adult_120)
+grid.arrange(img1, img2, img3, img4, img5, img6, ncol = 2, nrow = 3)
+```
+
+## TMM vs TMM+QN
+
+```{r}
+img1 <- rasterGrob(readPNG(paste0(dir_venns, "venn_ncRNA_tmm_qn_72_48_up.png")))
+img2 <- rasterGrob(readPNG(paste0(dir_venns, "venn_ncRNA_tmm_qn_72_48_down.png")))
+img3 <- rasterGrob(readPNG(paste0(dir_venns, "venn_ncRNA_tmm_qn_120_72_up.png")))
+img4 <- rasterGrob(readPNG(paste0(dir_venns, "venn_ncRNA_tmm_qn_120_72_down.png")))
+img5 <- rasterGrob(readPNG(paste0(dir_venns, "venn_ncRNA_tmm_qn_adult_120_up.png")))
+img6 <- rasterGrob(readPNG(paste0(dir_venns, "venn_ncRNA_tmm_qn_adult_120_down.png")))
 ```
 
 ```{r}
-downs_72_48 <- list(tmm_down_72_48, qn_down_72_48)
-downs_120_72 <- list(tmm_down_120_72, qn_down_120_72)
-downs_adult_120 <- list(tmm_up_adult_120, qn_up_adult_120)
+grid.arrange(img1, img2, img3, img4, img5, img6, ncol = 2, nrow = 3)
 ```
-
-
-
-
-
-
-
-
-
