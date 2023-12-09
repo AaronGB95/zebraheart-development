@@ -12,23 +12,23 @@ library(org.Mm.eg.db)
 
 # Contrastes
 
-drerio_go <- read.table(file = paste0(dir_docs, "zebrafish_go_terms.txt"),
+drerio_go <- read.delim(file = paste0(dir_docs, "zebrafish_go_terms.txt"),
                         sep = "\t",
                         header = TRUE)
 
-drerio_bp <- read.table(file = paste0(dir_docs, "zebrafish_go_bp.txt"),
+drerio_bp <- read.delim(file = paste0(dir_docs, "zebrafish_go_bp.txt"),
                         sep = "\t",
                         header = TRUE)
 
-drerio_cc <- read.table(file = paste0(dir_docs, "zebrafish_go_cc.txt"),
+drerio_cc <- read.delim(file = paste0(dir_docs, "zebrafish_go_cc.txt"),
                         sep = "\t",
                         header = TRUE)
 
-drerio_mf <- read.table(file = paste0(dir_docs, "zebrafish_go_mf.txt"),
+drerio_mf <- read.delim(file = paste0(dir_docs, "zebrafish_go_mf.txt"),
                         sep = "\t",
                         header = TRUE)
 
-drerio_kegg <- read.table(file = paste0(dir_docs, "zebrafish_kegg_terms.txt"),
+drerio_kegg <- read.delim(file = paste0(dir_docs, "zebrafish_kegg_terms.txt"),
                           sep = "\t",
                           header = TRUE)
 
@@ -384,23 +384,23 @@ save(gsea_kegg, file = paste0(dir_output,
 
 # Contrastes
 
-hsapiens_go <- read.table(file = paste0(dir_docs, "human_go_terms.txt"),
+hsapiens_go <- read.delim(file = paste0(dir_docs, "human_go_terms.txt"),
                           sep = "\t",
                           header = TRUE)
 
-hsapiens_bp <- read.table(file = paste0(dir_docs, "human_go_bp.txt"),
+hsapiens_bp <- read.delim(file = paste0(dir_docs, "human_go_bp.txt"),
                           sep = "\t",
                           header = TRUE)
 
-hsapiens_cc <- read.table(file = paste0(dir_docs, "human_go_cc.txt"),
+hsapiens_cc <- read.delim(file = paste0(dir_docs, "human_go_cc.txt"),
                           sep = "\t",
                           header = TRUE)
 
-hsapiens_mf <- read.table(file = paste0(dir_docs, "human_go_mf.txt"),
+hsapiens_mf <- read.delim(file = paste0(dir_docs, "human_go_mf.txt"),
                           sep = "\t",
                           header = TRUE)
 
-hsapiens_kegg <- read.table(file = paste0(dir_docs, "human_kegg_terms.txt"),
+hsapiens_kegg <- read.delim(file = paste0(dir_docs, "human_kegg_terms.txt"),
                             sep = "\t",
                             header = TRUE)
 
@@ -755,23 +755,23 @@ save(gsea_kegg, file = paste0(dir_output,
 
 # Contrastes
 
-mmusculus_go <- read.table(file = paste0(dir_docs, "mouse_go_terms.txt"),
+mmusculus_go <- read.delim(file = paste0(dir_docs, "mouse_go_terms.txt"),
                            sep = "\t",
                            header = TRUE)
 
-mmusculus_bp <- read.table(file = paste0(dir_docs, "mouse_go_bp.txt"),
+mmusculus_bp <- read.delim(file = paste0(dir_docs, "mouse_go_bp.txt"),
                            sep = "\t",
                            header = TRUE)
 
-mmusculus_cc <- read.table(file = paste0(dir_docs, "mouse_go_cc.txt"),
+mmusculus_cc <- read.delim(file = paste0(dir_docs, "mouse_go_cc.txt"),
                            sep = "\t",
                            header = TRUE)
 
-mmusculus_mf <- read.table(file = paste0(dir_docs, "mouse_go_mf.txt"),
+mmusculus_mf <- read.delim(file = paste0(dir_docs, "mouse_go_mf.txt"),
                            sep = "\t",
                            header = TRUE)
 
-mmusculus_kegg <- read.table(file = paste0(dir_docs, "mouse_kegg_terms.txt"),
+mmusculus_kegg <- read.delim(file = paste0(dir_docs, "mouse_kegg_terms.txt"),
                              sep = "\t",
                              header = TRUE)
 
