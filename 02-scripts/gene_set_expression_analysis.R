@@ -8,6 +8,7 @@ library(dplyr)
 library(org.Dr.eg.db)
 library(org.Hs.eg.db)
 library(org.Mm.eg.db)
+library(simplifyEnrichment)
 
 
 # Contrastes
@@ -33,6 +34,8 @@ drerio_kegg <- read.delim(file = paste0(dir_docs, "zebrafish_kegg_terms.txt"),
                           header = TRUE)
 
 ## 72 hpf vs 48 hpf
+##-----------------------------------------------------------------------------
+##-----------------------------------------------------------------------------
 
 load(paste0(dir_output,
             "differential_expression/",
@@ -41,11 +44,13 @@ load(paste0(dir_output,
 diffexp <- tt_72_48$table
 
 ### Gene Ontology
+#------------------------------------------------------------------------------
 
 geneList <- diffexp$logFC
 names(geneList) <- diffexp$Gene
 geneList <- sort(geneList, decreasing = TRUE)
 
+### GSEA with own gene universe
 gsea_GO_OG <- GSEA(geneList = geneList,
                    TERM2GENE = drerio_bp,
                    verbose = T,
@@ -55,14 +60,15 @@ gsea_GO_OG <- GSEA(geneList = geneList,
                    pvalueCutoff = 1,
                    eps = 0)
 
+### Add GO term description
 matching_terms <- match(gsea_GO_OG@result$ID, drerio_go$go_id)
-
 gsea_GO_OG@result$Description <- drerio_go$name_1006[matching_terms]
 
 save(gsea_GO_OG, file = paste0(dir_output,
                                "gene_set_enrichment_analysis/",
                                "TMM_GSEA_OG_GOBP_72_48.RData"))
 
+### Dotplot for all significant terms
 gsea_go_og_plot <- enrichplot::dotplot(gsea_GO_OG,
                                        x = "GeneRatio",
                                        color = "p.adjust",
@@ -79,6 +85,60 @@ ggsave(plot = gsea_go_og_plot,
        path = paste0(dir_output, "plots/gsea/"),
        dpi = 300)
 
+### Filter overexpressed terms
+gsea_go_og_up <- gsea_GO_OG
+gsea_go_og_up@result <- gsea_go_og_up@result[gsea_go_og_up@result$NES > 0, ]
+
+### Overexpressed terms plot
+gsea_go_og_up_plot <- enrichplot::dotplot(gsea_go_og_up,
+                                          x = "GeneRatio",
+                                          color = "p.adjust",
+                                          showCategory = 20,
+                                          font.size = 10,
+                                          orderBy = "x",
+                                          label_format = function(x)
+                                            stringr::str_wrap(x, width = 60)) +
+  ggtitle("GSEA with own genes, Upregulated terms. 72 hpf vs 48 hpf") +
+  theme(plot.title = element_text(hjust = 0.5))
+
+ggsave(plot = gsea_go_og_plot,
+       filename = "dotplot_TMM_GSEA_OG_GOBP_72_48_up.jpg",
+       path = paste0(dir_output, "plots/gsea/"),
+       dpi = 300)
+
+### Filter underexpressed terms
+gsea_go_og_down <- gsea_GO_OG
+gsea_go_og_down@result <- gsea_go_og_down@result[gsea_go_og_down@result$NES > 0, ]
+
+### Underexpressed terms plot
+gsea_go_og_down_plot <- enrichplot::dotplot(gsea_go_og_down,
+                                          x = "GeneRatio",
+                                          color = "p.adjust",
+                                          showCategory = 20,
+                                          font.size = 10,
+                                          orderBy = "x",
+                                          label_format = function(x)
+                                            stringr::str_wrap(x, width = 60)) +
+  ggtitle("GSEA with own genes, Downregulated terms. 72 hpf vs 48 hpf") +
+  theme(plot.title = element_text(hjust = 0.5))
+
+ggsave(plot = gsea_go_og_plot,
+       filename = "dotplot_TMM_GSEA_OG_GOBP_72_48_down.jpg",
+       path = paste0(dir_output, "plots/gsea/"),
+       dpi = 300)
+
+### Simplify GSEA result
+gsea_go_og_matrix <- GO_similarity(gsea_GO_OG@result[gsea_GO_OG@result$p.adjust < 0.05, "ID"],
+                                   ont = "BP",
+                                   db = "org.Dr.eg.db")
+gsea_go_og_sum <- simplifyGO(gsea_go_og_matrix)
+save(gsea_go_og_sum,
+     file = paste0(dir_output,
+                   "gene_set_enrichment_analysis/",
+                   "sum_TMM_GSEA_OG_GOBP_72_48.RData"))
+
+### GSEA with annotation package
+#------------------------------------------------------------------------------
 gsea_GO_DB <- gseGO(geneList = geneList,
                     ont = "BP",
                     OrgDb = org.Dr.eg.db,
@@ -90,6 +150,7 @@ gsea_GO_DB <- gseGO(geneList = geneList,
                     pAdjustMethod = "BH",
                     eps = 0)
 
+### Plot for all terms
 gsea_go_db_plot <- enrichplot::dotplot(gsea_GO_DB,
                                        x = "GeneRatio",
                                        color = "p.adjust",
@@ -107,12 +168,13 @@ ggsave(plot = gsea_go_db_plot,
        path = paste0(dir_output, "plots/gsea/"),
        dpi = 300)
 
-save(gsea_GO_DB, file = paste0(dir_output,
-                               "gene_set_enrichment_analysis/",
-                               "TMM_GSEA_DB_GOBP_72_48.RData"))
+save(gsea_GO_DB,
+     file = paste0(dir_output,
+                   "gene_set_enrichment_analysis/",
+                   "TMM_GSEA_DB_GOBP_72_48.RData"))
 
 ### KEGG
-
+#------------------------------------------------------------------------------
 ## Ranked list. Id must be Entrez id
 geneList_kegg <- diffexp$logFC
 names(geneList_kegg) <- diffexp$ENTREZID
@@ -192,6 +254,58 @@ ggsave(plot = gsea_go_og_plot,
        filename = "dotplot_TMM_GSEA_OG_GOBP_120_72.jpg",
        path = paste0(dir_output, "plots/gsea/"),
        dpi = 300)
+
+### Filter overexpressed terms
+gsea_go_og_up <- gsea_GO_OG
+gsea_go_og_up@result <- gsea_go_og_up@result[gsea_go_og_up@result$NES > 0, ]
+
+### Overexpressed terms plot
+gsea_go_og_up_plot <- enrichplot::dotplot(gsea_go_og_up,
+                                          x = "GeneRatio",
+                                          color = "p.adjust",
+                                          showCategory = 20,
+                                          font.size = 10,
+                                          orderBy = "x",
+                                          label_format = function(x)
+                                            stringr::str_wrap(x, width = 60)) +
+  ggtitle("GSEA with own genes, Upregulated terms. 120 hpf vs 72 hpf") +
+  theme(plot.title = element_text(hjust = 0.5))
+
+ggsave(plot = gsea_go_og_plot,
+       filename = "dotplot_TMM_GSEA_OG_GOBP_120_72_up.jpg",
+       path = paste0(dir_output, "plots/gsea/"),
+       dpi = 300)
+
+### Filter underexpressed terms
+gsea_go_og_down <- gsea_GO_OG
+gsea_go_og_down@result <- gsea_go_og_down@result[gsea_go_og_down@result$NES > 0, ]
+
+### Underexpressed terms plot
+gsea_go_og_down_plot <- enrichplot::dotplot(gsea_go_og_down,
+                                            x = "GeneRatio",
+                                            color = "p.adjust",
+                                            showCategory = 20,
+                                            font.size = 10,
+                                            orderBy = "x",
+                                            label_format = function(x)
+                                              stringr::str_wrap(x, width = 60)) +
+  ggtitle("GSEA with own genes, Downregulated terms. 120 hpf vs 72 hpf") +
+  theme(plot.title = element_text(hjust = 0.5))
+
+ggsave(plot = gsea_go_og_plot,
+       filename = "dotplot_TMM_GSEA_OG_GOBP_120_72_down.jpg",
+       path = paste0(dir_output, "plots/gsea/"),
+       dpi = 300)
+
+### Simplify GSEA result
+gsea_go_og_matrix <- GO_similarity(gsea_GO_OG@result[gsea_GO_OG@result$p.adjust < 0.05, "ID"],
+                                   ont = "BP",
+                                   db = "org.Dr.eg.db")
+gsea_go_og_sum <- simplifyGO(gsea_go_og_matrix)
+save(gsea_go_og_sum,
+     file = paste0(dir_output,
+                   "gene_set_enrichment_analysis/",
+                   "sum_TMM_GSEA_OG_GOBP_120_72.RData"))
 
 gsea_GO_DB <- gseGO(geneList = geneList,
                     ont = "BP",
@@ -306,6 +420,58 @@ ggsave(plot = gsea_go_og_plot,
        filename = "dotplot_TMM_GSEA_OG_GOBP_adult_120.jpg",
        path = paste0(dir_output, "plots/gsea/"),
        dpi = 300)
+
+### Filter overexpressed terms
+gsea_go_og_up <- gsea_GO_OG
+gsea_go_og_up@result <- gsea_go_og_up@result[gsea_go_og_up@result$NES > 0, ]
+
+### Overexpressed terms plot
+gsea_go_og_up_plot <- enrichplot::dotplot(gsea_go_og_up,
+                                          x = "GeneRatio",
+                                          color = "p.adjust",
+                                          showCategory = 20,
+                                          font.size = 10,
+                                          orderBy = "x",
+                                          label_format = function(x)
+                                            stringr::str_wrap(x, width = 60)) +
+  ggtitle("GSEA with own genes, Upregulated terms. 72 hpf vs 48 hpf") +
+  theme(plot.title = element_text(hjust = 0.5))
+
+ggsave(plot = gsea_go_og_plot,
+       filename = "dotplot_TMM_GSEA_OG_GOBP_72_48_up.jpg",
+       path = paste0(dir_output, "plots/gsea/"),
+       dpi = 300)
+
+### Filter underexpressed terms
+gsea_go_og_down <- gsea_GO_OG
+gsea_go_og_down@result <- gsea_go_og_down@result[gsea_go_og_down@result$NES > 0, ]
+
+### Underexpressed terms plot
+gsea_go_og_down_plot <- enrichplot::dotplot(gsea_go_og_down,
+                                            x = "GeneRatio",
+                                            color = "p.adjust",
+                                            showCategory = 20,
+                                            font.size = 10,
+                                            orderBy = "x",
+                                            label_format = function(x)
+                                              stringr::str_wrap(x, width = 60)) +
+  ggtitle("GSEA with own genes, Downregulated terms. Adult vs 120 hpf") +
+  theme(plot.title = element_text(hjust = 0.5))
+
+ggsave(plot = gsea_go_og_plot,
+       filename = "dotplot_TMM_GSEA_OG_GOBP_adult_120_down.jpg",
+       path = paste0(dir_output, "plots/gsea/"),
+       dpi = 300)
+
+### Simplify GSEA result
+gsea_go_og_matrix <- GO_similarity(gsea_GO_OG@result[gsea_GO_OG@result$p.adjust < 0.05, "ID"],
+                                   ont = "BP",
+                                   db = "org.Dr.eg.db")
+gsea_go_og_sum <- simplifyGO(gsea_go_og_matrix)
+save(gsea_go_og_sum,
+     file = paste0(dir_output,
+                   "gene_set_enrichment_analysis/",
+                   "sum_TMM_GSEA_OG_GOBP_adult_120.RData"))
 
 gsea_GO_DB <- gseGO(geneList = geneList,
                     ont = "BP",
@@ -451,6 +617,58 @@ ggsave(plot = gsea_go_og_plot,
        path = paste0(dir_output, "plots/gsea/"),
        dpi = 300)
 
+### Filter overexpressed terms
+gsea_go_og_up <- gsea_GO_OG
+gsea_go_og_up@result <- gsea_go_og_up@result[gsea_go_og_up@result$NES > 0, ]
+
+### Overexpressed terms plot
+gsea_go_og_up_plot <- enrichplot::dotplot(gsea_go_og_up,
+                                          x = "GeneRatio",
+                                          color = "p.adjust",
+                                          showCategory = 20,
+                                          font.size = 10,
+                                          orderBy = "x",
+                                          label_format = function(x)
+                                            stringr::str_wrap(x, width = 60)) +
+  ggtitle("GSEA with human own genes, Upregulated terms. 72 hpf vs 48 hpf") +
+  theme(plot.title = element_text(hjust = 0.5))
+
+ggsave(plot = gsea_go_og_plot,
+       filename = "dotplot_human_TMM_GSEA_OG_GOBP_72_48_up.jpg",
+       path = paste0(dir_output, "plots/gsea/"),
+       dpi = 300)
+
+### Filter underexpressed terms
+gsea_go_og_down <- gsea_GO_OG
+gsea_go_og_down@result <- gsea_go_og_down@result[gsea_go_og_down@result$NES > 0, ]
+
+### Underexpressed terms plot
+gsea_go_og_down_plot <- enrichplot::dotplot(gsea_go_og_down,
+                                            x = "GeneRatio",
+                                            color = "p.adjust",
+                                            showCategory = 20,
+                                            font.size = 10,
+                                            orderBy = "x",
+                                            label_format = function(x)
+                                              stringr::str_wrap(x, width = 60)) +
+  ggtitle("GSEA with human own genes, Downregulated terms. 72 hpf vs 48 hpf") +
+  theme(plot.title = element_text(hjust = 0.5))
+
+ggsave(plot = gsea_go_og_plot,
+       filename = "dotplot_human_TMM_GSEA_OG_GOBP_72_48_down.jpg",
+       path = paste0(dir_output, "plots/gsea/"),
+       dpi = 300)
+
+### Simplify GSEA result
+gsea_go_og_matrix <- GO_similarity(gsea_GO_OG@result[gsea_GO_OG@result$p.adjust < 0.05, "ID"],
+                                   ont = "BP",
+                                   db = "org.Hs.eg.db")
+gsea_go_og_sum <- simplifyGO(gsea_go_og_matrix)
+save(gsea_go_og_sum,
+     file = paste0(dir_output,
+                   "gene_set_enrichment_analysis/",
+                   "sum_human_TMM_GSEA_OG_GOBP_72_48.RData"))
+
 gsea_GO_DB <- gseGO(geneList = geneList,
                     ont = "BP",
                     OrgDb = org.Hs.eg.db,
@@ -565,6 +783,58 @@ ggsave(plot = gsea_go_og_plot,
        path = paste0(dir_output, "plots/gsea/"),
        dpi = 300)
 
+### Filter overexpressed terms
+gsea_go_og_up <- gsea_GO_OG
+gsea_go_og_up@result <- gsea_go_og_up@result[gsea_go_og_up@result$NES > 0, ]
+
+### Overexpressed terms plot
+gsea_go_og_up_plot <- enrichplot::dotplot(gsea_go_og_up,
+                                          x = "GeneRatio",
+                                          color = "p.adjust",
+                                          showCategory = 20,
+                                          font.size = 10,
+                                          orderBy = "x",
+                                          label_format = function(x)
+                                            stringr::str_wrap(x, width = 60)) +
+  ggtitle("GSEA with human own genes, Upregulated terms. 120 hpf vs 72 hpf") +
+  theme(plot.title = element_text(hjust = 0.5))
+
+ggsave(plot = gsea_go_og_plot,
+       filename = "dotplot_human_TMM_GSEA_OG_GOBP_120_72_up.jpg",
+       path = paste0(dir_output, "plots/gsea/"),
+       dpi = 300)
+
+### Filter underexpressed terms
+gsea_go_og_down <- gsea_GO_OG
+gsea_go_og_down@result <- gsea_go_og_down@result[gsea_go_og_down@result$NES > 0, ]
+
+### Underexpressed terms plot
+gsea_go_og_down_plot <- enrichplot::dotplot(gsea_go_og_down,
+                                            x = "GeneRatio",
+                                            color = "p.adjust",
+                                            showCategory = 20,
+                                            font.size = 10,
+                                            orderBy = "x",
+                                            label_format = function(x)
+                                              stringr::str_wrap(x, width = 60)) +
+  ggtitle("GSEA with human own genes, Downregulated terms. 120 hpf vs 72 hpf") +
+  theme(plot.title = element_text(hjust = 0.5))
+
+ggsave(plot = gsea_go_og_plot,
+       filename = "dotplot_human_TMM_GSEA_OG_GOBP_120_72_down.jpg",
+       path = paste0(dir_output, "plots/gsea/"),
+       dpi = 300)
+
+### Simplify GSEA result
+gsea_go_og_matrix <- GO_similarity(gsea_GO_OG@result[gsea_GO_OG@result$p.adjust < 0.05, "ID"],
+                                   ont = "BP",
+                                   db = "org.Hs.eg.db")
+gsea_go_og_sum <- simplifyGO(gsea_go_og_matrix)
+save(gsea_go_og_sum,
+     file = paste0(dir_output,
+                   "gene_set_enrichment_analysis/",
+                   "sum_human_TMM_GSEA_OG_GOBP_120_72.RData"))
+
 gsea_GO_DB <- gseGO(geneList = geneList,
                     ont = "BP",
                     OrgDb = org.Hs.eg.db,
@@ -678,6 +948,58 @@ ggsave(plot = gsea_go_og_plot,
        filename = "dotplot_human_TMM_GSEA_OG_GOBP_adult_120.jpg",
        path = paste0(dir_output, "plots/gsea/"),
        dpi = 300)
+
+### Filter overexpressed terms
+gsea_go_og_up <- gsea_GO_OG
+gsea_go_og_up@result <- gsea_go_og_up@result[gsea_go_og_up@result$NES > 0, ]
+
+### Overexpressed terms plot
+gsea_go_og_up_plot <- enrichplot::dotplot(gsea_go_og_up,
+                                          x = "GeneRatio",
+                                          color = "p.adjust",
+                                          showCategory = 20,
+                                          font.size = 10,
+                                          orderBy = "x",
+                                          label_format = function(x)
+                                            stringr::str_wrap(x, width = 60)) +
+  ggtitle("GSEA with human own genes, Upregulated terms. Adult vs 120 hpf") +
+  theme(plot.title = element_text(hjust = 0.5))
+
+ggsave(plot = gsea_go_og_plot,
+       filename = "dotplot_human_TMM_GSEA_OG_GOBP_adult_120_up.jpg",
+       path = paste0(dir_output, "plots/gsea/"),
+       dpi = 300)
+
+### Filter underexpressed terms
+gsea_go_og_down <- gsea_GO_OG
+gsea_go_og_down@result <- gsea_go_og_down@result[gsea_go_og_down@result$NES > 0, ]
+
+### Underexpressed terms plot
+gsea_go_og_down_plot <- enrichplot::dotplot(gsea_go_og_down,
+                                            x = "GeneRatio",
+                                            color = "p.adjust",
+                                            showCategory = 20,
+                                            font.size = 10,
+                                            orderBy = "x",
+                                            label_format = function(x)
+                                              stringr::str_wrap(x, width = 60)) +
+  ggtitle("GSEA with human own genes, Downregulated terms. Adult vs 120 hpf") +
+  theme(plot.title = element_text(hjust = 0.5))
+
+ggsave(plot = gsea_go_og_plot,
+       filename = "dotplot_human_TMM_GSEA_OG_GOBP_adult_120_down.jpg",
+       path = paste0(dir_output, "plots/gsea/"),
+       dpi = 300)
+
+### Simplify GSEA result
+gsea_go_og_matrix <- GO_similarity(gsea_GO_OG@result[gsea_GO_OG@result$p.adjust < 0.05, "ID"],
+                                   ont = "BP",
+                                   db = "org.Hs.eg.db")
+gsea_go_og_sum <- simplifyGO(gsea_go_og_matrix)
+save(gsea_go_og_sum,
+     file = paste0(dir_output,
+                   "gene_set_enrichment_analysis/",
+                   "sum_human_TMM_GSEA_OG_GOBP_adult_120.RData"))
 
 gsea_GO_DB <- gseGO(geneList = geneList,
                     ont = "BP",
@@ -821,6 +1143,58 @@ ggsave(plot = gsea_go_og_plot,
        path = paste0(dir_output, "plots/gsea/"),
        dpi = 300)
 
+### Filter overexpressed terms
+gsea_go_og_up <- gsea_GO_OG
+gsea_go_og_up@result <- gsea_go_og_up@result[gsea_go_og_up@result$NES > 0, ]
+
+### Overexpressed terms plot
+gsea_go_og_up_plot <- enrichplot::dotplot(gsea_go_og_up,
+                                          x = "GeneRatio",
+                                          color = "p.adjust",
+                                          showCategory = 20,
+                                          font.size = 10,
+                                          orderBy = "x",
+                                          label_format = function(x)
+                                            stringr::str_wrap(x, width = 60)) +
+  ggtitle("GSEA with mouse own genes, Upregulated terms. 72 hpf vs 48 hpf") +
+  theme(plot.title = element_text(hjust = 0.5))
+
+ggsave(plot = gsea_go_og_plot,
+       filename = "dotplot_mouse_TMM_GSEA_OG_GOBP_72_48_up.jpg",
+       path = paste0(dir_output, "plots/gsea/"),
+       dpi = 300)
+
+### Filter underexpressed terms
+gsea_go_og_down <- gsea_GO_OG
+gsea_go_og_down@result <- gsea_go_og_down@result[gsea_go_og_down@result$NES > 0, ]
+
+### Underexpressed terms plot
+gsea_go_og_down_plot <- enrichplot::dotplot(gsea_go_og_down,
+                                            x = "GeneRatio",
+                                            color = "p.adjust",
+                                            showCategory = 20,
+                                            font.size = 10,
+                                            orderBy = "x",
+                                            label_format = function(x)
+                                              stringr::str_wrap(x, width = 60)) +
+  ggtitle("GSEA with mouse own genes, Downregulated terms. 72 hpf vs 48 hpf") +
+  theme(plot.title = element_text(hjust = 0.5))
+
+ggsave(plot = gsea_go_og_plot,
+       filename = "dotplot_mouse_TMM_GSEA_OG_GOBP_72_48_down.jpg",
+       path = paste0(dir_output, "plots/gsea/"),
+       dpi = 300)
+
+### Simplify GSEA result
+gsea_go_og_matrix <- GO_similarity(gsea_GO_OG@result[gsea_GO_OG@result$p.adjust < 0.05, "ID"],
+                                   ont = "BP",
+                                   db = "org.Mm.eg.db")
+gsea_go_og_sum <- simplifyGO(gsea_go_og_matrix)
+save(gsea_go_og_sum,
+     file = paste0(dir_output,
+                   "gene_set_enrichment_analysis/",
+                   "sum_mouse_TMM_GSEA_OG_GOBP_72_48.RData"))
+
 gsea_GO_DB <- gseGO(geneList = geneList,
                     ont = "BP",
                     OrgDb = org.Mm.eg.db,
@@ -931,6 +1305,58 @@ ggsave(plot = gsea_go_og_plot,
        filename = "dotplot_mouse_TMM_GSEA_OG_GOBP_120_72.jpg",
        path = paste0(dir_output, "plots/gsea/"),
        dpi = 300)
+
+### Filter overexpressed terms
+gsea_go_og_up <- gsea_GO_OG
+gsea_go_og_up@result <- gsea_go_og_up@result[gsea_go_og_up@result$NES > 0, ]
+
+### Overexpressed terms plot
+gsea_go_og_up_plot <- enrichplot::dotplot(gsea_go_og_up,
+                                          x = "GeneRatio",
+                                          color = "p.adjust",
+                                          showCategory = 20,
+                                          font.size = 10,
+                                          orderBy = "x",
+                                          label_format = function(x)
+                                            stringr::str_wrap(x, width = 60)) +
+  ggtitle("GSEA with mouse own genes, Upregulated terms. 120 hpf vs 72 hpf") +
+  theme(plot.title = element_text(hjust = 0.5))
+
+ggsave(plot = gsea_go_og_plot,
+       filename = "dotplot_mouse_TMM_GSEA_OG_GOBP_120_72_up.jpg",
+       path = paste0(dir_output, "plots/gsea/"),
+       dpi = 300)
+
+### Filter underexpressed terms
+gsea_go_og_down <- gsea_GO_OG
+gsea_go_og_down@result <- gsea_go_og_down@result[gsea_go_og_down@result$NES > 0, ]
+
+### Underexpressed terms plot
+gsea_go_og_down_plot <- enrichplot::dotplot(gsea_go_og_down,
+                                            x = "GeneRatio",
+                                            color = "p.adjust",
+                                            showCategory = 20,
+                                            font.size = 10,
+                                            orderBy = "x",
+                                            label_format = function(x)
+                                              stringr::str_wrap(x, width = 60)) +
+  ggtitle("GSEA with mouse own genes, Downregulated terms. 120 hpf vs 72 hpf") +
+  theme(plot.title = element_text(hjust = 0.5))
+
+ggsave(plot = gsea_go_og_plot,
+       filename = "dotplot_mouse_TMM_GSEA_OG_GOBP_120_72_down.jpg",
+       path = paste0(dir_output, "plots/gsea/"),
+       dpi = 300)
+
+### Simplify GSEA result
+gsea_go_og_matrix <- GO_similarity(gsea_GO_OG@result[gsea_GO_OG@result$p.adjust < 0.05, "ID"],
+                                   ont = "BP",
+                                   db = "org.Mm.eg.db")
+gsea_go_og_sum <- simplifyGO(gsea_go_og_matrix)
+save(gsea_go_og_sum,
+     file = paste0(dir_output,
+                   "gene_set_enrichment_analysis/",
+                   "sum_mouse_TMM_GSEA_OG_GOBP_120_72.RData"))
 
 gsea_GO_DB <- gseGO(geneList = geneList,
                     ont = "BP",
@@ -1043,6 +1469,58 @@ ggsave(plot = gsea_go_og_plot,
        filename = "dotplot_mouse_TMM_GSEA_OG_GOBP_adult_120.jpg",
        path = paste0(dir_output, "plots/gsea/"),
        dpi = 300)
+
+### Filter overexpressed terms
+gsea_go_og_up <- gsea_GO_OG
+gsea_go_og_up@result <- gsea_go_og_up@result[gsea_go_og_up@result$NES > 0, ]
+
+### Overexpressed terms plot
+gsea_go_og_up_plot <- enrichplot::dotplot(gsea_go_og_up,
+                                          x = "GeneRatio",
+                                          color = "p.adjust",
+                                          showCategory = 20,
+                                          font.size = 10,
+                                          orderBy = "x",
+                                          label_format = function(x)
+                                            stringr::str_wrap(x, width = 60)) +
+  ggtitle("GSEA with mouse own genes, Upregulated terms. Adult vs 120 hpf") +
+  theme(plot.title = element_text(hjust = 0.5))
+
+ggsave(plot = gsea_go_og_plot,
+       filename = "dotplot_mouse_TMM_GSEA_OG_GOBP_adult_120_up.jpg",
+       path = paste0(dir_output, "plots/gsea/"),
+       dpi = 300)
+
+### Filter underexpressed terms
+gsea_go_og_down <- gsea_GO_OG
+gsea_go_og_down@result <- gsea_go_og_down@result[gsea_go_og_down@result$NES > 0, ]
+
+### Underexpressed terms plot
+gsea_go_og_down_plot <- enrichplot::dotplot(gsea_go_og_down,
+                                            x = "GeneRatio",
+                                            color = "p.adjust",
+                                            showCategory = 20,
+                                            font.size = 10,
+                                            orderBy = "x",
+                                            label_format = function(x)
+                                              stringr::str_wrap(x, width = 60)) +
+  ggtitle("GSEA with mouse own genes, Downregulated terms. Adult vs 120 hpf") +
+  theme(plot.title = element_text(hjust = 0.5))
+
+ggsave(plot = gsea_go_og_plot,
+       filename = "dotplot_mouse_TMM_GSEA_OG_GOBP_adult_120_down.jpg",
+       path = paste0(dir_output, "plots/gsea/"),
+       dpi = 300)
+
+### Simplify GSEA result
+gsea_go_og_matrix <- GO_similarity(gsea_GO_OG@result[gsea_GO_OG@result$p.adjust < 0.05, "ID"],
+                                   ont = "BP",
+                                   db = "org.Mm.eg.db")
+gsea_go_og_sum <- simplifyGO(gsea_go_og_matrix)
+save(gsea_go_og_sum,
+     file = paste0(dir_output,
+                   "gene_set_enrichment_analysis/",
+                   "sum_mouse_TMM_GSEA_OG_GOBP_adult_120.RData"))
 
 gsea_GO_DB <- gseGO(geneList = geneList,
                     ont = "BP",
