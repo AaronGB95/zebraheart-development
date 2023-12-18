@@ -58,7 +58,7 @@ reactomeAnalysis(tt_120_72$table, "120_72", "zebrafish")
 load(paste0(dir_output,
             "differential_expression/",
             "human_annotated_tt_120_72.RData"))
-reactomeAnalysis(annotated_data, "72_48", "human")
+reactomeAnalysis(annotated_data, "120_72", "human")
 
 load(paste0(dir_output,
             "differential_expression/",
