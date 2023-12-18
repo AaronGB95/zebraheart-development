@@ -1,0 +1,988 @@
+---
+title: "Functional Classification"
+author: "Aarón García Blázquez"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+```{r dirs, echo=FALSE}
+dir_docs <- "~/zebraheart-development/01-documentation/"
+dir_src <- "~/zebraheart-development/02-scripts/"
+dir_data <- "~/zebraheart-development/03-data/"
+dir_output <- "~/zebraheart-development/04-output/"
+```
+
+```{r go_terms}
+ont1 <- "GO:0007507 (Heart development)"
+heart_development <- read.table(file = paste0(dir_docs,
+                                              "heart_development.txt"))
+
+ont2 <- "GO:0003015 (Cardiac contraction)"
+cardiac_contraction <- read.table(file = paste0(dir_docs,
+                                                "cardiac_contraction.txt"))
+
+ont3 <- "GO:0006816 (Calcium transport)"
+calcium_transport <- read.table(file = paste0(dir_docs,
+                                              "calcium_transport.txt"))
+```
+
+---
+
+# {.tabset}
+
+## Zebrafish {.tabset}
+
+### Own Gene Universe {.tabset}
+
+#### 72 hpf vs 48 hpf
+
+```{r}
+load(paste0(dir_output,
+            "gene_set_enrichment_analysis/",
+            "TMM_GSEA_OG_GOBP_72_48.RData"))
+
+sig_terms <- gsea_GO_OG@result[gsea_GO_OG@result$p.adjust < 0.05, ]
+```
+
+```{r}
+dev_terms <- sig_terms$ID %in% heart_development$V1
+
+n_terms <- length(which(dev_terms == TRUE))
+
+if (n_terms == 0) {
+  print(paste0("There are no significant terms related to ", ont1))
+} else if (n_terms == 1) {
+  print(paste0("There is ", n_terms, " significant term related to ", ont1))
+} else {
+  print(paste0("There are ", n_terms, " significant terms related to ", ont1))
+}
+```
+
+```{r}
+dev_terms <- sig_terms$ID %in% cardiac_contraction$V1
+
+n_terms <- length(which(dev_terms == TRUE))
+
+if (n_terms == 0) {
+  print(paste0("There are no significant terms related to ", ont2))
+} else if (n_terms == 1) {
+  print(paste0("There is ", n_terms, " significant term related to ", ont2))
+} else {
+  print(paste0("There are ", n_terms, " significant terms related to ", ont2))
+}
+```
+
+```{r}
+dev_terms <- sig_terms$ID %in% calcium_transport$V1
+
+n_terms <- length(which(dev_terms == TRUE))
+
+if (n_terms == 0) {
+  print(paste0("There are no significant terms related to ", ont3))
+} else if (n_terms == 1) {
+  print(paste0("There is ", n_terms, " significant term related to ", ont3))
+} else {
+  print(paste0("There are ", n_terms, " significant terms related to ", ont3))
+}
+```
+
+#### 120 hpf vs 72 hpf
+
+```{r}
+load(paste0(dir_output,
+            "gene_set_enrichment_analysis/",
+            "TMM_GSEA_OG_GOBP_120_72.RData"))
+
+sig_terms <- gsea_GO_OG@result[gsea_GO_OG@result$p.adjust < 0.05, ]
+```
+
+```{r}
+dev_terms <- sig_terms$ID %in% heart_development$V1
+
+n_terms <- length(which(dev_terms == TRUE))
+
+if (n_terms == 0) {
+  print(paste0("There are no significant terms related to ", ont1))
+} else if (n_terms == 1) {
+  print(paste0("There is ", n_terms, " significant term related to ", ont1))
+} else {
+  print(paste0("There are ", n_terms, " significant terms related to ", ont1))
+}
+```
+
+```{r}
+dev_terms <- sig_terms$ID %in% cardiac_contraction$V1
+
+n_terms <- length(which(dev_terms == TRUE))
+
+if (n_terms == 0) {
+  print(paste0("There are no significant terms related to ", ont2))
+} else if (n_terms == 1) {
+  print(paste0("There is ", n_terms, " significant term related to ", ont2))
+} else {
+  print(paste0("There are ", n_terms, " significant terms related to ", ont2))
+}
+```
+
+```{r}
+dev_terms <- sig_terms$ID %in% calcium_transport$V1
+
+n_terms <- length(which(dev_terms == TRUE))
+
+if (n_terms == 0) {
+  print(paste0("There are no significant terms related to ", ont3))
+} else if (n_terms == 1) {
+  print(paste0("There is ", n_terms, " significant term related to ", ont3))
+} else {
+  print(paste0("There are ", n_terms, " significant terms related to ", ont3))
+}
+```
+
+#### Adults vs 120 hpf
+
+```{r}
+load(paste0(dir_output,
+            "gene_set_enrichment_analysis/",
+            "TMM_GSEA_OG_GOBP_adult_120.RData"))
+
+sig_terms <- gsea_GO_OG@result[gsea_GO_OG@result$p.adjust < 0.05, ]
+```
+
+```{r}
+dev_terms <- sig_terms$ID %in% heart_development$V1
+
+n_terms <- length(which(dev_terms == TRUE))
+
+if (n_terms == 0) {
+  print(paste0("There are no significant terms related to ", ont1))
+} else if (n_terms == 1) {
+  print(paste0("There is ", n_terms, " significant term related to ", ont1))
+} else {
+  print(paste0("There are ", n_terms, " significant terms related to ", ont1))
+}
+```
+
+```{r}
+dev_terms <- sig_terms$ID %in% cardiac_contraction$V1
+
+n_terms <- length(which(dev_terms == TRUE))
+
+if (n_terms == 0) {
+  print(paste0("There are no significant terms related to ", ont2))
+} else if (n_terms == 1) {
+  print(paste0("There is ", n_terms, " significant term related to ", ont2))
+} else {
+  print(paste0("There are ", n_terms, " significant terms related to ", ont2))
+}
+```
+
+```{r}
+dev_terms <- sig_terms$ID %in% calcium_transport$V1
+
+n_terms <- length(which(dev_terms == TRUE))
+
+if (n_terms == 0) {
+  print(paste0("There are no significant terms related to ", ont3))
+} else if (n_terms == 1) {
+  print(paste0("There is ", n_terms, " significant term related to ", ont3))
+} else {
+  print(paste0("There are ", n_terms, " significant terms related to ", ont3))
+}
+```
+
+### Db Package Universe {.tabset}
+
+#### 72 hpf vs 48 hpf
+
+```{r}
+load(paste0(dir_output,
+            "gene_set_enrichment_analysis/",
+            "TMM_GSEA_DB_GOBP_72_48.RData"))
+
+sig_terms <- gsea_GO_DB@result[gsea_GO_DB@result$p.adjust < 0.05, ]
+```
+
+```{r}
+dev_terms <- sig_terms$ID %in% heart_development$V1
+
+n_terms <- length(which(dev_terms == TRUE))
+
+if (n_terms == 0) {
+  print(paste0("There are no significant terms related to ", ont1))
+} else if (n_terms == 1) {
+  print(paste0("There is ", n_terms, " significant term related to ", ont1))
+} else {
+  print(paste0("There are ", n_terms, " significant terms related to ", ont1))
+}
+```
+
+```{r}
+dev_terms <- sig_terms$ID %in% cardiac_contraction$V1
+
+n_terms <- length(which(dev_terms == TRUE))
+
+if (n_terms == 0) {
+  print(paste0("There are no significant terms related to ", ont2))
+} else if (n_terms == 1) {
+  print(paste0("There is ", n_terms, " significant term related to ", ont2))
+} else {
+  print(paste0("There are ", n_terms, " significant terms related to ", ont2))
+}
+```
+
+```{r}
+dev_terms <- sig_terms$ID %in% calcium_transport$V1
+
+n_terms <- length(which(dev_terms == TRUE))
+
+if (n_terms == 0) {
+  print(paste0("There are no significant terms related to ", ont3))
+} else if (n_terms == 1) {
+  print(paste0("There is ", n_terms, " significant term related to ", ont3))
+} else {
+  print(paste0("There are ", n_terms, " significant terms related to ", ont3))
+}
+```
+
+#### 120 hpf vs 72 hpf
+
+```{r}
+load(paste0(dir_output,
+            "gene_set_enrichment_analysis/",
+            "TMM_GSEA_DB_GOBP_120_72.RData"))
+
+sig_terms <- gsea_GO_DB@result[gsea_GO_DB@result$p.adjust < 0.05, ]
+```
+
+```{r}
+dev_terms <- sig_terms$ID %in% heart_development$V1
+
+n_terms <- length(which(dev_terms == TRUE))
+
+if (n_terms == 0) {
+  print(paste0("There are no significant terms related to ", ont1))
+} else if (n_terms == 1) {
+  print(paste0("There is ", n_terms, " significant term related to ", ont1))
+} else {
+  print(paste0("There are ", n_terms, " significant terms related to ", ont1))
+}
+```
+
+```{r}
+dev_terms <- sig_terms$ID %in% cardiac_contraction$V1
+
+n_terms <- length(which(dev_terms == TRUE))
+
+if (n_terms == 0) {
+  print(paste0("There are no significant terms related to ", ont2))
+} else if (n_terms == 1) {
+  print(paste0("There is ", n_terms, " significant term related to ", ont2))
+} else {
+  print(paste0("There are ", n_terms, " significant terms related to ", ont2))
+}
+```
+
+```{r}
+dev_terms <- sig_terms$ID %in% calcium_transport$V1
+
+n_terms <- length(which(dev_terms == TRUE))
+
+if (n_terms == 0) {
+  print(paste0("There are no significant terms related to ", ont3))
+} else if (n_terms == 1) {
+  print(paste0("There is ", n_terms, " significant term related to ", ont3))
+} else {
+  print(paste0("There are ", n_terms, " significant terms related to ", ont3))
+}
+```
+
+#### Adults vs 120 hpf
+
+```{r}
+load(paste0(dir_output,
+            "gene_set_enrichment_analysis/",
+            "TMM_GSEA_DB_GOBP_adult_120.RData"))
+
+sig_terms <- gsea_GO_DB@result[gsea_GO_DB@result$p.adjust < 0.05, ]
+```
+
+```{r}
+dev_terms <- sig_terms$ID %in% heart_development$V1
+
+n_terms <- length(which(dev_terms == TRUE))
+
+if (n_terms == 0) {
+  print(paste0("There are no significant terms related to ", ont1))
+} else if (n_terms == 1) {
+  print(paste0("There is ", n_terms, " significant term related to ", ont1))
+} else {
+  print(paste0("There are ", n_terms, " significant terms related to ", ont1))
+}
+```
+
+```{r}
+dev_terms <- sig_terms$ID %in% cardiac_contraction$V1
+
+n_terms <- length(which(dev_terms == TRUE))
+
+if (n_terms == 0) {
+  print(paste0("There are no significant terms related to ", ont2))
+} else if (n_terms == 1) {
+  print(paste0("There is ", n_terms, " significant term related to ", ont2))
+} else {
+  print(paste0("There are ", n_terms, " significant terms related to ", ont2))
+}
+```
+
+```{r}
+dev_terms <- sig_terms$ID %in% calcium_transport$V1
+
+n_terms <- length(which(dev_terms == TRUE))
+
+if (n_terms == 0) {
+  print(paste0("There are no significant terms related to ", ont3))
+} else if (n_terms == 1) {
+  print(paste0("There is ", n_terms, " significant term related to ", ont3))
+} else {
+  print(paste0("There are ", n_terms, " significant terms related to ", ont3))
+}
+```
+
+## Human {.tabset}
+
+### Own Gene Universe {.tabset}
+
+#### 72 hpf vs 48 hpf
+
+```{r}
+load(paste0(dir_output,
+            "gene_set_enrichment_analysis/",
+            "human_TMM_GSEA_OG_GOBP_72_48.RData"))
+
+sig_terms <- gsea_GO_OG@result[gsea_GO_OG@result$p.adjust < 0.05, ]
+```
+
+```{r}
+dev_terms <- sig_terms$ID %in% heart_development$V1
+
+n_terms <- length(which(dev_terms == TRUE))
+
+if (n_terms == 0) {
+  print(paste0("There are no significant terms related to ", ont1))
+} else if (n_terms == 1) {
+  print(paste0("There is ", n_terms, " significant term related to ", ont1))
+} else {
+  print(paste0("There are ", n_terms, " significant terms related to ", ont1))
+}
+```
+
+```{r}
+dev_terms <- sig_terms$ID %in% cardiac_contraction$V1
+
+n_terms <- length(which(dev_terms == TRUE))
+
+if (n_terms == 0) {
+  print(paste0("There are no significant terms related to ", ont2))
+} else if (n_terms == 1) {
+  print(paste0("There is ", n_terms, " significant term related to ", ont2))
+} else {
+  print(paste0("There are ", n_terms, " significant terms related to ", ont2))
+}
+```
+
+```{r}
+dev_terms <- sig_terms$ID %in% calcium_transport$V1
+
+n_terms <- length(which(dev_terms == TRUE))
+
+if (n_terms == 0) {
+  print(paste0("There are no significant terms related to ", ont3))
+} else if (n_terms == 1) {
+  print(paste0("There is ", n_terms, " significant term related to ", ont3))
+} else {
+  print(paste0("There are ", n_terms, " significant terms related to ", ont3))
+}
+```
+
+#### 120 hpf vs 72 hpf
+
+```{r}
+load(paste0(dir_output,
+            "gene_set_enrichment_analysis/",
+            "human_TMM_GSEA_OG_GOBP_120_72.RData"))
+
+sig_terms <- gsea_GO_OG@result[gsea_GO_OG@result$p.adjust < 0.05, ]
+```
+
+```{r}
+dev_terms <- sig_terms$ID %in% heart_development$V1
+
+n_terms <- length(which(dev_terms == TRUE))
+
+if (n_terms == 0) {
+  print(paste0("There are no significant terms related to ", ont1))
+} else if (n_terms == 1) {
+  print(paste0("There is ", n_terms, " significant term related to ", ont1))
+} else {
+  print(paste0("There are ", n_terms, " significant terms related to ", ont1))
+}
+```
+
+```{r}
+dev_terms <- sig_terms$ID %in% cardiac_contraction$V1
+
+n_terms <- length(which(dev_terms == TRUE))
+
+if (n_terms == 0) {
+  print(paste0("There are no significant terms related to ", ont2))
+} else if (n_terms == 1) {
+  print(paste0("There is ", n_terms, " significant term related to ", ont2))
+} else {
+  print(paste0("There are ", n_terms, " significant terms related to ", ont2))
+}
+```
+
+```{r}
+dev_terms <- sig_terms$ID %in% calcium_transport$V1
+
+n_terms <- length(which(dev_terms == TRUE))
+
+if (n_terms == 0) {
+  print(paste0("There are no significant terms related to ", ont3))
+} else if (n_terms == 1) {
+  print(paste0("There is ", n_terms, " significant term related to ", ont3))
+} else {
+  print(paste0("There are ", n_terms, " significant terms related to ", ont3))
+}
+```
+
+#### Adults vs 120 hpf
+
+```{r}
+load(paste0(dir_output,
+            "gene_set_enrichment_analysis/",
+            "human_TMM_GSEA_OG_GOBP_adult_120.RData"))
+
+sig_terms <- gsea_GO_OG@result[gsea_GO_OG@result$p.adjust < 0.05, ]
+```
+
+```{r}
+dev_terms <- sig_terms$ID %in% heart_development$V1
+
+n_terms <- length(which(dev_terms == TRUE))
+
+if (n_terms == 0) {
+  print(paste0("There are no significant terms related to ", ont1))
+} else if (n_terms == 1) {
+  print(paste0("There is ", n_terms, " significant term related to ", ont1))
+} else {
+  print(paste0("There are ", n_terms, " significant terms related to ", ont1))
+}
+```
+
+```{r}
+dev_terms <- sig_terms$ID %in% cardiac_contraction$V1
+
+n_terms <- length(which(dev_terms == TRUE))
+
+if (n_terms == 0) {
+  print(paste0("There are no significant terms related to ", ont2))
+} else if (n_terms == 1) {
+  print(paste0("There is ", n_terms, " significant term related to ", ont2))
+} else {
+  print(paste0("There are ", n_terms, " significant terms related to ", ont2))
+}
+```
+
+```{r}
+dev_terms <- sig_terms$ID %in% calcium_transport$V1
+
+n_terms <- length(which(dev_terms == TRUE))
+
+if (n_terms == 0) {
+  print(paste0("There are no significant terms related to ", ont3))
+} else if (n_terms == 1) {
+  print(paste0("There is ", n_terms, " significant term related to ", ont3))
+} else {
+  print(paste0("There are ", n_terms, " significant terms related to ", ont3))
+}
+```
+
+### Db Package Universe {.tabset}
+
+#### 72 hpf vs 48 hpf
+
+```{r}
+load(paste0(dir_output,
+            "gene_set_enrichment_analysis/",
+            "human_TMM_GSEA_DB_GOBP_72_48.RData"))
+
+sig_terms <- gsea_GO_DB@result[gsea_GO_DB@result$p.adjust < 0.05, ]
+```
+
+```{r}
+dev_terms <- sig_terms$ID %in% heart_development$V1
+
+n_terms <- length(which(dev_terms == TRUE))
+
+if (n_terms == 0) {
+  print(paste0("There are no significant terms related to ", ont1))
+} else if (n_terms == 1) {
+  print(paste0("There is ", n_terms, " significant term related to ", ont1))
+} else {
+  print(paste0("There are ", n_terms, " significant terms related to ", ont1))
+}
+```
+
+```{r}
+dev_terms <- sig_terms$ID %in% cardiac_contraction$V1
+
+n_terms <- length(which(dev_terms == TRUE))
+
+if (n_terms == 0) {
+  print(paste0("There are no significant terms related to ", ont2))
+} else if (n_terms == 1) {
+  print(paste0("There is ", n_terms, " significant term related to ", ont2))
+} else {
+  print(paste0("There are ", n_terms, " significant terms related to ", ont2))
+}
+```
+
+```{r}
+dev_terms <- sig_terms$ID %in% calcium_transport$V1
+
+n_terms <- length(which(dev_terms == TRUE))
+
+if (n_terms == 0) {
+  print(paste0("There are no significant terms related to ", ont3))
+} else if (n_terms == 1) {
+  print(paste0("There is ", n_terms, " significant term related to ", ont3))
+} else {
+  print(paste0("There are ", n_terms, " significant terms related to ", ont3))
+}
+```
+
+#### 120 hpf vs 72 hpf
+
+```{r}
+load(paste0(dir_output,
+            "gene_set_enrichment_analysis/",
+            "human_TMM_GSEA_DB_GOBP_120_72.RData"))
+
+sig_terms <- gsea_GO_DB@result[gsea_GO_DB@result$p.adjust < 0.05, ]
+```
+
+```{r}
+dev_terms <- sig_terms$ID %in% heart_development$V1
+
+n_terms <- length(which(dev_terms == TRUE))
+
+if (n_terms == 0) {
+  print(paste0("There are no significant terms related to ", ont1))
+} else if (n_terms == 1) {
+  print(paste0("There is ", n_terms, " significant term related to ", ont1))
+} else {
+  print(paste0("There are ", n_terms, " significant terms related to ", ont1))
+}
+```
+
+```{r}
+dev_terms <- sig_terms$ID %in% cardiac_contraction$V1
+
+n_terms <- length(which(dev_terms == TRUE))
+
+if (n_terms == 0) {
+  print(paste0("There are no significant terms related to ", ont2))
+} else if (n_terms == 1) {
+  print(paste0("There is ", n_terms, " significant term related to ", ont2))
+} else {
+  print(paste0("There are ", n_terms, " significant terms related to ", ont2))
+}
+```
+
+```{r}
+dev_terms <- sig_terms$ID %in% calcium_transport$V1
+
+n_terms <- length(which(dev_terms == TRUE))
+
+if (n_terms == 0) {
+  print(paste0("There are no significant terms related to ", ont3))
+} else if (n_terms == 1) {
+  print(paste0("There is ", n_terms, " significant term related to ", ont3))
+} else {
+  print(paste0("There are ", n_terms, " significant terms related to ", ont3))
+}
+```
+
+#### Adults vs 120 hpf
+
+```{r}
+load(paste0(dir_output,
+            "gene_set_enrichment_analysis/",
+            "human_TMM_GSEA_DB_GOBP_adult_120.RData"))
+
+sig_terms <- gsea_GO_DB@result[gsea_GO_DB@result$p.adjust < 0.05, ]
+```
+
+```{r}
+dev_terms <- sig_terms$ID %in% heart_development$V1
+
+n_terms <- length(which(dev_terms == TRUE))
+
+if (n_terms == 0) {
+  print(paste0("There are no significant terms related to ", ont1))
+} else if (n_terms == 1) {
+  print(paste0("There is ", n_terms, " significant term related to ", ont1))
+} else {
+  print(paste0("There are ", n_terms, " significant terms related to ", ont1))
+}
+```
+
+```{r}
+dev_terms <- sig_terms$ID %in% cardiac_contraction$V1
+
+n_terms <- length(which(dev_terms == TRUE))
+
+if (n_terms == 0) {
+  print(paste0("There are no significant terms related to ", ont2))
+} else if (n_terms == 1) {
+  print(paste0("There is ", n_terms, " significant term related to ", ont2))
+} else {
+  print(paste0("There are ", n_terms, " significant terms related to ", ont2))
+}
+```
+
+```{r}
+dev_terms <- sig_terms$ID %in% calcium_transport$V1
+
+n_terms <- length(which(dev_terms == TRUE))
+
+if (n_terms == 0) {
+  print(paste0("There are no significant terms related to ", ont3))
+} else if (n_terms == 1) {
+  print(paste0("There is ", n_terms, " significant term related to ", ont3))
+} else {
+  print(paste0("There are ", n_terms, " significant terms related to ", ont3))
+}
+```
+## Mouse {.tabset}
+
+### Own Gene Universe {.tabset}
+
+#### 72 hpf vs 48 hpf
+
+```{r}
+load(paste0(dir_output,
+            "gene_set_enrichment_analysis/",
+            "mouse_TMM_GSEA_OG_GOBP_72_48.RData"))
+
+sig_terms <- gsea_GO_OG@result[gsea_GO_OG@result$p.adjust < 0.05, ]
+```
+
+```{r}
+dev_terms <- sig_terms$ID %in% heart_development$V1
+
+n_terms <- length(which(dev_terms == TRUE))
+
+if (n_terms == 0) {
+  print(paste0("There are no significant terms related to ", ont1))
+} else if (n_terms == 1) {
+  print(paste0("There is ", n_terms, " significant term related to ", ont1))
+} else {
+  print(paste0("There are ", n_terms, " significant terms related to ", ont1))
+}
+```
+
+```{r}
+dev_terms <- sig_terms$ID %in% cardiac_contraction$V1
+
+n_terms <- length(which(dev_terms == TRUE))
+
+if (n_terms == 0) {
+  print(paste0("There are no significant terms related to ", ont2))
+} else if (n_terms == 1) {
+  print(paste0("There is ", n_terms, " significant term related to ", ont2))
+} else {
+  print(paste0("There are ", n_terms, " significant terms related to ", ont2))
+}
+```
+
+```{r}
+dev_terms <- sig_terms$ID %in% calcium_transport$V1
+
+n_terms <- length(which(dev_terms == TRUE))
+
+if (n_terms == 0) {
+  print(paste0("There are no significant terms related to ", ont3))
+} else if (n_terms == 1) {
+  print(paste0("There is ", n_terms, " significant term related to ", ont3))
+} else {
+  print(paste0("There are ", n_terms, " significant terms related to ", ont3))
+}
+```
+
+#### 120 hpf vs 72 hpf
+
+```{r}
+load(paste0(dir_output,
+            "gene_set_enrichment_analysis/",
+            "mouse_TMM_GSEA_OG_GOBP_120_72.RData"))
+
+sig_terms <- gsea_GO_OG@result[gsea_GO_OG@result$p.adjust < 0.05, ]
+```
+
+```{r}
+dev_terms <- sig_terms$ID %in% heart_development$V1
+
+n_terms <- length(which(dev_terms == TRUE))
+
+if (n_terms == 0) {
+  print(paste0("There are no significant terms related to ", ont1))
+} else if (n_terms == 1) {
+  print(paste0("There is ", n_terms, " significant term related to ", ont1))
+} else {
+  print(paste0("There are ", n_terms, " significant terms related to ", ont1))
+}
+```
+
+```{r}
+dev_terms <- sig_terms$ID %in% cardiac_contraction$V1
+
+n_terms <- length(which(dev_terms == TRUE))
+
+if (n_terms == 0) {
+  print(paste0("There are no significant terms related to ", ont2))
+} else if (n_terms == 1) {
+  print(paste0("There is ", n_terms, " significant term related to ", ont2))
+} else {
+  print(paste0("There are ", n_terms, " significant terms related to ", ont2))
+}
+```
+
+```{r}
+dev_terms <- sig_terms$ID %in% calcium_transport$V1
+
+n_terms <- length(which(dev_terms == TRUE))
+
+if (n_terms == 0) {
+  print(paste0("There are no significant terms related to ", ont3))
+} else if (n_terms == 1) {
+  print(paste0("There is ", n_terms, " significant term related to ", ont3))
+} else {
+  print(paste0("There are ", n_terms, " significant terms related to ", ont3))
+}
+```
+
+#### Adults vs 120 hpf
+
+```{r}
+load(paste0(dir_output,
+            "gene_set_enrichment_analysis/",
+            "mouse_TMM_GSEA_OG_GOBP_adult_120.RData"))
+
+sig_terms <- gsea_GO_OG@result[gsea_GO_OG@result$p.adjust < 0.05, ]
+```
+
+```{r}
+dev_terms <- sig_terms$ID %in% heart_development$V1
+
+n_terms <- length(which(dev_terms == TRUE))
+
+if (n_terms == 0) {
+  print(paste0("There are no significant terms related to ", ont1))
+} else if (n_terms == 1) {
+  print(paste0("There is ", n_terms, " significant term related to ", ont1))
+} else {
+  print(paste0("There are ", n_terms, " significant terms related to ", ont1))
+}
+```
+
+```{r}
+dev_terms <- sig_terms$ID %in% cardiac_contraction$V1
+
+n_terms <- length(which(dev_terms == TRUE))
+
+if (n_terms == 0) {
+  print(paste0("There are no significant terms related to ", ont2))
+} else if (n_terms == 1) {
+  print(paste0("There is ", n_terms, " significant term related to ", ont2))
+} else {
+  print(paste0("There are ", n_terms, " significant terms related to ", ont2))
+}
+```
+
+```{r}
+dev_terms <- sig_terms$ID %in% calcium_transport$V1
+
+n_terms <- length(which(dev_terms == TRUE))
+
+if (n_terms == 0) {
+  print(paste0("There are no significant terms related to ", ont3))
+} else if (n_terms == 1) {
+  print(paste0("There is ", n_terms, " significant term related to ", ont3))
+} else {
+  print(paste0("There are ", n_terms, " significant terms related to ", ont3))
+}
+```
+
+### Db Package Universe {.tabset}
+
+#### 72 hpf vs 48 hpf
+
+```{r}
+load(paste0(dir_output,
+            "gene_set_enrichment_analysis/",
+            "mouse_TMM_GSEA_DB_GOBP_72_48.RData"))
+
+sig_terms <- gsea_GO_DB@result[gsea_GO_DB@result$p.adjust < 0.05, ]
+```
+
+```{r}
+dev_terms <- sig_terms$ID %in% heart_development$V1
+
+n_terms <- length(which(dev_terms == TRUE))
+
+if (n_terms == 0) {
+  print(paste0("There are no significant terms related to ", ont1))
+} else if (n_terms == 1) {
+  print(paste0("There is ", n_terms, " significant term related to ", ont1))
+} else {
+  print(paste0("There are ", n_terms, " significant terms related to ", ont1))
+}
+```
+
+```{r}
+dev_terms <- sig_terms$ID %in% cardiac_contraction$V1
+
+n_terms <- length(which(dev_terms == TRUE))
+
+if (n_terms == 0) {
+  print(paste0("There are no significant terms related to ", ont2))
+} else if (n_terms == 1) {
+  print(paste0("There is ", n_terms, " significant term related to ", ont2))
+} else {
+  print(paste0("There are ", n_terms, " significant terms related to ", ont2))
+}
+```
+
+```{r}
+dev_terms <- sig_terms$ID %in% calcium_transport$V1
+
+n_terms <- length(which(dev_terms == TRUE))
+
+if (n_terms == 0) {
+  print(paste0("There are no significant terms related to ", ont3))
+} else if (n_terms == 1) {
+  print(paste0("There is ", n_terms, " significant term related to ", ont3))
+} else {
+  print(paste0("There are ", n_terms, " significant terms related to ", ont3))
+}
+```
+
+#### 120 hpf vs 72 hpf
+
+```{r}
+load(paste0(dir_output,
+            "gene_set_enrichment_analysis/",
+            "mouse_TMM_GSEA_DB_GOBP_120_72.RData"))
+
+sig_terms <- gsea_GO_DB@result[gsea_GO_DB@result$p.adjust < 0.05, ]
+```
+
+```{r}
+dev_terms <- sig_terms$ID %in% heart_development$V1
+
+n_terms <- length(which(dev_terms == TRUE))
+
+if (n_terms == 0) {
+  print(paste0("There are no significant terms related to ", ont1))
+} else if (n_terms == 1) {
+  print(paste0("There is ", n_terms, " significant term related to ", ont1))
+} else {
+  print(paste0("There are ", n_terms, " significant terms related to ", ont1))
+}
+```
+
+```{r}
+dev_terms <- sig_terms$ID %in% cardiac_contraction$V1
+
+n_terms <- length(which(dev_terms == TRUE))
+
+if (n_terms == 0) {
+  print(paste0("There are no significant terms related to ", ont2))
+} else if (n_terms == 1) {
+  print(paste0("There is ", n_terms, " significant term related to ", ont2))
+} else {
+  print(paste0("There are ", n_terms, " significant terms related to ", ont2))
+}
+```
+
+```{r}
+dev_terms <- sig_terms$ID %in% calcium_transport$V1
+
+n_terms <- length(which(dev_terms == TRUE))
+
+if (n_terms == 0) {
+  print(paste0("There are no significant terms related to ", ont3))
+} else if (n_terms == 1) {
+  print(paste0("There is ", n_terms, " significant term related to ", ont3))
+} else {
+  print(paste0("There are ", n_terms, " significant terms related to ", ont3))
+}
+```
+
+#### Adults vs 120 hpf
+
+```{r}
+load(paste0(dir_output,
+            "gene_set_enrichment_analysis/",
+            "mouse_TMM_GSEA_DB_GOBP_adult_120.RData"))
+
+sig_terms <- gsea_GO_DB@result[gsea_GO_DB@result$p.adjust < 0.05, ]
+```
+
+```{r}
+dev_terms <- sig_terms$ID %in% heart_development$V1
+
+n_terms <- length(which(dev_terms == TRUE))
+
+if (n_terms == 0) {
+  print(paste0("There are no significant terms related to ", ont1))
+} else if (n_terms == 1) {
+  print(paste0("There is ", n_terms, " significant term related to ", ont1))
+} else {
+  print(paste0("There are ", n_terms, " significant terms related to ", ont1))
+}
+```
+
+```{r}
+dev_terms <- sig_terms$ID %in% cardiac_contraction$V1
+
+n_terms <- length(which(dev_terms == TRUE))
+
+if (n_terms == 0) {
+  print(paste0("There are no significant terms related to ", ont2))
+} else if (n_terms == 1) {
+  print(paste0("There is ", n_terms, " significant term related to ", ont2))
+} else {
+  print(paste0("There are ", n_terms, " significant terms related to ", ont2))
+}
+```
+
+```{r}
+dev_terms <- sig_terms$ID %in% calcium_transport$V1
+
+n_terms <- length(which(dev_terms == TRUE))
+
+if (n_terms == 0) {
+  print(paste0("There are no significant terms related to ", ont3))
+} else if (n_terms == 1) {
+  print(paste0("There is ", n_terms, " significant term related to ", ont3))
+} else {
+  print(paste0("There are ", n_terms, " significant terms related to ", ont3))
+}
+```

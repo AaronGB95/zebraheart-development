@@ -1,0 +1,124 @@
+---
+title: "Report"
+author: "Aarón García Blázquez"
+date: "2023-12-19"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+```{r}
+dir_docs <- "~/zebraheart-development/01-documentation/"
+dir_src <- "~/zebraheart-development/02-scripts/"
+dir_data <- "~/zebraheart-development/03-data/"
+dir_output <- "~/zebraheart-development/04-output/"
+dir_load <- paste0(dir_output, "gene_set_enrichment_analysis/")
+```
+
+```{r}
+require(DT)
+```
+
+```{r}
+tabla <- function(table) {
+  table %>%
+  DT::datatable(extensions = 'Buttons',
+                options = list(pageLength = 10,                
+                             dom = 'Blfrtip',
+                             order = list(list(1, 'asc')),
+                             buttons = list('colvis', 
+                                             list(title = NULL,
+                                                  extend = list('copy'),
+                                                  exportOptions = list(columns = ":visible"),
+                                                  text = "Copy"),
+                                             list(title = NULL,
+                                                  extend = list('csv'),
+                                                  exportOptions = list(columns = ":visible"),
+                                                  text = ".csv"),
+                                             list(title = NULL,
+                                                  extend = list('excel'),
+                                                  exportOptions = list(columns = ":visible"),
+                                                  text = "Excel"),
+                                             list(title = "PDF Report",
+                                                  extend = list('pdf'),
+                                                  exportOptions = list(columns = ":visible"),
+                                                  text = ".pdf"),
+                                             list(title = NULL,
+                                                  extend = list('print'),
+                                                  exportOptions = list(columns = ":visible"),
+                                                  text = "Print")
+                                              )),
+              filter = "top", 
+              escape = FALSE, 
+              rownames = TRUE)  %>%
+  formatSignif(columns = c("enrichmentScore", "NES", "pvalue", "p.adjust", "qvalue"), digits=3) %>%
+  formatStyle('pvalue', 
+              fontWeight = styleInterval(0.05, c('bold', 'normal')), 
+              color = styleInterval(0.05, c('green', 'black'))) %>%
+  formatStyle('p.adjust', 
+              fontWeight = styleInterval(0.05, c('bold', 'normal')), 
+              color = styleInterval(0.05, c('green', 'black')))
+}
+```
+
+# Reactome Functional Analysis
+
+## Zebrafish
+
+### 72 hpf vs 48 hpf
+
+```{r}
+load(paste0(dir_load, "zebrafish_TMM_GSEA_Reactome_72_48.RData"))
+
+# differential expressed terms
+print(paste("Número de términos con genes significativos:", dim(gsea_reac)[1]))
+print(paste("Número de términos significativos:", length(which(gsea_reac@result$p.adjust < 0.05))))
+```
+
+```{r}
+tabla(gsea_reac@result)
+```
+
+### 120 hpf vs 72 hpf
+
+```{r}
+load(paste0(dir_load, "zebrafish_TMM_GSEA_Reactome_120_72.RData"))
+
+# differential expressed terms
+print(paste("Número de términos con genes significativos:", dim(gsea_reac)[1]))
+print(paste("Número de términos significativos:", length(which(gsea_reac@result$p.adjust < 0.05))))
+```
+
+```{r}
+tabla(gsea_reac@result)
+```
+
+### Adult vs 120 hpf
+
+```{r}
+load(paste0(dir_load, "zebrafish_TMM_GSEA_Reactome_adult_120.RData"))
+
+# differential expressed terms
+print(paste("Número de términos con genes significativos:", dim(gsea_reac)[1]))
+print(paste("Número de términos significativos:", length(which(gsea_reac@result$p.adjust < 0.05))))
+```
+
+```{r}
+tabla(gsea_reac@result)
+```
+
+# Términos Generales seleccionados para clasificación
+
+```{r}
+
+```
+
+
+# Clasificación de términos funcionales
+
+```{r}
+
+```
+

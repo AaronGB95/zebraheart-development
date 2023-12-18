@@ -101,14 +101,14 @@ gsea_go_og_up_plot <- enrichplot::dotplot(gsea_go_og_up,
   ggtitle("GSEA with own genes, Upregulated terms. 72 hpf vs 48 hpf") +
   theme(plot.title = element_text(hjust = 0.5))
 
-ggsave(plot = gsea_go_og_plot,
+ggsave(plot = gsea_go_og_up_plot,
        filename = "dotplot_TMM_GSEA_OG_GOBP_72_48_up.jpg",
        path = paste0(dir_output, "plots/gsea/"),
        dpi = 300)
 
 ### Filter underexpressed terms
 gsea_go_og_down <- gsea_GO_OG
-gsea_go_og_down@result <- gsea_go_og_down@result[gsea_go_og_down@result$NES > 0, ]
+gsea_go_og_down@result <- gsea_go_og_down@result[gsea_go_og_down@result$NES < 0, ]
 
 ### Underexpressed terms plot
 gsea_go_og_down_plot <- enrichplot::dotplot(gsea_go_og_down,
@@ -122,7 +122,7 @@ gsea_go_og_down_plot <- enrichplot::dotplot(gsea_go_og_down,
   ggtitle("GSEA with own genes, Downregulated terms. 72 hpf vs 48 hpf") +
   theme(plot.title = element_text(hjust = 0.5))
 
-ggsave(plot = gsea_go_og_plot,
+ggsave(plot = gsea_go_og_down_plot,
        filename = "dotplot_TMM_GSEA_OG_GOBP_72_48_down.jpg",
        path = paste0(dir_output, "plots/gsea/"),
        dpi = 300)
@@ -271,14 +271,14 @@ gsea_go_og_up_plot <- enrichplot::dotplot(gsea_go_og_up,
   ggtitle("GSEA with own genes, Upregulated terms. 120 hpf vs 72 hpf") +
   theme(plot.title = element_text(hjust = 0.5))
 
-ggsave(plot = gsea_go_og_plot,
+ggsave(plot = gsea_go_og_up_plot,
        filename = "dotplot_TMM_GSEA_OG_GOBP_120_72_up.jpg",
        path = paste0(dir_output, "plots/gsea/"),
        dpi = 300)
 
 ### Filter underexpressed terms
 gsea_go_og_down <- gsea_GO_OG
-gsea_go_og_down@result <- gsea_go_og_down@result[gsea_go_og_down@result$NES > 0, ]
+gsea_go_og_down@result <- gsea_go_og_down@result[gsea_go_og_down@result$NES < 0, ]
 
 ### Underexpressed terms plot
 gsea_go_og_down_plot <- enrichplot::dotplot(gsea_go_og_down,
@@ -292,7 +292,7 @@ gsea_go_og_down_plot <- enrichplot::dotplot(gsea_go_og_down,
   ggtitle("GSEA with own genes, Downregulated terms. 120 hpf vs 72 hpf") +
   theme(plot.title = element_text(hjust = 0.5))
 
-ggsave(plot = gsea_go_og_plot,
+ggsave(plot = gsea_go_og_down_plot,
        filename = "dotplot_TMM_GSEA_OG_GOBP_120_72_down.jpg",
        path = paste0(dir_output, "plots/gsea/"),
        dpi = 300)
@@ -434,17 +434,17 @@ gsea_go_og_up_plot <- enrichplot::dotplot(gsea_go_og_up,
                                           orderBy = "x",
                                           label_format = function(x)
                                             stringr::str_wrap(x, width = 60)) +
-  ggtitle("GSEA with own genes, Upregulated terms. 72 hpf vs 48 hpf") +
+  ggtitle("GSEA with own genes, Upregulated terms. Adults vs 120 hpf") +
   theme(plot.title = element_text(hjust = 0.5))
 
-ggsave(plot = gsea_go_og_plot,
-       filename = "dotplot_TMM_GSEA_OG_GOBP_72_48_up.jpg",
+ggsave(plot = gsea_go_og_up_plot,
+       filename = "dotplot_TMM_GSEA_OG_GOBP_adult_120_up.jpg",
        path = paste0(dir_output, "plots/gsea/"),
        dpi = 300)
 
 ### Filter underexpressed terms
 gsea_go_og_down <- gsea_GO_OG
-gsea_go_og_down@result <- gsea_go_og_down@result[gsea_go_og_down@result$NES > 0, ]
+gsea_go_og_down@result <- gsea_go_og_down@result[gsea_go_og_down@result$NES < 0, ]
 
 ### Underexpressed terms plot
 gsea_go_og_down_plot <- enrichplot::dotplot(gsea_go_og_down,
@@ -458,7 +458,7 @@ gsea_go_og_down_plot <- enrichplot::dotplot(gsea_go_og_down,
   ggtitle("GSEA with own genes, Downregulated terms. Adult vs 120 hpf") +
   theme(plot.title = element_text(hjust = 0.5))
 
-ggsave(plot = gsea_go_og_plot,
+ggsave(plot = gsea_go_og_down_plot,
        filename = "dotplot_TMM_GSEA_OG_GOBP_adult_120_down.jpg",
        path = paste0(dir_output, "plots/gsea/"),
        dpi = 300)
@@ -633,14 +633,14 @@ gsea_go_og_up_plot <- enrichplot::dotplot(gsea_go_og_up,
   ggtitle("GSEA with human own genes, Upregulated terms. 72 hpf vs 48 hpf") +
   theme(plot.title = element_text(hjust = 0.5))
 
-ggsave(plot = gsea_go_og_plot,
+ggsave(plot = gsea_go_og_up_plot,
        filename = "dotplot_human_TMM_GSEA_OG_GOBP_72_48_up.jpg",
        path = paste0(dir_output, "plots/gsea/"),
        dpi = 300)
 
 ### Filter underexpressed terms
 gsea_go_og_down <- gsea_GO_OG
-gsea_go_og_down@result <- gsea_go_og_down@result[gsea_go_og_down@result$NES > 0, ]
+gsea_go_og_down@result <- gsea_go_og_down@result[gsea_go_og_down@result$NES < 0, ]
 
 ### Underexpressed terms plot
 gsea_go_og_down_plot <- enrichplot::dotplot(gsea_go_og_down,
@@ -654,7 +654,7 @@ gsea_go_og_down_plot <- enrichplot::dotplot(gsea_go_og_down,
   ggtitle("GSEA with human own genes, Downregulated terms. 72 hpf vs 48 hpf") +
   theme(plot.title = element_text(hjust = 0.5))
 
-ggsave(plot = gsea_go_og_plot,
+ggsave(plot = gsea_go_og_down_plot,
        filename = "dotplot_human_TMM_GSEA_OG_GOBP_72_48_down.jpg",
        path = paste0(dir_output, "plots/gsea/"),
        dpi = 300)
@@ -799,14 +799,14 @@ gsea_go_og_up_plot <- enrichplot::dotplot(gsea_go_og_up,
   ggtitle("GSEA with human own genes, Upregulated terms. 120 hpf vs 72 hpf") +
   theme(plot.title = element_text(hjust = 0.5))
 
-ggsave(plot = gsea_go_og_plot,
+ggsave(plot = gsea_go_og_up_plot,
        filename = "dotplot_human_TMM_GSEA_OG_GOBP_120_72_up.jpg",
        path = paste0(dir_output, "plots/gsea/"),
        dpi = 300)
 
 ### Filter underexpressed terms
 gsea_go_og_down <- gsea_GO_OG
-gsea_go_og_down@result <- gsea_go_og_down@result[gsea_go_og_down@result$NES > 0, ]
+gsea_go_og_down@result <- gsea_go_og_down@result[gsea_go_og_down@result$NES < 0, ]
 
 ### Underexpressed terms plot
 gsea_go_og_down_plot <- enrichplot::dotplot(gsea_go_og_down,
@@ -820,7 +820,7 @@ gsea_go_og_down_plot <- enrichplot::dotplot(gsea_go_og_down,
   ggtitle("GSEA with human own genes, Downregulated terms. 120 hpf vs 72 hpf") +
   theme(plot.title = element_text(hjust = 0.5))
 
-ggsave(plot = gsea_go_og_plot,
+ggsave(plot = gsea_go_og_down_plot,
        filename = "dotplot_human_TMM_GSEA_OG_GOBP_120_72_down.jpg",
        path = paste0(dir_output, "plots/gsea/"),
        dpi = 300)
@@ -965,14 +965,14 @@ gsea_go_og_up_plot <- enrichplot::dotplot(gsea_go_og_up,
   ggtitle("GSEA with human own genes, Upregulated terms. Adult vs 120 hpf") +
   theme(plot.title = element_text(hjust = 0.5))
 
-ggsave(plot = gsea_go_og_plot,
+ggsave(plot = gsea_go_og_up_plot,
        filename = "dotplot_human_TMM_GSEA_OG_GOBP_adult_120_up.jpg",
        path = paste0(dir_output, "plots/gsea/"),
        dpi = 300)
 
 ### Filter underexpressed terms
 gsea_go_og_down <- gsea_GO_OG
-gsea_go_og_down@result <- gsea_go_og_down@result[gsea_go_og_down@result$NES > 0, ]
+gsea_go_og_down@result <- gsea_go_og_down@result[gsea_go_og_down@result$NES < 0, ]
 
 ### Underexpressed terms plot
 gsea_go_og_down_plot <- enrichplot::dotplot(gsea_go_og_down,
@@ -986,7 +986,7 @@ gsea_go_og_down_plot <- enrichplot::dotplot(gsea_go_og_down,
   ggtitle("GSEA with human own genes, Downregulated terms. Adult vs 120 hpf") +
   theme(plot.title = element_text(hjust = 0.5))
 
-ggsave(plot = gsea_go_og_plot,
+ggsave(plot = gsea_go_og_down_plot,
        filename = "dotplot_human_TMM_GSEA_OG_GOBP_adult_120_down.jpg",
        path = paste0(dir_output, "plots/gsea/"),
        dpi = 300)
@@ -1159,14 +1159,14 @@ gsea_go_og_up_plot <- enrichplot::dotplot(gsea_go_og_up,
   ggtitle("GSEA with mouse own genes, Upregulated terms. 72 hpf vs 48 hpf") +
   theme(plot.title = element_text(hjust = 0.5))
 
-ggsave(plot = gsea_go_og_plot,
+ggsave(plot = gsea_go_og_up_plot,
        filename = "dotplot_mouse_TMM_GSEA_OG_GOBP_72_48_up.jpg",
        path = paste0(dir_output, "plots/gsea/"),
        dpi = 300)
 
 ### Filter underexpressed terms
 gsea_go_og_down <- gsea_GO_OG
-gsea_go_og_down@result <- gsea_go_og_down@result[gsea_go_og_down@result$NES > 0, ]
+gsea_go_og_down@result <- gsea_go_og_down@result[gsea_go_og_down@result$NES < 0, ]
 
 ### Underexpressed terms plot
 gsea_go_og_down_plot <- enrichplot::dotplot(gsea_go_og_down,
@@ -1180,7 +1180,7 @@ gsea_go_og_down_plot <- enrichplot::dotplot(gsea_go_og_down,
   ggtitle("GSEA with mouse own genes, Downregulated terms. 72 hpf vs 48 hpf") +
   theme(plot.title = element_text(hjust = 0.5))
 
-ggsave(plot = gsea_go_og_plot,
+ggsave(plot = gsea_go_og_down_plot,
        filename = "dotplot_mouse_TMM_GSEA_OG_GOBP_72_48_down.jpg",
        path = paste0(dir_output, "plots/gsea/"),
        dpi = 300)
@@ -1322,14 +1322,14 @@ gsea_go_og_up_plot <- enrichplot::dotplot(gsea_go_og_up,
   ggtitle("GSEA with mouse own genes, Upregulated terms. 120 hpf vs 72 hpf") +
   theme(plot.title = element_text(hjust = 0.5))
 
-ggsave(plot = gsea_go_og_plot,
+ggsave(plot = gsea_go_og_up_plot,
        filename = "dotplot_mouse_TMM_GSEA_OG_GOBP_120_72_up.jpg",
        path = paste0(dir_output, "plots/gsea/"),
        dpi = 300)
 
 ### Filter underexpressed terms
 gsea_go_og_down <- gsea_GO_OG
-gsea_go_og_down@result <- gsea_go_og_down@result[gsea_go_og_down@result$NES > 0, ]
+gsea_go_og_down@result <- gsea_go_og_down@result[gsea_go_og_down@result$NES < 0, ]
 
 ### Underexpressed terms plot
 gsea_go_og_down_plot <- enrichplot::dotplot(gsea_go_og_down,
@@ -1343,7 +1343,7 @@ gsea_go_og_down_plot <- enrichplot::dotplot(gsea_go_og_down,
   ggtitle("GSEA with mouse own genes, Downregulated terms. 120 hpf vs 72 hpf") +
   theme(plot.title = element_text(hjust = 0.5))
 
-ggsave(plot = gsea_go_og_plot,
+ggsave(plot = gsea_go_og_down_plot,
        filename = "dotplot_mouse_TMM_GSEA_OG_GOBP_120_72_down.jpg",
        path = paste0(dir_output, "plots/gsea/"),
        dpi = 300)
@@ -1486,14 +1486,14 @@ gsea_go_og_up_plot <- enrichplot::dotplot(gsea_go_og_up,
   ggtitle("GSEA with mouse own genes, Upregulated terms. Adult vs 120 hpf") +
   theme(plot.title = element_text(hjust = 0.5))
 
-ggsave(plot = gsea_go_og_plot,
+ggsave(plot = gsea_go_og_up_plot,
        filename = "dotplot_mouse_TMM_GSEA_OG_GOBP_adult_120_up.jpg",
        path = paste0(dir_output, "plots/gsea/"),
        dpi = 300)
 
 ### Filter underexpressed terms
 gsea_go_og_down <- gsea_GO_OG
-gsea_go_og_down@result <- gsea_go_og_down@result[gsea_go_og_down@result$NES > 0, ]
+gsea_go_og_down@result <- gsea_go_og_down@result[gsea_go_og_down@result$NES < 0, ]
 
 ### Underexpressed terms plot
 gsea_go_og_down_plot <- enrichplot::dotplot(gsea_go_og_down,
@@ -1507,7 +1507,7 @@ gsea_go_og_down_plot <- enrichplot::dotplot(gsea_go_og_down,
   ggtitle("GSEA with mouse own genes, Downregulated terms. Adult vs 120 hpf") +
   theme(plot.title = element_text(hjust = 0.5))
 
-ggsave(plot = gsea_go_og_plot,
+ggsave(plot = gsea_go_og_down_plot,
        filename = "dotplot_mouse_TMM_GSEA_OG_GOBP_adult_120_down.jpg",
        path = paste0(dir_output, "plots/gsea/"),
        dpi = 300)
