@@ -1,0 +1,48 @@
+---
+title: "Gene restriction"
+author: "Aarón García Blázquez"
+date: "2023-12-20"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r packages}
+
+```
+
+```{r directories}
+dir_docs <- "~/zebraheart-development/01-documentation/"
+dir_src <- "~/zebraheart-development/02-scripts/"
+dir_data <- "~/zebraheart-development/03-data/"
+dir_output <- "~/zebraheart-development/04-output/"
+```
+
+## Data load
+
+```{r}
+counts <- read.table(file = paste0(dir_data,
+                                   "datatables/",
+                                   "datamatrix.txt"))
+```
+
+```{r}
+phenodata <- read.table(file = paste0(dir_docs,
+                                      "phenodata_4_groups.txt"),
+                        sep = "\t",
+                        header = TRUE)
+```
+
+## Data trim
+
+
+
+
+
+
+
+
+
+
