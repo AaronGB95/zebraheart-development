@@ -10,7 +10,19 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ```{r packages}
-
+require(edgeR)
+require(preprocessCore)
+require(ggplot2)
+require(tidyverse)
+require(data.table)
+require(knitr)
+require(dplyr)
+require(ggpubr)
+require(ggdendro)
+require(PCAtools)
+require(tidyr)
+require(tibble)
+require(RColorBrewer)
 ```
 
 ```{r directories}
@@ -18,6 +30,10 @@ dir_docs <- "~/zebraheart-development/01-documentation/"
 dir_src <- "~/zebraheart-development/02-scripts/"
 dir_data <- "~/zebraheart-development/03-data/"
 dir_output <- "~/zebraheart-development/04-output/"
+```
+
+```{r}
+threshold <- 100
 ```
 
 ## Data load
@@ -32,11 +48,78 @@ counts <- read.table(file = paste0(dir_data,
 phenodata <- read.table(file = paste0(dir_docs,
                                       "phenodata_4_groups.txt"),
                         sep = "\t",
-                        header = TRUE)
+                        header = TRUE,
+                        row.names = 1)
 ```
 
-## Data trim
+## Data trimming
 
+```{r}
+datamatrix <- as.data.frame(counts[rowSums(counts) >= threshold, ])
+```
+
+## Normalization
+
+```{r}
+# Create a DGEList object
+dge_list <- DGEList(counts = datamatrix)
+
+# Calculate library sizes and normalize for RNA composition
+dge_list <- calcNormFactors(dge_list, method = "TMM")
+
+# Get the normalized counts
+datamatrix <- as.data.frame(cpm(dge_list, log = FALSE))
+```
+
+## Exploratory Analysis
+
+### Boxplot
+
+```{r}
+group <- as.factor(phenodata$Set)
+
+log2(datamatrix + 1) %>%
+  rownames_to_column("Genes") %>%
+  gather(Sample, Sample_value, -Genes) %>%
+  left_join(phenodata, by = "Sample") %>%
+  ggplot(aes(x = Sample, y = Sample_value, fill = Age)) +
+  geom_boxplot() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+```
+
+### PCA
+
+```{r}
+p <- pca(datamatrix, metadata = phenodata)
+
+biplot(p,
+       colby = "Age",
+       legendPosition = "right")
+```
+
+### Clustering
+
+```{r}
+correlation <- cor(datamatrix)
+
+distance <- as.dist((1 - correlation) / 2)
+
+dd <- hclust(distance)
+
+ddata_x <- dendro_data(dd)
+
+ddata_x$labels <- merge(label(ddata_x),
+                       phenodata,
+                       by.x = "label",
+                       by.y = "Sample")
+
+dendroplot <- ggplot(segment(ddata_x)) +
+  geom_segment(aes(x = x, y = y, xend = xend, yend = yend)) +
+  geom_text(data = label(ddata_x),
+            aes(label = label, x = x, y = 0, colour = Age, hjust = 0)) +
+  coord_flip() + scale_y_reverse(expand = c(0.2, 0)) +
+  labs(color = "Age")
+```
 
 
 
