@@ -38,14 +38,24 @@ calcium_transport <- read.table(file = paste0(dir_docs,
 
 ### Own Gene Universe {.tabset}
 
+```{r}
+file_name = "zebrafish_OG_GOBP"
+knitr::include_graphics(path = paste0(dir_output,
+                                      "plots/functional_classification/",
+                                      file_name,
+                                      ".png"))
+```
+
 #### 72 hpf vs 48 hpf
 
 ```{r}
 load(paste0(dir_output,
             "gene_set_enrichment_analysis/",
-            "TMM_GSEA_OG_GOBP_72_48.RData"))
+            "zebrafish_TMM_GSEA_OG_GOBP_72_48.RData"))
 
-sig_terms <- gsea_GO_OG@result[gsea_GO_OG@result$p.adjust < 0.05, ]
+sig_terms <- gsea_result@result[gsea_result@result$p.adjust < 0.05, ]
+
+print(paste0("Number of significant terms: ", nrow(sig_terms)))
 ```
 
 ```{r}
@@ -95,9 +105,11 @@ if (n_terms == 0) {
 ```{r}
 load(paste0(dir_output,
             "gene_set_enrichment_analysis/",
-            "TMM_GSEA_OG_GOBP_120_72.RData"))
+            "zebrafish_TMM_GSEA_OG_GOBP_120_72.RData"))
 
-sig_terms <- gsea_GO_OG@result[gsea_GO_OG@result$p.adjust < 0.05, ]
+sig_terms <- gsea_result@result[gsea_result@result$p.adjust < 0.05, ]
+
+print(paste0("Number of significant terms: ", nrow(sig_terms)))
 ```
 
 ```{r}
@@ -147,9 +159,11 @@ if (n_terms == 0) {
 ```{r}
 load(paste0(dir_output,
             "gene_set_enrichment_analysis/",
-            "TMM_GSEA_OG_GOBP_adult_120.RData"))
+            "zebrafish_TMM_GSEA_OG_GOBP_adult_120.RData"))
 
-sig_terms <- gsea_GO_OG@result[gsea_GO_OG@result$p.adjust < 0.05, ]
+sig_terms <- gsea_result@result[gsea_result@result$p.adjust < 0.05, ]
+
+print(paste0("Number of significant terms: ", nrow(sig_terms)))
 ```
 
 ```{r}
@@ -193,17 +207,29 @@ if (n_terms == 0) {
   print(paste0("There are ", n_terms, " significant terms related to ", ont3))
 }
 ```
+
+### {-}
 
 ### Db Package Universe {.tabset}
 
+```{r}
+file_name = "zebrafish_DB_GOBP"
+knitr::include_graphics(path = paste0(dir_output,
+                                      "plots/functional_classification/",
+                                      file_name,
+                                      ".png"))
+```
+
 #### 72 hpf vs 48 hpf
 
 ```{r}
 load(paste0(dir_output,
             "gene_set_enrichment_analysis/",
-            "TMM_GSEA_DB_GOBP_72_48.RData"))
+            "zebrafish_TMM_GSEA_DB_GOBP_72_48.RData"))
 
-sig_terms <- gsea_GO_DB@result[gsea_GO_DB@result$p.adjust < 0.05, ]
+sig_terms <- gsea_result@result[gsea_result@result$p.adjust < 0.05, ]
+
+print(paste0("Number of significant terms: ", nrow(sig_terms)))
 ```
 
 ```{r}
@@ -253,9 +279,11 @@ if (n_terms == 0) {
 ```{r}
 load(paste0(dir_output,
             "gene_set_enrichment_analysis/",
-            "TMM_GSEA_DB_GOBP_120_72.RData"))
+            "zebrafish_TMM_GSEA_DB_GOBP_120_72.RData"))
 
-sig_terms <- gsea_GO_DB@result[gsea_GO_DB@result$p.adjust < 0.05, ]
+sig_terms <- gsea_result@result[gsea_result@result$p.adjust < 0.05, ]
+
+print(paste0("Number of significant terms: ", nrow(sig_terms)))
 ```
 
 ```{r}
@@ -305,9 +333,11 @@ if (n_terms == 0) {
 ```{r}
 load(paste0(dir_output,
             "gene_set_enrichment_analysis/",
-            "TMM_GSEA_DB_GOBP_adult_120.RData"))
+            "zebrafish_TMM_GSEA_DB_GOBP_adult_120.RData"))
 
-sig_terms <- gsea_GO_DB@result[gsea_GO_DB@result$p.adjust < 0.05, ]
+sig_terms <- gsea_result@result[gsea_result@result$p.adjust < 0.05, ]
+
+print(paste0("Number of significant terms: ", nrow(sig_terms)))
 ```
 
 ```{r}
@@ -351,10 +381,20 @@ if (n_terms == 0) {
   print(paste0("There are ", n_terms, " significant terms related to ", ont3))
 }
 ```
+
+### {-}
 
 ## Human {.tabset}
 
 ### Own Gene Universe {.tabset}
+
+```{r}
+file_name = "human_OG_GOBP"
+knitr::include_graphics(path = paste0(dir_output,
+                                      "plots/functional_classification/",
+                                      file_name,
+                                      ".png"))
+```
 
 #### 72 hpf vs 48 hpf
 
@@ -363,7 +403,9 @@ load(paste0(dir_output,
             "gene_set_enrichment_analysis/",
             "human_TMM_GSEA_OG_GOBP_72_48.RData"))
 
-sig_terms <- gsea_GO_OG@result[gsea_GO_OG@result$p.adjust < 0.05, ]
+sig_terms <- gsea_result@result[gsea_result@result$p.adjust < 0.05, ]
+
+print(paste0("Number of significant terms: ", nrow(sig_terms)))
 ```
 
 ```{r}
@@ -415,7 +457,9 @@ load(paste0(dir_output,
             "gene_set_enrichment_analysis/",
             "human_TMM_GSEA_OG_GOBP_120_72.RData"))
 
-sig_terms <- gsea_GO_OG@result[gsea_GO_OG@result$p.adjust < 0.05, ]
+sig_terms <- gsea_result@result[gsea_result@result$p.adjust < 0.05, ]
+
+print(paste0("Number of significant terms: ", nrow(sig_terms)))
 ```
 
 ```{r}
@@ -467,7 +511,9 @@ load(paste0(dir_output,
             "gene_set_enrichment_analysis/",
             "human_TMM_GSEA_OG_GOBP_adult_120.RData"))
 
-sig_terms <- gsea_GO_OG@result[gsea_GO_OG@result$p.adjust < 0.05, ]
+sig_terms <- gsea_result@result[gsea_result@result$p.adjust < 0.05, ]
+
+print(paste0("Number of significant terms: ", nrow(sig_terms)))
 ```
 
 ```{r}
@@ -512,7 +558,17 @@ if (n_terms == 0) {
 }
 ```
 
+### {-}
+
 ### Db Package Universe {.tabset}
+
+```{r}
+file_name = "human_DB_GOBP"
+knitr::include_graphics(path = paste0(dir_output,
+                                      "plots/functional_classification/",
+                                      file_name,
+                                      ".png"))
+```
 
 #### 72 hpf vs 48 hpf
 
@@ -521,7 +577,9 @@ load(paste0(dir_output,
             "gene_set_enrichment_analysis/",
             "human_TMM_GSEA_DB_GOBP_72_48.RData"))
 
-sig_terms <- gsea_GO_DB@result[gsea_GO_DB@result$p.adjust < 0.05, ]
+sig_terms <- gsea_result@result[gsea_result@result$p.adjust < 0.05, ]
+
+print(paste0("Number of significant terms: ", nrow(sig_terms)))
 ```
 
 ```{r}
@@ -573,7 +631,9 @@ load(paste0(dir_output,
             "gene_set_enrichment_analysis/",
             "human_TMM_GSEA_DB_GOBP_120_72.RData"))
 
-sig_terms <- gsea_GO_DB@result[gsea_GO_DB@result$p.adjust < 0.05, ]
+sig_terms <- gsea_result@result[gsea_result@result$p.adjust < 0.05, ]
+
+print(paste0("Number of significant terms: ", nrow(sig_terms)))
 ```
 
 ```{r}
@@ -625,7 +685,9 @@ load(paste0(dir_output,
             "gene_set_enrichment_analysis/",
             "human_TMM_GSEA_DB_GOBP_adult_120.RData"))
 
-sig_terms <- gsea_GO_DB@result[gsea_GO_DB@result$p.adjust < 0.05, ]
+sig_terms <- gsea_result@result[gsea_result@result$p.adjust < 0.05, ]
+
+print(paste0("Number of significant terms: ", nrow(sig_terms)))
 ```
 
 ```{r}
@@ -669,9 +731,20 @@ if (n_terms == 0) {
   print(paste0("There are ", n_terms, " significant terms related to ", ont3))
 }
 ```
+
+### {-}
+
 ## Mouse {.tabset}
 
 ### Own Gene Universe {.tabset}
+
+```{r}
+file_name = "mouse_OG_GOBP"
+knitr::include_graphics(path = paste0(dir_output,
+                                      "plots/functional_classification/",
+                                      file_name,
+                                      ".png"))
+```
 
 #### 72 hpf vs 48 hpf
 
@@ -680,7 +753,9 @@ load(paste0(dir_output,
             "gene_set_enrichment_analysis/",
             "mouse_TMM_GSEA_OG_GOBP_72_48.RData"))
 
-sig_terms <- gsea_GO_OG@result[gsea_GO_OG@result$p.adjust < 0.05, ]
+sig_terms <- gsea_result@result[gsea_result@result$p.adjust < 0.05, ]
+
+print(paste0("Number of significant terms: ", nrow(sig_terms)))
 ```
 
 ```{r}
@@ -732,7 +807,9 @@ load(paste0(dir_output,
             "gene_set_enrichment_analysis/",
             "mouse_TMM_GSEA_OG_GOBP_120_72.RData"))
 
-sig_terms <- gsea_GO_OG@result[gsea_GO_OG@result$p.adjust < 0.05, ]
+sig_terms <- gsea_result@result[gsea_result@result$p.adjust < 0.05, ]
+
+print(paste0("Number of significant terms: ", nrow(sig_terms)))
 ```
 
 ```{r}
@@ -784,7 +861,9 @@ load(paste0(dir_output,
             "gene_set_enrichment_analysis/",
             "mouse_TMM_GSEA_OG_GOBP_adult_120.RData"))
 
-sig_terms <- gsea_GO_OG@result[gsea_GO_OG@result$p.adjust < 0.05, ]
+sig_terms <- gsea_result@result[gsea_result@result$p.adjust < 0.05, ]
+
+print(paste0("Number of significant terms: ", nrow(sig_terms)))
 ```
 
 ```{r}
@@ -829,7 +908,17 @@ if (n_terms == 0) {
 }
 ```
 
+### {-}
+
 ### Db Package Universe {.tabset}
+
+```{r}
+file_name = "mouse_DB_GOBP"
+knitr::include_graphics(path = paste0(dir_output,
+                                      "plots/functional_classification/",
+                                      file_name,
+                                      ".png"))
+```
 
 #### 72 hpf vs 48 hpf
 
@@ -838,7 +927,9 @@ load(paste0(dir_output,
             "gene_set_enrichment_analysis/",
             "mouse_TMM_GSEA_DB_GOBP_72_48.RData"))
 
-sig_terms <- gsea_GO_DB@result[gsea_GO_DB@result$p.adjust < 0.05, ]
+sig_terms <- gsea_result@result[gsea_result@result$p.adjust < 0.05, ]
+
+print(paste0("Number of significant terms: ", nrow(sig_terms)))
 ```
 
 ```{r}
@@ -890,7 +981,9 @@ load(paste0(dir_output,
             "gene_set_enrichment_analysis/",
             "mouse_TMM_GSEA_DB_GOBP_120_72.RData"))
 
-sig_terms <- gsea_GO_DB@result[gsea_GO_DB@result$p.adjust < 0.05, ]
+sig_terms <- gsea_result@result[gsea_result@result$p.adjust < 0.05, ]
+
+print(paste0("Number of significant terms: ", nrow(sig_terms)))
 ```
 
 ```{r}
@@ -942,7 +1035,9 @@ load(paste0(dir_output,
             "gene_set_enrichment_analysis/",
             "mouse_TMM_GSEA_DB_GOBP_adult_120.RData"))
 
-sig_terms <- gsea_GO_DB@result[gsea_GO_DB@result$p.adjust < 0.05, ]
+sig_terms <- gsea_result@result[gsea_result@result$p.adjust < 0.05, ]
+
+print(paste0("Number of significant terms: ", nrow(sig_terms)))
 ```
 
 ```{r}
@@ -986,3 +1081,5 @@ if (n_terms == 0) {
   print(paste0("There are ", n_terms, " significant terms related to ", ont3))
 }
 ```
+
+### {-}

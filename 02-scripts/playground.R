@@ -1,37 +1,35 @@
-load(paste0(dir_output,
-            "gene_set_enrichment_analysis/",
-            "human_TMM_GSEA_DB_GOBP_adult_120.RData"))
+# Sample data
+analysis1 <- c(1, 2, 3, 4, 5)
+analysis2 <- c(3, 4, 5, 6, 7)
+analysis3 <- c(1, 2, 6, 7, 8)
 
-sig_terms <- gsea_GO_DB@result[gsea_GO_DB@result$p.adjust < 0.05, ]
+category1 <- c(1, 2, 3)
+category2 <- c(4, 5, 6)
+category3 <- c(7, 8, 9)
 
-dotplot(gsea_GO_DB,
-        showCategory = 20,
-        split = ".sign",
-        font.size = 10,
-        label_format = function(x)
-          stringr::str_wrap(x, width = 100)) +
-  facet_grid(.~.sign)
+# Create a function to count matches for each analysis and category, including 'Other'
+count_matches <- function(analysis, categories) {
+  matches <- sapply(categories, function(category) sum(analysis %in% category))
+  other_count <- length(analysis) - sum(matches)
+  result_table <- data.frame(Category = c(categories, "Other"), Count = c(matches, other_count))
+  return(result_table)
+}
 
-heart_development <- read.table(file = paste0(dir_docs,
-                                              "heart_development.txt"))
+# Count matches for each analysis and category, including 'Other'
+result_analysis1 <- count_matches(analysis1, list(category1, category2, category3))
+result_analysis2 <- count_matches(analysis2, list(category1, category2, category3))
+result_analysis3 <- count_matches(analysis3, list(category1, category2, category3))
 
-cardiac_contraction <- read.table(file = paste0(dir_docs,
-                                                "cardiac_contraction.txt"))
+# Display the results
+print("Analysis 1:")
+print(result_analysis1)
 
-calcium_transport <- read.table(file = paste0(dir_docs,
-                                              "calcium_transport.txt"))
+print("\nAnalysis 2:")
+print(result_analysis2)
 
-dev_terms <- sig_terms$ID %in% heart_development$V1
+print("\nAnalysis 3:")
+print(result_analysis3)
 
-table(dev_terms)
-
-dev_terms <- sig_terms$ID %in% cardiac_contraction$V1
-
-table(dev_terms)
-
-dev_terms <- sig_terms$ID %in% calcium_transport$V1
-
-table(dev_terms)
 
 
 
